@@ -1,7 +1,7 @@
-from typing import List, Dict, Any
+from typing import Any
 import ast
-from backend.sql_injection.injectionutil import get_all_vars
-from backend.sql_injection.vulnerabletraversal import VulnerableTraversalChecker
+from evase.sql_injection.injectionutil import get_all_vars
+from evase.sql_injection.vulnerabletraversal import VulnerableTraversalChecker
 
 
 class InjectionNodeVisitor(ast.NodeVisitor):

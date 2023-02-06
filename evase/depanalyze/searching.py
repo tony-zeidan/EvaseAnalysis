@@ -1,7 +1,7 @@
 import ast
-from backend.depanalyze.functioncallfinder import FunctionCallFinder
-from backend.depanalyze.modulestructure import ModuleAnalysisStruct
-from backend.depanalyze.projectstructure import ProjectAnalysisStruct, resolve_project_imports, dir_to_module_structure
+from evase.depanalyze.functioncallfinder import FunctionCallFinder
+from evase.structures.modulestructure import ModuleAnalysisStruct
+from evase.structures.projectstructure import ProjectAnalysisStruct, resolve_project_imports, dir_to_module_structure
 
 
 def get_function_call_origin(func_node: ast.Call, mdl_struct: ModuleAnalysisStruct, prj_struct: ProjectAnalysisStruct,

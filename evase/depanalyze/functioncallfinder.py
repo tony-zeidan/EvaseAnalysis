@@ -1,7 +1,7 @@
 import ast
 
-from backend.depanalyze.node import Node
-from backend.sql_injection.injectionutil import get_all_vars
+from evase.depanalyze.node import Node
+from evase.sql_injection.injectionutil import get_all_vars
 
 
 class FunctionCallFinder(ast.NodeVisitor):

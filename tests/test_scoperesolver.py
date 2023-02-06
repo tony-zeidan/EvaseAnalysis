@@ -3,7 +3,7 @@ import unittest
 import testutil
 import copy
 
-from backend.depanalyze.scoperesolver import ScopeResolver
+from evase.depanalyze.scoperesolver import ScopeResolver
 
 
 class TestScopeResolver(unittest.TestCase):

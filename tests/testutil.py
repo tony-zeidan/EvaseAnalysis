@@ -1,6 +1,6 @@
 import ast
 
-from backend.depanalyze.modulestructure import ModuleAnalysisStruct
+from evase.structures.modulestructure import ModuleAnalysisStruct
 
 prjroot1_filename = 'resources/prjstructtest'
 scres1_filename = 'resources/screstest.py'

@@ -1,7 +1,7 @@
 import unittest
 
-from backend.depanalyze.projectstructure import ProjectAnalysisStruct
-from backend.depanalyze.searching import *
+from evase.structures.projectstructure import ProjectAnalysisStruct
+from evase.depanalyze.searching import *
 from testutil import *
 
 

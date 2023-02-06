@@ -1,5 +1,5 @@
-from searching import *
-from projectstructure import *
+from evase.depanalyze.searching import *
+from evase.structures.projectstructure import *
 
 def get_usage_of_vul_function_test():
     print("get_usage_of_vul_function_test")

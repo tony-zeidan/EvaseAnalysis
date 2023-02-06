@@ -1,6 +1,6 @@
-from backend.depanalyze.modulestructure import ModuleAnalysisStruct
-from backend.depanalyze.projectstructure import ProjectAnalysisStruct
-from backend.sql_injection.injectionvisitor import InjectionNodeVisitor
+from evase.structures.modulestructure import ModuleAnalysisStruct
+from evase.structures.projectstructure import ProjectAnalysisStruct
+from evase.sql_injection.injectionvisitor import InjectionNodeVisitor
 
 import ast
 import os

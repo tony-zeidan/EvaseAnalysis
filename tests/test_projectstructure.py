@@ -3,7 +3,7 @@ from testutil import *
 
 import os
 
-from backend.depanalyze.projectstructure import ProjectAnalysisStruct, dir_to_module_structure
+from evase.structures.projectstructure import ProjectAnalysisStruct, dir_to_module_structure
 
 
 class TestProjectAnalysisStruct(unittest.TestCase):

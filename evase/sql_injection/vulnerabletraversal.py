@@ -1,9 +1,9 @@
 from typing import Collection, List
 import ast
 from collections import deque
-from backend.depanalyze.node import Node
-import backend.depanalyze.searching as searching
-import backend.sql_injection.injectionutil as injectionutil
+from evase.depanalyze.node import Node
+import evase.depanalyze.searching as searching
+import evase.sql_injection.injectionutil as injectionutil
 
 
 def copy_list_map_set(list_map_set):

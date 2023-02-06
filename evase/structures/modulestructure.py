@@ -1,5 +1,5 @@
 import ast
-from backend.depanalyze.scoperesolver import ScopeResolver
+from evase.depanalyze.scoperesolver import ScopeResolver
 
 
 class ModuleAnalysisStruct:

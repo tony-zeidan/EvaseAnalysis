@@ -3,10 +3,10 @@ import os
 from pathlib import Path
 from typing import Dict
 
-from backend.depanalyze.importresolver import ModuleImportResolver
-from backend.depanalyze.modulestructure import ModuleAnalysisStruct
-from backend.depanalyze.scoperesolver import ScopeResolver
-from backend.depanalyze.surfacedetector import SurfaceLevelVisitor
+from evase.depanalyze.importresolver import ModuleImportResolver
+from evase.structures.modulestructure import ModuleAnalysisStruct
+from evase.depanalyze.scoperesolver import ScopeResolver
+from evase.depanalyze.surfacedetector import SurfaceLevelVisitor
 
 
 def resolve_project_imports(dirpath: str, module_mapping: Dict[str, ModuleAnalysisStruct]):
