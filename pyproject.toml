@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=40.8.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "evase-analysis"
+authors = [
+    {name = "Tony Abou Zeidan", email="tony.azp25@gmail.com"},
+    {name = "Anthony Dooley", email="anthonydooley@cmail.carleton.ca"},
+    {name = "Ethan Chase", email="e281828c@gmail.com"},
+    {name = "Shaopeng Liu", email="shaopengliu@cmail.carleton.ca"},
+]
+description = "A Python package with tools for the detection of SQL injection vulnerabilities in projects."
+readme = "README.md"
+requires-python = ">=3.7, <=3.11"
+keywords = ["attack", "security", "SQL", "injection"]
+version="1.0.0"
+classifiers=[
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3"
+]
+
+[tool.setuptools.packages.find]
+exclude=["tests"]

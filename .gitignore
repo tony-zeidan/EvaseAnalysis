@@ -1,0 +1,9 @@
+*.idea/
+/backend/user_files
+
+# dependencies
+/node_modules
+venv
+__pycache__
+
+*/analysis_results.json

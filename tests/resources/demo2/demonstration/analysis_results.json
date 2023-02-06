@@ -1,0 +1,12 @@
+{
+    "sql_injection": {
+        "vulnerabilities": {
+            "demonstration.model": {
+                "demonstration.model.vulnerable_executor": [
+                    "demonstration.api.file_upload_hook"
+                ]
+            }
+        },
+        "found_any": true
+    }
+}
