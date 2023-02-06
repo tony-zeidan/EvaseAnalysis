@@ -11,8 +11,23 @@ so it is structured as such. To use it in a program, the user first needs to spe
 First the user defined a `ProjectStructure` object with the name and root directory of the project.
 
 ```python
-from depanalyze.
+from evase.structures.analysisperformer import AnalysisPerformer
+
+code_analyzer = AnalysisPerformer(
+    project_name="myProject",
+    project_root="<filepath to root>"
+)
+
+code_analyzer.perform_analysis()
+
+print(code_analyzer.get_results())
+
+# optionally, output to JSON
+code_analyzer.results_to_JSON("<output directory>")
 ```
 
 ## Installation
+The package will be installable via PyPI. For now clone the repository, and run the following command:
+
+`pip install .`
 
