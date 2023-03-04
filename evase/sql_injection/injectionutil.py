@@ -9,6 +9,7 @@ def get_function_params(node) -> list:
     :return: The set of the function parameters
     """
     params = []
+    print("test for pip update")
     args = node.args.args
     for arg in args:
         params.append(arg.arg)
