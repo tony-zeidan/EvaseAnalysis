@@ -3,15 +3,15 @@ import os
 from _ast import Module, ImportFrom, ClassDef, FunctionDef
 from pathlib import Path
 
-
 class ModuleImportResolver(ast.NodeTransformer):
-    def __init__(self, surface_values, directory):
+    def __init__(self, surface_values, directory, logger = None):
         self._directory = directory
         self._is_surface = True
         self._surface_imports = {}
         self._local_imports = {}
         self._surface_values = surface_values
         self._function_name = ""
+        self.logger = logger
 
     def get_dependencies(self):
         return self._surface_imports, self._local_imports
@@ -42,9 +42,15 @@ class ModuleImportResolver(ast.NodeTransformer):
                 if filepath.is_file():
                     alias_node.name = ".".join(vals)
 
+
+
+            print("SURFACE:", self._is_surface)
+            print("name:", name)
+            print("aliasname:", alias_node.name)
+            print("alias as:", alias_node.asname)
             if self._is_surface:
                 if alias_node.asname is None:
-                    self._surface_imports[name] = [alias_node.name, name]
+                    self._surface_imports[name] = [alias_node.name, None]
                 else:
                     self._surface_imports[alias_node.asname] = [alias_node.name, alias_node.asname]
             else:
@@ -82,15 +88,14 @@ class ModuleImportResolver(ast.NodeTransformer):
                 break
             if self._is_surface:
                 if not hasattr(alias_node, "asname") or alias_node.asname is None:
-                    self._surface_imports[alias_node.name] = [node.module, alias_node.name]
+                    self._surface_imports[alias_node.name] = [node.module, None]
                 else:
                     self._surface_imports[alias_node.asname] = [node.module, alias_node.name]
             else:
-                print(ast.dump(alias_node))
                 if not hasattr(alias_node, "asname") or alias_node.asname is None:
                     self._local_imports[self._function_name] = [node.module, alias_node.name]
                 else:
-                    self._local_imports[self._function_name] = [node.module, alias_node.name]
+                    self._local_imports[self._function_name] = [node.module, alias_node.asname]
 
         prev = self._is_surface
         self._is_surface = False

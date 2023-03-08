@@ -1,4 +1,4 @@
-import sqlite3
+import sqlite3 as sq
 
 
 def add_user_to_db(username: str, password: str) -> str:
@@ -9,7 +9,7 @@ def add_user_to_db(username: str, password: str) -> str:
     :param password: The password of the user
     :return: Add user message
     """
-    conn = sqlite3.connect('sample.db')
+    conn = sq.connect('sample.db')
     conn.execute(f"INSERT INTO USER ( userName, password) VALUES ('{username}', '{password}')")
     conn.commit()
     conn.close()
@@ -24,7 +24,7 @@ def get_user_from_db(username: str) -> list:
     :param username: The username
     :return: The user information
     """
-    conn = sqlite3.connect('sample.db')
+    conn = sq.connect('sample.db')
     print(username)
     curser = conn.execute(f"SELECT userName, password from USER where userName = '{username}'")
     userInfo = []

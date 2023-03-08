@@ -59,7 +59,8 @@ def dir_to_module_structure(dirpath: str) -> Dict[str, ModuleAnalysisStruct]:
         module_style = str(module_style).replace(os.sep, '.')
 
         with open(file, 'r') as openfile:
-            tree[module_style] = ModuleAnalysisStruct(module_style, ast.parse(openfile.read()))
+            path = os.path.abspath(file)
+            tree[module_style] = ModuleAnalysisStruct(module_style, ast.parse(openfile.read()), path)
 
     return tree
 

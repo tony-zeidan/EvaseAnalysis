@@ -1,4 +1,5 @@
 import ast
+import os
 
 from evase.structures.modulestructure import ModuleAnalysisStruct
 
@@ -20,4 +21,4 @@ def get_ast_from_filename(filename: str) -> ast.AST:
 
 
 def get_modulestruct(filename: str) -> ModuleAnalysisStruct:
-    return ModuleAnalysisStruct(filename, get_ast_from_filename(filename))
+    return ModuleAnalysisStruct(filename, get_ast_from_filename(filename), os.path.abspath(filename))

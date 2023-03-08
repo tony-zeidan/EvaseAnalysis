@@ -35,7 +35,7 @@ def print_execute_funcs(visitor: InjectionNodeVisitor):
 
 def get_modulestruct(filename: str):
     tree = get_ast_from_filename(filename)
-    return ModuleAnalysisStruct(filename, tree)
+    return ModuleAnalysisStruct(filename, tree, os.path.abspath(filename))
 
 def test_get_all_vars():
     path_here = os.path.dirname(os.path.realpath(__file__))

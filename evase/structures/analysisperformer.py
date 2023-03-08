@@ -1,9 +1,16 @@
+from collections import defaultdict
+from typing import Dict
+
+import networkx as nx
+
 from evase.structures.projectstructure import ProjectAnalysisStruct
 from evase.sql_injection.injectionvisitor import InjectionNodeVisitor
 
+import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
 import json
 import os
+from pprint import pprint
 
 
 class BehaviourAnalyzer(ABC):
@@ -14,7 +21,7 @@ class BehaviourAnalyzer(ABC):
             executor=None
     ):
         self.project_struct = project_struct
-        self.analysis_results = dict(vulnerabilities={}, found_any=False)
+        self.analysis_results = dict(vulnerabilities=[], found_any=False)
         self.executor = executor
 
     def get_project_struct(self):
@@ -51,7 +58,10 @@ class SQLInjectionBehaviourAnalyzer(BehaviourAnalyzer):
             print(results)
             if len(results) > 0:
                 self.analysis_results['found_any'] = True
-                self.analysis_results['vulnerabilities'][m_name] = results
+
+                initial_module_struct = m_struct.to_json()
+                initial_module_struct['vulnerabilities'] = results
+                self.analysis_results['vulnerabilities'].append(initial_module_struct)
 
         return self.analysis_results
 
@@ -84,6 +94,7 @@ class AnalysisPerformer:
 
         print(self.project_root)
         prj_struct = ProjectAnalysisStruct(self.project_name, self.project_root)
+        get_mdl_depdigraph(prj_struct)
 
         if self.sql_injection_detector is not None:
             self.sql_injection_detector.set_project_struct(prj_struct)
@@ -114,3 +125,94 @@ class AnalysisPerformer:
         with open(fpath, 'w') as f:
             f.write(jform)
         return jform
+
+
+def get_mdl_depgraph(prj: ProjectAnalysisStruct) -> Dict:
+    depgraph = {}
+    for k, v in prj.get_module_structure().items():
+        depgraph[k] = {}
+        for aname, (mdl_name, fn_name) in v.get_module_imports().items():
+
+            if mdl_name not in depgraph[k]:
+                depgraph[k][mdl_name] = []
+
+            if fn_name == aname:
+                continue
+
+            elif fn_name is None:
+                depgraph[k][mdl_name].append(aname)
+
+            else:
+                if fn_name not in depgraph[k][mdl_name]:
+                    depgraph[k][mdl_name].append(fn_name)
+
+        for fn_name, (mdl_name, _) in v.get_local_imports().items():
+
+            namer = f'{k}.{fn_name}'
+            if namer not in depgraph:
+                depgraph[namer] = []
+
+            depgraph[namer].append(mdl_name)
+
+    print("DEPGRAPH")
+    pprint(depgraph)
+    return depgraph
+
+
+def get_mdl_depgraphabs(prj: ProjectAnalysisStruct) -> Dict:
+    depgraph = {}
+    for k, v in prj.get_module_structure().items():
+        depgraph[k] = set()
+        for _, (mdl_name, _) in v.get_module_imports().items():
+            depgraph[k].add(mdl_name)
+
+        for _, (mdl_name, _) in v.get_local_imports().items():
+            depgraph[k].add(mdl_name)
+
+    print("DEPGRAPH")
+    pprint(depgraph)
+
+
+def get_mdl_depdigraph(prj: ProjectAnalysisStruct):
+    graph_info = get_mdl_depgraph(prj)
+
+    colors = ['red', 'green', 'blue', 'purple']
+
+    graph = nx.DiGraph()
+
+    for uses, defs_dct in graph_info.items():
+        if not graph.has_node(uses):
+            graph.add_node(uses, label=uses)
+        for defs, defs_props in defs_dct.items():
+            if not graph.has_node(defs):
+                graph.add_node(defs, label=defs)
+
+            if len(defs_props) == 0:
+                if not graph.has_edge(uses, defs):
+                    graph.add_edge(uses, defs)
+            else:
+                for def_prop in defs_props:
+                    namer = f'{defs}.{def_prop}'
+
+                    if not graph.has_node(namer):
+                        graph.add_node(namer, label=namer)
+
+                    if not graph.has_edge(defs, namer):
+                        graph.add_edge(defs, namer)
+
+                    if not graph.has_edge(uses, namer):
+                        graph.add_edge(uses, namer)
+
+    nx.draw(graph, node_size=300, with_labels=True, bbox=dict(facecolor="skyblue", edgecolor='black', boxstyle='round,pad=0.2'), connectionstyle="arc3,rad=0.1")
+    plt.show()
+    plt.savefig('depgraph', dpi='figure', format=None, metadata=None,
+            bbox_inches=None, pad_inches=0.1,
+            facecolor='auto', edgecolor='auto',
+            backend=None
+            )
+    return graph
+
+
+if __name__ == '__main__':
+    apr = AnalysisPerformer("demo", r"C:\courses\SYSC_4907\EvaseAnalysis\tests\resources\demo")
+    apr.perform_analysis()

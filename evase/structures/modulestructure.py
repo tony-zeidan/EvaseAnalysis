@@ -4,7 +4,7 @@ from evase.depanalyze.scoperesolver import ScopeResolver
 
 class ModuleAnalysisStruct:
 
-    def __init__(self, module_name: str, ast_tree: ast.AST):
+    def __init__(self, module_name: str, ast_tree: ast.AST, path: str):
         """
         A structure for the easier analysis of a single code module.
         Contains properties of the module such as scoping information.
@@ -14,6 +14,7 @@ class ModuleAnalysisStruct:
         """
         self.module_name = module_name
         self.ast_tree = ast_tree
+        self.path = path
         self.local_imports = {}
         self.module_imports = {}
         self.funcs = []
@@ -54,3 +55,9 @@ class ModuleAnalysisStruct:
 
     def set_module_imports(self, module_imports):
         self.module_imports = module_imports
+
+    def to_json(self):
+        return {
+            'pkg_name': self.module_name,
+            'mdl_path': self.path
+        }
