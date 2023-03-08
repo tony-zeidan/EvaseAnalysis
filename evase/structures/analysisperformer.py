@@ -159,6 +159,28 @@ def get_mdl_depgraph(prj: ProjectAnalysisStruct) -> Dict:
     return depgraph
 
 
+def add_node(g, n, groups):
+    spl = n.split(".")
+
+    print("ADD", n, groups)
+
+
+    if len(spl) > 1 and ".".join(spl[:len(spl)-1]) in groups:
+        parent = ".".join(spl[:len(spl)-1])
+
+        if not g.has_node(n):
+            groups[parent].add(n)
+            g.add_node(n, label=n)
+        if g.has_node(parent):
+            if not g.has_edge(parent, n):
+                print("add edge",parent, n)
+                g.add_edge(parent, n)
+    else:
+        if not g.has_node(n):
+            groups[n] = set()
+            g.add_node(n, label=n)
+
+
 def get_mdl_depgraphabs(prj: ProjectAnalysisStruct) -> Dict:
     depgraph = {}
     for k, v in prj.get_module_structure().items():
@@ -178,14 +200,13 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct):
 
     colors = ['red', 'green', 'blue', 'purple']
 
-    graph = nx.DiGraph()
+    graph = nx.DiGraph(name="Generated dependency graph")
 
+    groups = {}
     for uses, defs_dct in graph_info.items():
-        if not graph.has_node(uses):
-            graph.add_node(uses, label=uses)
+        add_node(graph, uses, groups)
         for defs, defs_props in defs_dct.items():
-            if not graph.has_node(defs):
-                graph.add_node(defs, label=defs)
+            add_node(graph, defs, groups)
 
             if len(defs_props) == 0:
                 if not graph.has_edge(uses, defs):
@@ -193,23 +214,22 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct):
             else:
                 for def_prop in defs_props:
                     namer = f'{defs}.{def_prop}'
+                    add_node(graph, namer, groups)
 
-                    if not graph.has_node(namer):
-                        graph.add_node(namer, label=namer)
-
-                    if not graph.has_edge(defs, namer):
-                        graph.add_edge(defs, namer)
+                    print("NAMER", namer)
 
                     if not graph.has_edge(uses, namer):
                         graph.add_edge(uses, namer)
 
-    nx.draw(graph, node_size=300, with_labels=True, bbox=dict(facecolor="skyblue", edgecolor='black', boxstyle='round,pad=0.2'), connectionstyle="arc3,rad=0.1")
+    print("HERE", graph.has_edge("backend.vul", "backend.vul.get_user_from_db"))
+    nx.draw(graph, node_size=800, with_labels=True,
+            bbox=dict(facecolor="skyblue", edgecolor='black', boxstyle='round,pad=0.4'), connectionstyle="arc3,rad=0.1")
     plt.show()
     plt.savefig('depgraph', dpi='figure', format=None, metadata=None,
-            bbox_inches=None, pad_inches=0.1,
-            facecolor='auto', edgecolor='auto',
-            backend=None
-            )
+                bbox_inches=None, pad_inches=0.1,
+                facecolor='auto', edgecolor='auto',
+                backend=None
+                )
     return graph
 
 
