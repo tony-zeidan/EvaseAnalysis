@@ -3,8 +3,9 @@ import os
 from _ast import Module, ImportFrom, ClassDef, FunctionDef
 from pathlib import Path
 
+
 class ModuleImportResolver(ast.NodeTransformer):
-    def __init__(self, surface_values, directory, logger = None):
+    def __init__(self, surface_values, directory, logger=None):
         self._directory = directory
         self._is_surface = True
         self._surface_imports = {}
@@ -41,8 +42,6 @@ class ModuleImportResolver(ast.NodeTransformer):
                 # if it exists in local directory it is a local file, not library
                 if filepath.is_file():
                     alias_node.name = ".".join(vals)
-
-
 
             print("SURFACE:", self._is_surface)
             print("name:", name)

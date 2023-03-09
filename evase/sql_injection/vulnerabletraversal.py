@@ -4,6 +4,7 @@ from collections import deque
 from evase.depanalyze.node import Node
 import evase.depanalyze.searching as searching
 import evase.sql_injection.injectionutil as injectionutil
+import networkx as nx
 
 
 def copy_list_map_set(list_map_set):
@@ -63,37 +64,55 @@ def determine_vul_params_location(vul_set: set, func_node):
     return params, lst
 
 
+def get_node_name(node):
+    return f'{node.get_module_name()}.{node.get_func_node().name}'
+
+
+def get_node_identifier(node):
+    return f'{node.get_module_name()} {node.get_func_node().name} {len(node.get_assignments())}'
+
+
 class VulnerableTraversalChecker:
     def traversal_from_exec(self, assignments: List[ast.Assign], func_node, injection_vars: Collection[ast.Name],
                             project_struct, module):
 
-        vulnerable_locations = set()
+        # allow to continuously add to the
         visited_func = set()  # unique with func name, module and num assignments
         queue = deque()
         modules = project_struct.get_module_structure()
-        queue.append(Node(func_node, assignments, injection_vars, module))
+
         print("start of bfs")
+        vulnerable_vars = set()
+
+        graph = nx.DiGraph()
+        start = Node(func_node, assignments, injection_vars, module)
+        graph.add_node(str(start))
+        queue.append(start)
+
         while len(queue) != 0:
             node = queue.popleft()
-            identifier = node.get_module_name() + " " + node.get_func_node().name + " " + str(
-                len(node.get_assignments()))
+
+            identifier = get_node_identifier(node)
             visited_func.add(identifier)
             print("visiting func ----------------------", node.get_func_node().name)
             vulnerable_vars = self.collect_vulnerable_vars(node.get_func_node(), node.get_assignments(), [{}], [{}],
                                                            node.get_injection_vars())
+
             print(vulnerable_vars)
             if is_flask_api_function(node.get_func_node()) or is_django_api_function(node.get_func_node()):
                 if len(vulnerable_vars) > 0:
                     print("api ", node.get_func_node().name, " is vulnerable")
-                    vulnerable_locations.add(f'{node.get_module_name()}.{node.get_func_node().name}')
+
             else:
                 param_indexes_vulnerable = determine_vul_params_location(vulnerable_vars, node.get_func_node())
                 if param_indexes_vulnerable == None: continue
 
                 for nodeNext in searching.get_function_uses(modules, node.get_func_node().name, node.get_module_name()):
-                    unique_identifier = nodeNext.get_module_name() + " " + nodeNext.get_func_node().name + " " + str(
-                        len(nodeNext.get_assignments()))
-                    if unique_identifier in visited_func: continue
+
+                    if get_node_identifier(nodeNext) in visited_func:
+                        if not graph.has_edge(str(node), str(nodeNext)):
+                            graph.add_edge(str(node), str(nodeNext))
+                        continue
 
                     injection_vars = nodeNext.get_injection_vars()
                     ind = 0
@@ -107,8 +126,15 @@ class VulnerableTraversalChecker:
                     if len(inj) == 0: continue  # unique is in set
                     print("     adding------------- " + nodeNext.get_func_node().name)
                     queue.append(nodeNext)
+                    graph.add_node(str(nodeNext))
+                    graph.add_edge(str(node), str(nodeNext))
 
-        return list(vulnerable_locations)
+        if len(vulnerable_vars) == 0:
+            return None
+        else:
+            graph.add_node(str(node), vars=list(vulnerable_vars))
+
+            return graph
 
     def collect_vulnerable_vars(self, func_node, assignments, possible_marked_var_to_params, var_type_lst,
                                 injection_vars={}):

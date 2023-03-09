@@ -19,3 +19,9 @@ class Node:
 
     def set_injection_vars(self, injection_vars):
         self._injection_vars = injection_vars
+
+    def __str__(self):
+        return f'{self.get_module_name()}.{self.get_func_node().name}'
+
+    def __repr__(self):
+        return f'{self.get_module_name()} {self.get_func_node().name} {len(self.get_assignments())}'

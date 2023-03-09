@@ -1,8 +1,7 @@
-from typing import Any
+from typing import Any, Dict
 import ast
 from evase.sql_injection.injectionutil import get_all_vars
 from evase.sql_injection.vulnerabletraversal import VulnerableTraversalChecker
-
 
 class InjectionNodeVisitor(ast.NodeVisitor):
     # cursor_name = None
@@ -17,7 +16,7 @@ class InjectionNodeVisitor(ast.NodeVisitor):
         self.project_struct = project_struct
         self.module_key = module_key
 
-    def get_execute_funcs(self) -> dict[Any, Any]:
+    def get_execute_funcs(self) -> Dict[Any, Any]:
         return self.execute_funcs
 
     def visit_Expr(self, node: ast.Expr):
@@ -82,7 +81,7 @@ class InjectionNodeVisitor(ast.NodeVisitor):
 
         result = self.sql_marker.traversal_from_exec(lst, self.current_func_node, arg_list, self.project_struct,
                                                      self.module_key)
-        if len(result) > 0:
+        if result is not None:
             module_full_name = f'{self.module_key}.{self.current_func_node.name}'
             self.vulnerable_funcs[module_full_name] = result
         self.execute_funcs[curr_scope] = self.current_func_node
