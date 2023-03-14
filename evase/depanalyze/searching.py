@@ -4,42 +4,6 @@ from evase.structures.modulestructure import ModuleAnalysisStruct
 from evase.structures.projectstructure import ProjectAnalysisStruct, resolve_project_imports, dir_to_module_structure
 
 
-def get_function_call_origin(func_node: ast.Call, mdl_struct: ModuleAnalysisStruct, prj_struct: ProjectAnalysisStruct,
-                             caller_type: str = None):
-    """
-    Find the function node for of a function that was invoked in code.
-    Find where the function being called originated from.
-
-    :param func_node: The function call node in the current module
-    :param mdl_struct: The module structure that this function call was made in
-    :param prj_struct: The project structure containing the dependency graph (other modules mapping)
-    :param caller_type: The invokee of the function call (an object)
-    :return: The function definition(s) for the function that was called
-    """
-    fn_name = func_node.func.id
-
-    if caller_type is None:
-        print("Regular function call, not an object function call.")
-    else:
-        fn_name = caller_type + '.' + fn_name
-
-    # using the dependencies of the current module, find the modules that is uses the function from (should be one).
-    mdls = []
-    for imp, (imp_mdl, imp_name) in mdl_struct.get_module_imports().items():
-        if fn_name == imp_name:
-            mdls.append(imp_mdl)
-
-    # after finding the module(s) that this function comes from, visit them.
-    fn_defs = []
-    for mdl in mdls:
-        mdl = prj_struct.get_module(mdl)
-        for mdl_func in mdl.get_funcs():
-            if mdl_func.name == fn_name:
-                fn_defs.append(mdl_func)
-
-    return fn_defs
-
-
 def get_function_uses(prj_struct, func_name: str, module_name: str):
     """
     Get all the uses for a function call, and find vulnerable variables.

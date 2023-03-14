@@ -17,6 +17,7 @@ class ModuleAnalysisStruct:
         self.local_imports = {}
         self.module_imports = {}
         self.funcs = []
+        self.resolve_funcs()
 
     def resolve_scopes(self, scr: ScopeResolver):
         self.ast_tree = scr.visit(self.ast_tree)

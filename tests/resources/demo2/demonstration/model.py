@@ -3,7 +3,7 @@ import string
 
 def vulnerable_executor(password: string, a: string, c: string):
     arr = []
-    b = 4
+    b, d = a, password
     d = ""
     g = c
     if a == 5:

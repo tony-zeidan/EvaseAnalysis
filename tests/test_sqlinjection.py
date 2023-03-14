@@ -1,9 +1,12 @@
+
 from evase.structures.modulestructure import ModuleAnalysisStruct
 from evase.structures.projectstructure import ProjectAnalysisStruct
 from evase.sql_injection.injectionvisitor import InjectionNodeVisitor
 
 import ast
 import os
+
+from evase.typing.typingutil import get_all_target_values_types, get_all_targets
 
 safe1_filename = 'sql_injection_safe1.py'
 safe2_filename = 'sql_injection_safe2.py'
@@ -49,13 +52,21 @@ def test_get_all_vars():
     print(path_here)
     demo_code = os.path.join(path_here, 'test', 'resources')
 
-    test = ProjectAnalysisStruct("demonstration", "C:/Users/Anthony/Desktop/Desktop/Proj/evase/backend/test/resources/demo2")
+    test = ProjectAnalysisStruct("demonstration", "C:/Users/Anthony/Documents/EvaseAnalysis/tests/resources/demo")
     for m_name, m_struct in test.get_module_structure().items():
-        print(m_struct.get_module_imports(), "imports")
-        print(m_name)
-        visitor = InjectionNodeVisitor(test, m_name)
-        visitor.visit(m_struct.get_ast())
-        print_execute_funcs(visitor)
+        print("imports", m_struct.get_module_imports())
+        for func in m_struct.get_funcs():
+            print(ast.dump(func));
+        print("name", m_name)
+        astval = m_struct.get_ast()
+        for assign in ast.walk(astval):
+            if isinstance(assign, ast.Assign):
+                print("target ", get_all_targets(assign))
+                print("values",get_all_target_values_types(assign))
+
+        # visitor = InjectionNodeVisitor(test, m_name)
+        # visitor.visit(m_struct.get_ast())
+        # print_execute_funcs(visitor)
 
     #module_vul5 = test.get_module("find_uses_tests.sql_injection_vul5")
     #modules = test.get_module_structure()

@@ -79,7 +79,7 @@ class VulnerableTraversalChecker:
                 len(node.get_assignments()))
             visited_func.add(identifier)
             print("visiting func ----------------------", node.get_func_node().name)
-            vulnerable_vars = self.collect_vulnerable_vars(node.get_func_node(), node.get_assignments(), [{}], [{}],
+            vulnerable_vars = self.collect_vulnerable_vars(node.get_func_node(), node.get_assignments(), [{}],
                                                            node.get_injection_vars())
             print(vulnerable_vars)
             if is_flask_api_function(node.get_func_node()) or is_django_api_function(node.get_func_node()):
@@ -110,28 +110,28 @@ class VulnerableTraversalChecker:
 
         return list(vulnerable_locations)
 
-    def collect_vulnerable_vars(self, func_node, assignments, possible_marked_var_to_params, var_type_lst,
-                                injection_vars={}):
+    def collect_vulnerable_vars(self, func_node, assignments, possible_marked_var_to_params, injection_vars={}):
         vulnerable = set()  # params
         parameters = injectionutil.get_function_params(func_node)
         #               possible flow         possible flow
         # marked_lst [{a ->{param1, param2}}, {a->{param3}}]      list<Map<string, set>>
-        # var_type_lst [{a -> [Integer]},{a -> [class1,class2]}]
         index = 0
         while index < len(assignments):
             node = assignments[index]
-
+            print("possble",possible_marked_var_to_params)
             if isinstance(node, ast.Assign):
+                print(ast.dump(node, indent=2))
                 # variables being assigned a value
                 target_lst = injectionutil.get_all_targets(node)
                 # values of variables being assigned
-                val_lst, target_type = injectionutil.get_all_target_values(node)
+                val_lst = injectionutil.get_all_target_values(node)
+                print("target ", val_lst)
 
                 for i in range(len(target_lst)):  # for each variable being assigned
                     target_variable = target_lst[i]
 
-                    for j in range(
-                            len(possible_marked_var_to_params)):  # update all possible marked variables to params, for target_variable
+                    # update all possible marked variables to params, for target_variable
+                    for j in range(len(possible_marked_var_to_params)):
                         marked_new = set()
                         for val in val_lst[i]:  # values of variables being assigned to corresponding target_variable
 
@@ -142,35 +142,26 @@ class VulnerableTraversalChecker:
                                 marked_new.add(val)
 
                         possible_marked_var_to_params[j][target_variable] = marked_new
-                        # var_type_lst[j][target] = target_type[j]
-                # print(possible_marked_var_to_params)
 
             elif isinstance(node, ast.Return):
                 # if len(injection_vars) == 0:
                 #   for val in return:
                 #       for vulnerable_param in marked_lst[val]:
                 #           vulnerable.add(vulnerable_param)
-                possible_marked_var_to_params.clear(), var_type_lst.clear()
+                possible_marked_var_to_params.clear()
                 break
 
             elif node == "if" or node == "while" or node == "for":
                 index, inner_scope_assignments = injectionutil.get_inner_scope_assignments(index, assignments)
-                prev_marked_lst = copy_list_map_set(possible_marked_var_to_params)
-                prev_var_type_lst = copy_list_map_set(var_type_lst)
 
                 for inner_scope_assignment in inner_scope_assignments:
-                    copy_marked_lst = copy_list_map_set(prev_marked_lst)
-                    copy_var_type_lst = copy_list_map_set(prev_var_type_lst)
+                    copy_marked_lst = copy_list_map_set(possible_marked_var_to_params)
 
                     # determine marked_lst in inner function, new_vulnerable is for when function returns are being analyzed
-                    new_vulnerable = self.collect_vulnerable_vars(func_node, inner_scope_assignment, copy_marked_lst,
-                                                                  copy_var_type_lst)
-                    # print("here")
-                    # print(inner_scope_assignment)
-                    # print(copy_marked_lst)
+                    new_vulnerable = self.collect_vulnerable_vars(func_node, inner_scope_assignment, copy_marked_lst)
+
                     # add inner scope marked_lst to previous possible_marked_var_to_params
                     possible_marked_var_to_params.extend(copy_marked_lst)
-                    var_type_lst.extend(copy_var_type_lst)
                     vulnerable = vulnerable.union(new_vulnerable)
             index += 1
 

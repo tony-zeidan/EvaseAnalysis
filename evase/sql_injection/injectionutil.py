@@ -51,8 +51,7 @@ def get_all_vars(node: ast.AST) -> set:
         args.add(node.id)
     elif isinstance(node, ast.Call):
         if isinstance(node.func, ast.Attribute):
-            if node.func.attr == "replace" and len(node.args) == 2 and node.args[0].value == ";" and not node.args[
-                                                                                         1].value == ";":
+            if node.func.attr == "replace" and len(node.args) == 2 and node.args[0].value == "'" and not node.args[1].value == "\\'":
                 return args
 
         # resolveCall(node)
@@ -77,23 +76,18 @@ def get_all_vars(node: ast.AST) -> set:
             for subarg in get_all_vars(value):
                 args.add(subarg)
 
-
     elif isinstance(node, ast.FormattedValue):
         for subargs in get_all_vars(node.value):
             args.add(subargs)
 
     elif hasattr(node, "args"):
         args.add(node)
-        # for arg in node.args:
-        #    for subarg in get_all_vars(arg):
-        #        args.add(subarg)
 
     elif hasattr(node, "value"):
         for subarg in get_all_vars(node.value):
             args.add(subarg)
 
     return args
-
 
 def get_all_target_values(node: ast.Assign) -> list:
     """
@@ -111,33 +105,7 @@ def get_all_target_values(node: ast.Assign) -> list:
     except AttributeError:
         val_lst.append(get_all_vars(node.value))
 
-    return val_lst, 0
+    return val_lst
 
 
-def get_inner_scope_assignments(index, assignments):
-    stack = ["end" + assignments[index]]
-    index += 1
-    inner_assignments = [[]]
-    assignment_ind = 0
 
-    while len(stack) != 0 and index < len(assignments):
-
-        node = assignments[index]
-        if node == "if" or node == "while" or node == "for":
-            stack.append("end" + node)
-        elif len(stack) == 1 and node == "else":
-            inner_assignments.append([])
-            assignment_ind += 1
-            index += 1
-            continue
-        elif node == "endif" or node == "endwhile" or node == "endfor":
-            removed = stack.pop()
-            if removed != node: print("not same val" + removed + " " + node)
-            if len(stack) == 0:
-                index += 1
-                break
-
-        inner_assignments[assignment_ind].append(node)
-        index += 1
-
-    return index - 1, inner_assignments
