@@ -3,9 +3,10 @@ import ast
 from evase.sql_injection.injectionutil import get_all_vars
 from evase.sql_injection.vulnerabletraversal import VulnerableTraversalChecker
 
+
 class InjectionNodeVisitor(ast.NodeVisitor):
-    # cursor_name = None
-    # sql_package_names = ["sqlite3", "mysql"]
+    sql_package_names = ["sqlite3", "mysql"]
+
     def __init__(self, project_struct, module_key):
         self.execute_funcs = {}
         self.vulnerable_funcs = {}
@@ -15,6 +16,13 @@ class InjectionNodeVisitor(ast.NodeVisitor):
         self.if_flag = True
         self.project_struct = project_struct
         self.module_key = module_key
+
+        # Dictionary used to store found execute statements before finding Cursor instantiation
+        # Key is the name of the object calling the execute statement, and the value is the current function node
+        self.sql_found_executes = {}
+
+        # List to store found cursor instantiations before finding the corresponding execute statement
+        self.sql_found_cursors = []
 
     def get_execute_funcs(self) -> Dict[Any, Any]:
         return self.execute_funcs
@@ -94,6 +102,50 @@ class InjectionNodeVisitor(ast.NodeVisitor):
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
         self.visit_FunctionDef(node)
 
+    def generic_visit(self, node: ast):
+        if isinstance(node, ast.Assign):
+            targs = node.targets
+            node_val = node.value
+            if isinstance(node_val, ast.Call):
+                node_func = node_val.func
+                if isinstance(node_func, ast.Attribute):
+                    node_attr_val = node_func.value
+                    node_attr = node_func.attr
+                    if isinstance(node_attr_val, ast.Name):
+                        if node_attr.lower() == 'cursor' and node_attr_val.id in self.sql_package_names:
+                            for targ in targs:
+                                if isinstance(targ, ast.Name):
+                                    if targ.id in self.sql_found_executes.keys():
+                                        # Cursor found with associated execute
+                                        print("Found associated execute")
+                                    else:
+                                        self.sql_found_cursors.append(targ.id)
+        elif isinstance(node, ast.Expr):
+            node_val = node.value
+            if isinstance(node_val, ast.Call):
+                node_func = node_val.func
+                if isinstance(node_func, ast.Attribute):
+                    node_attr_name = node_func.value
+                    node_attr = node_func.attr
+                    if isinstance(node_attr_name, ast.Name):
+                        node_object_name = node_attr_name.id
+                        if node_attr == 'execute' and node_object_name in self.sql_found_cursors:
+                            print('Found execute, continue on to bfs')
+                        elif node_attr == 'execute':
+                            self.sql_found_executes[node_object_name] = self.current_func_node
+
+        elif isinstance(node, ast.Return):
+            node_val = node.value
+            if isinstance(node_val, ast.Call):
+                node_func = node_val.func
+                if isinstance(node_func, ast.Attribute):
+                    node_attr = node_func.attr
+                    node_attr_name = node_func.value
+                    if isinstance(node_attr_name, ast.Name):
+                        node_object_name = node_attr_name.id
+                        if node_attr.lower() == 'cursor' and node_object_name in self.sql_package_names:
+                            print('Found return, trace back to assignment that contains function')
+                            
     def get_current_scope(self):
         if self.current_func_node:
             return self.current_func_node.name

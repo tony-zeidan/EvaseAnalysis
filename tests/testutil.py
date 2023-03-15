@@ -13,6 +13,8 @@ vul3_filename = 'resources/sql_injection_vul3.py'
 vul4_filename = 'resources/sql_injection_vul4.py'
 vul5_filename = 'resources/sql_injection_vul5.py'
 vul6_filename = 'resources/sql_injection_vul6.py'
+vul7_filename = 'resources/sql_injection_vul7.py'
+vul8_filename = 'resources/sql_injection_vul8.py'
 
 
 def get_ast_from_filename(filename: str) -> ast.AST:
@@ -22,3 +24,6 @@ def get_ast_from_filename(filename: str) -> ast.AST:
 
 def get_modulestruct(filename: str) -> ModuleAnalysisStruct:
     return ModuleAnalysisStruct(filename, get_ast_from_filename(filename), os.path.abspath(filename))
+
+
+print(ast.dump(get_ast_from_filename(vul8_filename), indent=2))
