@@ -24,6 +24,12 @@ class InjectionNodeVisitor(ast.NodeVisitor):
         # List to store found cursor instantiations before finding the corresponding execute statement
         self.sql_found_cursors = []
 
+        self.sql_found_cursor_functions = []
+
+        self.function_calls = {}
+
+        self.second_pass = False
+
     def get_execute_funcs(self) -> Dict[Any, Any]:
         return self.execute_funcs
 
@@ -103,7 +109,7 @@ class InjectionNodeVisitor(ast.NodeVisitor):
         self.visit_FunctionDef(node)
 
     def generic_visit(self, node: ast):
-        if isinstance(node, ast.Assign):
+        if isinstance(node, ast.Assign) and not self.second_pass:
             targs = node.targets
             node_val = node.value
             if isinstance(node_val, ast.Call):
@@ -112,14 +118,25 @@ class InjectionNodeVisitor(ast.NodeVisitor):
                     node_attr_val = node_func.value
                     node_attr = node_func.attr
                     if isinstance(node_attr_val, ast.Name):
-                        if node_attr.lower() == 'cursor' and node_attr_val.id in self.sql_package_names:
+                        node_object_name = node_attr_val.id
+                        if node_attr is not None and node_attr.lower() == 'cursor' and node_object_name in self.sql_package_names:
                             for targ in targs:
                                 if isinstance(targ, ast.Name):
                                     if targ.id in self.sql_found_executes.keys():
                                         # Cursor found with associated execute
                                         print("Found associated execute")
+                                        self.visit_execute(self.sql_found_executes[targ.id])
                                     else:
                                         self.sql_found_cursors.append(targ.id)
+                        elif node_attr is None and node_object_name in self.sql_found_cursor_functions:
+                            for targ in targs:
+                                if isinstance(targ, ast.Name):
+                                    targ_id = targ.id
+                                    if targ_id in self.sql_found_executes.keys():
+                                        self.visit_execute(self.sql_found_executes[targ_id])
+                                    else:
+                                        print("Something")
+
         elif isinstance(node, ast.Expr):
             node_val = node.value
             if isinstance(node_val, ast.Call):
@@ -131,6 +148,7 @@ class InjectionNodeVisitor(ast.NodeVisitor):
                         node_object_name = node_attr_name.id
                         if node_attr == 'execute' and node_object_name in self.sql_found_cursors:
                             print('Found execute, continue on to bfs')
+                            self.visit_execute(node_val)
                         elif node_attr == 'execute':
                             self.sql_found_executes[node_object_name] = self.current_func_node
 
@@ -144,8 +162,33 @@ class InjectionNodeVisitor(ast.NodeVisitor):
                     if isinstance(node_attr_name, ast.Name):
                         node_object_name = node_attr_name.id
                         if node_attr.lower() == 'cursor' and node_object_name in self.sql_package_names:
-                            print('Found return, trace back to assignment that contains function')
-                            
+                            # Return call returns a valid sql Cursor object, therefore store function name if not stored
+                            function_name = self.current_func_node.name
+                            if function_name not in self.sql_found_cursor_functions:
+                                self.sql_found_cursor_functions.append(function_name)
+                            for func_node in self.lst_of_assignments:
+                                if isinstance(func_node, ast.Assign):
+                                    func_targs = func_node.targets
+                                    func_node_val = func_node.value
+                                    if isinstance(func_node_val, ast.Call):
+                                        func_node_func = func_node_val.func
+                                        if isinstance(func_node_func, ast.Name):
+                                            func_id = func_node_func.id
+                                            if func_id == function_name:
+                                                # Potentially remove function from list
+
+                                                # Function was check previously in the AST, now we need the name of the object assigned
+                                                for targ in func_targs:
+                                                    if isinstance(targ, ast.Name):
+                                                        if targ.id in self.sql_found_executes.keys():
+                                                            # Cursor found with associated execute
+                                                            print("Found associated execute")
+                                                            self.visit_execute(self.sql_found_executes[targ.id])
+                                                        else:
+                                                            self.sql_found_cursors.append(targ.id)
+
+                                                continue
+
     def get_current_scope(self):
         if self.current_func_node:
             return self.current_func_node.name
