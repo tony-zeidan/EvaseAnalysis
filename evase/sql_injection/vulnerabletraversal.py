@@ -39,7 +39,7 @@ def get_node_identifier(node):
 
 class VulnerableTraversalChecker:
     def traversal_from_exec(self, assignments: List[ast.Assign], func_node, injection_vars: Collection[ast.Name],
-                            project_struct, module):
+                            project_struct, module, start_from: ast.Call = None):
 
         # allow to continuously add to the
         visited_func = set()  # unique with func name, module and num assignments
@@ -50,7 +50,7 @@ class VulnerableTraversalChecker:
         vulnerable_vars = set()
 
         graph = nx.DiGraph()
-        start = Node(func_node, assignments, injection_vars, module)
+        start = Node(func_node, assignments, injection_vars, module, from_node=start_from)
         start.add_to_graph(graph)
         queue.append(start)
 
@@ -58,6 +58,7 @@ class VulnerableTraversalChecker:
             node = queue.popleft()
 
             identifier = get_node_identifier(node)
+            node.get_func_node()
             visited_func.add(identifier)
             print("visiting func ----------------------", node.get_func_node().name)
             vulnerable_vars = self.collect_vulnerable_vars(node.get_func_node(), node.get_assignments(), [{}], [{}],
@@ -130,14 +131,8 @@ class VulnerableTraversalChecker:
                                 marked_new.add(val)
 
                         possible_marked_var_to_params[j][target_variable] = marked_new
-                        # var_type_lst[j][target] = target_type[j]
-                # print(possible_marked_var_to_params)
 
             elif isinstance(node, ast.Return):
-                # if len(injection_vars) == 0:
-                #   for val in return:
-                #       for vulnerable_param in marked_lst[val]:
-                #           vulnerable.add(vulnerable_param)
                 possible_marked_var_to_params.clear(), var_type_lst.clear()
                 break
 
@@ -153,9 +148,7 @@ class VulnerableTraversalChecker:
                     # determine marked_lst in inner function, new_vulnerable is for when function returns are being analyzed
                     new_vulnerable = self.collect_vulnerable_vars(func_node, inner_scope_assignment, copy_marked_lst,
                                                                   copy_var_type_lst)
-                    # print("here")
-                    # print(inner_scope_assignment)
-                    # print(copy_marked_lst)
+
                     # add inner scope marked_lst to previous possible_marked_var_to_params
                     possible_marked_var_to_params.extend(copy_marked_lst)
                     var_type_lst.extend(copy_var_type_lst)

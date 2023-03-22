@@ -37,11 +37,12 @@ def is_django_api_function(func_node: ast.FunctionDef):
 
 class Node:
     def __init__(self, func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef], assignments: Collection[ast.Assign],
-                 injection_vars, module_name):
-        self._func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef] = func_node
-        self._assignments: Collection[ast.Assign] = assignments
-        self._injection_vars = injection_vars
-        self._module_name: str = module_name
+                 injection_vars, module_name, from_node: ast.Call = None):
+        self.__func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef] = func_node
+        self.__assignments: Collection[ast.Assign] = assignments
+        self.__injection_vars = injection_vars
+        self.__module_name: str = module_name
+        self.__from_node: ast.Call = from_node
 
         if is_flask_api_function(func_node) or is_django_api_function(func_node):
             self.is_endpoint = True
@@ -49,19 +50,19 @@ class Node:
             self.is_endpoint = False
 
     def get_func_node(self):
-        return self._func_node
+        return self.__func_node
 
     def get_assignments(self):
-        return self._assignments
+        return self.__assignments
 
     def get_injection_vars(self):
-        return self._injection_vars
+        return self.__injection_vars
 
     def get_module_name(self):
-        return self._module_name
+        return self.__module_name
 
     def set_injection_vars(self, injection_vars):
-        self._injection_vars = injection_vars
+        self.__injection_vars = injection_vars
 
     def __str__(self):
         return f'{self.get_module_name()}.{self.get_func_node().name}'
@@ -83,17 +84,28 @@ class Node:
 
         func = {
             'endpoint': self.is_endpoint,
-            'start': self._func_node.lineno,
-            'end': self._func_node.end_lineno,
-            'offset_start': self._func_node.col_offset,
-            'offset_end': self._func_node.end_col_offset,
-            'name': self._func_node.name
+            'start': self.__func_node.lineno,
+            'end': self.__func_node.end_lineno,
+            'offset_start': self.__func_node.col_offset,
+            'offset_end': self.__func_node.end_col_offset,
+            'name': self.__func_node.name
         }
+
+        from_node = None
+        if self.__from_node is not None:
+            from_node = {
+                'start': self.__from_node.lineno,
+                'end': self.__from_node.end_lineno,
+                'offset_start': self.__from_node.col_offset,
+                'offset_end': self.__from_node.end_col_offset,
+                'text': ast.unparse(self.__from_node)
+            }
 
         return {
             'vars': list(self.get_injection_vars()),
             'assignments': assignment_lines,
             'func': func,
+            'from_node': from_node,
             'endpoint': self.is_endpoint
         }
 

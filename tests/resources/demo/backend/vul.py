@@ -1,6 +1,5 @@
 import sqlite3 as sq
 
-
 def add_user_to_db(username: str, password: str) -> str:
     """
     Adds a new user to the database

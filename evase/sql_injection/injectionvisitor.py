@@ -80,7 +80,7 @@ class InjectionNodeVisitor(ast.NodeVisitor):
         print(self.current_func_node.parent_classes)
 
         result = self.sql_marker.traversal_from_exec(lst, self.current_func_node, arg_list, self.project_struct,
-                                                     self.module_key)
+                                                     self.module_key, start_from=node)
         if result is not None:
             module_full_name = f'{self.module_key}.{self.current_func_node.name}'
             self.vulnerable_funcs[module_full_name] = result
