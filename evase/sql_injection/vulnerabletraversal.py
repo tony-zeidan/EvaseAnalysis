@@ -2,7 +2,7 @@ from typing import Collection, List
 import ast
 from collections import deque
 from evase.depanalyze.node import Node
-import evase.depanalyze.searching as searching
+from evase.depanalyze.searching import FunctionCallFinder as UsesFinder
 import evase.sql_injection.injectionutil as injectionutil
 import networkx as nx
 
@@ -44,7 +44,6 @@ class VulnerableTraversalChecker:
         # allow to continuously add to the
         visited_func = set()  # unique with func name, module and num assignments
         queue = deque()
-        modules = project_struct.get_module_structure()
 
         print("start of bfs")
         vulnerable_vars = set()
@@ -72,7 +71,7 @@ class VulnerableTraversalChecker:
                 param_indexes_vulnerable = determine_vul_params_location(vulnerable_vars, node.get_func_node())
                 if param_indexes_vulnerable == None: continue
 
-                for nodeNext in searching.get_function_uses(modules, node.get_func_node().name, node.get_module_name()):
+                for nodeNext in UsesFinder.find_function_uses(project_struct, node.get_module_name(), node.get_func_node().name):
 
                     if get_node_identifier(nodeNext) in visited_func:
                         if not graph.has_edge(str(node), str(nodeNext)):

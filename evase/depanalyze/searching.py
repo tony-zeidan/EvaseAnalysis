@@ -1,7 +1,18 @@
 import ast
-from evase.depanalyze.functioncallfinder import FunctionCallFinder
+from typing import List
+from enum import Enum
+from evase.depanalyze.node import Node
+from evase.sql_injection.injectionutil import get_all_vars
 from evase.structures.modulestructure import ModuleAnalysisStruct
 from evase.structures.projectstructure import ProjectAnalysisStruct, resolve_project_imports, dir_to_module_structure
+
+
+class ImportUsesCase(Enum):
+    NO_IMPORTS = 0
+    ENTIRE_MODULE = 1
+    ONLY_FUNCTION = 2
+    ONLY_FUNCTION_AS = 3
+    ENTIRE_MODULE_AS = 4
 
 
 def get_function_call_origin(func_node: ast.Call, mdl_struct: ModuleAnalysisStruct, prj_struct: ProjectAnalysisStruct,
@@ -40,145 +51,201 @@ def get_function_call_origin(func_node: ast.Call, mdl_struct: ModuleAnalysisStru
     return fn_defs
 
 
-def get_function_uses(prj_struct, func_name: str, module_name: str):
+def differentiate_imports(mdl_struct: ModuleAnalysisStruct, import_func: str, import_module: str):
     """
-    Get all the uses for a function call, and find vulnerable variables.
+    Differentiates the style of import that the function or module is being imported with.
 
-    :param prj_struct: The project structure object containing the dependency graph
-    :param func_name: The function to search uses of
-    :param module_name: The name module that the function was found in
-    :return: The newly found vulnerable variables
-    """
-
-    new_vuls = []
-    for key in prj_struct:
-        module_struct = prj_struct[key]
-        case, asname = 0, None
-        if not key == module_name:
-            case, asname = differentiate_imports(module_struct, func_name, module_name)
-        else:
-            case = 2
-
-        # for each case run a node visitor and tell the node visitor it's target to look for
-        # reference sql injection algo development notion, page api.py(for test vul func calls) for more information of the four cases.
-        #print(f'----   scaning vulnerable usages [{module_name}].[{func_name}] in {module_struct.get_name()} ----')
-        func_target = func_name
-        module_target = module_name
-        if case == 0:
-            #print(f"CASE 0: no vulnerable usage found")
-            continue
-
-        # No modification needed for case 1
-
-        elif case == 2:
-            #print(f"CASE 2: vulnerable function found imported, next step look for function calls [{func_name}]")
-            module_target = None
-        elif case == 3:
-            #print(f"CASE 3: vulnerable function found imported using AS, next step look for function calls [{asname}]")
-            module_target = None
-            func_target = asname
-
-        elif case == 4:
-            #print(f"CASE 4: vulnerable class found imported using AS, next step look for [{asname}.{func_name}]")
-            module_target = asname
-        #print(f"passing in [{module_target}, {func_target}]")
-        call_finder = FunctionCallFinder(key, module_target, func_target)
-        call_finder.visit(module_struct.ast_tree)
-
-        for node in call_finder.found_calling_lst:
-            new_vuls.append(node)
-
-    return new_vuls
-
-
-def differentiate_imports(mdl_struct: ModuleAnalysisStruct, vul_func: str, vul_module_name: str):
-    """
     :param mdl_struct: The module structure that we are looking at
-    :param vul_func: The vulnerable function name as a String, we want to know in what way this function is imported, or not at all.
-    :param vul_module_name: The vulnerable module name as a String, we want to know in what way this module is imported, or not at all
-    :return:
-
+    :param import_func: The vulnerable function name as a String, we want to know in what way this function is imported, or not at all.
+    :param import_module: The vulnerable module name as a String, we want to know in what way this module is imported, or not at all
+    :return: The case that the import style falls under and the imported entity
     """
 
     # function can tell us if the vulnerale is imported as function or module
     local_import = mdl_struct.get_local_imports()
     module_import = mdl_struct.get_module_imports()
     # case1, importing entire module
-    if vul_module_name in local_import.keys() or vul_module_name in module_import.keys():
-        return 1, vul_module_name
+    if import_module in local_import.keys() or import_module in module_import.keys():
+        return ImportUsesCase.ENTIRE_MODULE, import_module
 
     # case2, importing vulnerable function
-    if vul_func in local_import.keys() or vul_func in module_import.keys():
-        return 2, vul_func
+    if import_func in local_import.keys() or import_func in module_import.keys():
+        return ImportUsesCase.ONLY_FUNCTION, import_func
 
     # case3, importing vul function with AS
     for key in local_import:
         func_as_name = key
         class_name, original_func_name = local_import[key]
-        #print("Checking 3" + class_name, original_func_name)
-        if original_func_name == vul_func:
-            return 3, func_as_name
+        # print("Checking 3" + class_name, original_func_name)
+        if original_func_name == import_func:
+            return ImportUsesCase.ONLY_FUNCTION_AS, func_as_name
 
     for key in module_import:
         func_as_name = key
         class_name, original_func_name = module_import[key]
-        #print("[" + class_name, ',', original_func_name + "]")
-        if original_func_name == vul_func:
-            return 3, func_as_name
+        # print("[" + class_name, ',', original_func_name + "]")
+        if original_func_name == import_func:
+            return ImportUsesCase.ONLY_FUNCTION_AS, func_as_name
 
     # case4, importing entire module with AS
     for key in local_import:
         class_name, class_as_name = local_import[key]
-        #print("Checking 4" + class_name, class_as_name)
+        # print("Checking 4" + class_name, class_as_name)
 
-        if class_name == vul_module_name:
-            return 4, class_as_name
+        if class_name == import_module:
+            return ImportUsesCase.ENTIRE_MODULE_AS, class_as_name
 
     for key in module_import:
         class_name, class_as_name = module_import[key]
-        #print("Checking 4" + class_name, class_as_name)
-        if class_name == vul_module_name:
-            return 4, class_as_name
+        # print("Checking 4" + class_name, class_as_name)
+        if class_name == import_module:
+            return ImportUsesCase.ENTIRE_MODULE_AS, class_as_name
 
     # not found related import, this file is not related for this vul
-    return 0, None
+    return ImportUsesCase.NO_IMPORTS, None
 
 
-def search_calling_tree(path: str, initial_vuls: list):
-    """
+class FunctionCallFinder(ast.NodeVisitor):
+    def __init__(self, prj_struct: ProjectAnalysisStruct, func_mdl_name: str, func_name: str):
+        """
+        A class that finds the uses of a function in other modules.
+        The class can be used to retrieve a list of nodes representing functions in other modules
+        that the given function is used in.
 
-    :param path:
-    :param initial_vuls:
-    :return:
-    """
+        :param prj_struct: The structure of the project encapsulated in a ProjectAnalysisStruct
+        :param func_mdl_name: The name of the module containing the function
+        :param func_name: The name of the function
+        """
 
-    vul_list = initial_vuls  # storing uncalled vulnerable function
-    uncalled_vul_list = []  # storing vulnerable function that has been called
-    asts = dir_to_module_structure(path)
-    resolve_project_imports(path, asts)
-    running = True  # stop when we don't find any calling of vulnerable function
+        self.module_name = func_mdl_name
+        self.module_target = None
+        self.func_name = func_name
+        self.func_target = None
+        self.prj_struct = prj_struct
+        self.current_func_node = None  # not important, just keep track
+        self.current_func_scope = None
+        self.found_calling_lst = []  # List for storing all the parent function of the vulnerable function
 
-    while running:
-        running = False
-        new_vul_list = []
-        for vul in vul_list:
-            func = vul['function']
-            module = vul['module']
-            temp_list = get_function_uses(asts, func, module)
-            if (len(temp_list)):
-                running = True
-            new_vul_list.extend(temp_list)
-        vul_list = new_vul_list
-        print_vul_list(vul_list)
+        self.lst_of_assignments = []
+        self.if_flag = True
 
+    def process(self):
+        """
+        Runs the function call finder on the current loaded project.
+        """
 
-def print_vul_list(vul_list):
-    """
+        for module_name, module_struct in self.prj_struct.get_module_structure().items():
+            if module_name != self.module_name:
+                case, asname = differentiate_imports(module_struct, self.func_name, self.module_name)
 
-    :param vul_list:
-    :return:
-    """
+                self.func_target = self.func_name
+                self.module_target = self.module_name
+                if case == 0:
+                    continue
 
-    print("====== vul_list update =======")
-    for vul in vul_list:
-        print(f"module: {vul['module']}, function: {vul['function']}")
+                elif case == 2:
+                    # print(f"CASE 2: vulnerable function found imported, next step look for function calls [{func_name}]")
+                    self.module_target = None
+                elif case == 3:
+                    # print(f"CASE 3: vulnerable function found imported using AS, next step look for function calls [{asname}]")
+                    self.module_target = None
+                    self.func_target = asname
+
+                elif case == 4:
+                    # print(f"CASE 4: vulnerable class found imported using AS, next step look for [{asname}.{func_name}]")
+                    self.module_target = asname
+
+            self.visit(module_struct.get_ast())
+
+    def visit_Call(self, node: ast.Call):
+        if self.module_target is None:
+            if isinstance(node.func, ast.Attribute):
+                calling_function_name = node.func.attr
+            else:
+                calling_function_name = node.func.id
+
+            if calling_function_name == self.func_name:
+                injection_var = []
+                for arg in node.args:
+                    injection_var.append(get_all_vars(arg))
+                self.found_calling_lst.append(
+                    Node(self.current_func_node, self.lst_of_assignments.copy(), injection_var, self.module_name,
+                         from_node=node))
+        else:
+            attrbute_node = node.func
+            if hasattr(attrbute_node, "value") and hasattr(attrbute_node, "value"):
+                calling_module_name = attrbute_node.value.id
+                calling_function_name = attrbute_node.attr
+                if calling_function_name == self.func_name and calling_module_name == self.module_target:
+                    injection_var = []
+                    for arg in node.args:
+                        injection_var.append(get_all_vars(arg))
+                    self.found_calling_lst.append(
+                        Node(self.current_func_node, self.lst_of_assignments.copy(), injection_var, self.module_name,
+                             from_node=node))
+
+    def visit_FunctionDef(self, node: ast.Expr):
+        self.current_func_scope = node.name
+        self.current_func_node = node
+        self.lst_of_assignments = []
+        super().generic_visit(node)
+
+    def visit_Assign(self, node: ast.Assign):
+        super().generic_visit(node)
+        self.lst_of_assignments.append(node)
+
+    def visit_If(self, node: ast.If):
+        if self.if_flag:
+            self.lst_of_assignments.append("if")
+        for val in node.body:
+            self.visit(val)
+
+        if len(node.orelse) > 0:
+            prev = self.if_flag
+            self.if_flag = False
+            self.else_visit(node.orelse)
+            self.if_flag = prev
+
+        if self.if_flag:
+            self.lst_of_assignments.append("endif")
+
+    def else_visit(self, nodes):
+        if len(nodes) == 0:
+            self.lst_of_assignments.append("endelse")
+        else:
+            self.lst_of_assignments.append("else")
+            for node in nodes:
+                self.visit(node)
+
+    def visit_While(self, node: ast.While):
+        self.lst_of_assignments.append("while")
+        super().generic_visit(node)
+        self.lst_of_assignments.append("endwhile")
+
+    def visit_For(self, node: ast.For):
+        self.lst_of_assignments.append("for")
+        super().generic_visit(node)
+        self.lst_of_assignments.append("endfor")
+
+    def visit_Return(self, node: ast.Return):
+        super().generic_visit(node)
+        self.lst_of_assignments.append(node)
+
+    def get_uses(self) -> List[Node]:
+        return self.found_calling_lst
+
+    @staticmethod
+    def find_function_uses(prj_struct: ProjectAnalysisStruct, function_module_name: str, function_name: str) -> List[
+        Node]:
+        """
+        Find the uses for a function in other modules.
+        Instantiates a FunctionCallFinder on the project, runs it on the project, and retrieves the uses.
+
+        :param prj_struct: The project structure to look within
+        :param function_module_name: The name of the defining module of the function to look for uses of
+        :param function_name: The function to look for uses of
+        :return: A list of nodes representing usages in other modules
+        """
+        finder = FunctionCallFinder(prj_struct, function_module_name, function_name)
+        finder.process()
+        return finder.get_uses()
