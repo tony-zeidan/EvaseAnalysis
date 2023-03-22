@@ -11,11 +11,18 @@ import os
 from pprint import pprint
 
 attack_vector_edge_setting = {
+    'vulnerable': True,
     'color': 'red',
+    'arrows': {
+        'to': {
+            'enabled': True
+        },
+    },
     'weight': 2
 }
 
 attack_vector_node_setting = {
+    'vulnerable': True,
     'color': {
         'background': 'red',
         'border': "#FFCCCB",
@@ -29,7 +36,7 @@ attack_vector_node_setting = {
 uses_edge_setting = {
     'arrows': {
         'to': {
-            'enabled': True,
+            'enabled': True
         },
     }
 }
@@ -142,10 +149,10 @@ class AnalysisPerformer:
             self.analysis_results['graph'] = {}
             self.analysis_results['graph']['total'] = graph_data
             sql_results_dct = {}
-            for k, v in sql_injection_results['graph'].items():
-                sql_results_dct[k] = nx.node_link_data(v, source='from', target='to', link='edges')
+            # for k, v in sql_injection_results['graph'].items():
+            #    sql_results_dct[k] = nx.node_link_data(v, source='from', target='to', link='edges')
 
-            self.analysis_results['graph']['vectors'] = sql_results_dct
+            # self.analysis_results['graph']['vectors'] = sql_results_dct
 
             pprint(self.analysis_results)
 
@@ -165,6 +172,7 @@ class AnalysisPerformer:
         :param filepath: The path to the directory
         :return: The JSON formatted string
         """
+        pprint(self.analysis_results)
         jform = json.dumps(self.analysis_results, indent=4)
         if not os.path.exists(filepath) or not os.path.isdir(filepath):
             raise ValueError("Path doesn't exist or it isn't a directory")
@@ -188,6 +196,9 @@ def add_node(g, n, groups, edge_settings: dict = None, node_settings: dict = Non
         if not g.has_node(n):
             groups[parent].add(n)
             g.add_node(n, label=n, **node_settings)
+        else:
+            nx.set_node_attributes(g, {n: node_settings})
+
         if g.has_node(parent):
             if not g.has_edge(n, parent):
                 g.add_edge(n, parent, **edge_settings)
@@ -197,7 +208,10 @@ def add_node(g, n, groups, edge_settings: dict = None, node_settings: dict = Non
             g.add_node(n, label=n, **node_settings)
 
 
-def trim_depdigraph(graph: nx.DiGraph, groups):
+def trim_depdigraph(graph: nx.DiGraph, groups, edge_settings: dict = None):
+    if edge_settings is None:
+        edge_settings = {}
+
     # Trim unnecessary groups
     toparent = []
     for group, members in groups.items():
@@ -217,11 +231,11 @@ def trim_depdigraph(graph: nx.DiGraph, groups):
 
             for ined in ineds:
                 if ined[0] != group:
-                    graph.add_edge(*ined, **uses_edge_setting)
+                    graph.add_edge(*ined, **edge_settings)
 
             for outed in outeds:
                 if outed[1] != group:
-                    graph.add_edge(*outed, **uses_edge_setting)
+                    graph.add_edge(*outed, **edge_settings)
 
             toparent.append(mem)
     groups.update({k: set() for k in toparent})
@@ -248,7 +262,7 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct):
                     if not graph.has_edge(uses, namer):
                         graph.add_edge(uses, namer, **uses_edge_setting)
 
-    trim_depdigraph(graph, groups)
+    trim_depdigraph(graph, groups, edge_settings=uses_edge_setting)
 
     return graph, groups
 
@@ -272,7 +286,7 @@ def extend_depgraph_attackvectors(graph: nx.DiGraph, groups: Dict, analysis: Dic
                 if not graph.has_edge(edge[1], edge[0]):
                     graph.add_edge(edge[1], edge[0], **attack_vector_edge_setting)
 
-        trim_depdigraph(graph, groups)
+        trim_depdigraph(graph, groups, edge_settings=uses_edge_setting)
 
     return graph, groups
 
