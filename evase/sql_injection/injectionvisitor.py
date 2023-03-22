@@ -11,7 +11,7 @@ class InjectionNodeVisitor(ast.NodeVisitor):
         self.vulnerable_funcs = {}
         self.current_func_node = None
         self.lst_of_assignments = []
-        self.sql_marker = VulnerableTraversalChecker()
+        self.sql_marker = VulnerableTraversalChecker(project_struct)
         self.if_flag = True
         self.project_struct = project_struct
         self.module_key = module_key
@@ -77,9 +77,11 @@ class InjectionNodeVisitor(ast.NodeVisitor):
         arg_list = get_all_vars(node.args[0])
         curr_scope = self.get_current_scope()
         print("EXEC found, curr scope:", curr_scope)
-        print(self.current_func_node.parent_classes)
 
-        result = self.sql_marker.traversal_from_exec(lst, self.current_func_node, arg_list, self.project_struct,
+        print(self.module_key)
+        print(self.lst_of_assignments)
+
+        result = self.sql_marker.traversal_from_exec(lst, self.current_func_node, arg_list,
                                                      self.module_key, start_from=node)
         if result is not None:
             module_full_name = f'{self.module_key}.{self.current_func_node.name}'

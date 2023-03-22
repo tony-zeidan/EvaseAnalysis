@@ -1,10 +1,12 @@
-from typing import Collection, List
+from typing import Collection, List, Set
 import ast
 from collections import deque
 from evase.depanalyze.node import Node
 from evase.depanalyze.searching import FunctionCallFinder as UsesFinder
 import evase.sql_injection.injectionutil as injectionutil
 import networkx as nx
+
+from evase.structures.projectstructure import ProjectAnalysisStruct
 
 
 def copy_list_map_set(list_map_set):
@@ -29,17 +31,15 @@ def determine_vul_params_location(vul_set: set, func_node):
             lst.append(i)
     return params, lst
 
-
-def get_node_name(node):
-    return f'{node.get_module_name()}.{node.get_func_node().name}'
-
-
-def get_node_identifier(node):
-    return f'{node.get_module_name()} {node.get_func_node().name} {len(node.get_assignments())}'
-
 class VulnerableTraversalChecker:
-    def traversal_from_exec(self, assignments: List[ast.Assign], func_node, injection_vars: Collection[ast.Name],
-                            project_struct, module, start_from: ast.Call = None):
+    def __init__(
+            self,
+            prj_struct: ProjectAnalysisStruct,
+    ):
+        self.prj_struct = prj_struct
+
+    def traversal_from_exec(self, assignments: List[ast.Assign], func_node, injection_vars: Collection[ast.Name]
+                            , module_name: str, start_from: ast.Call = None):
 
         # allow to continuously add to the
         visited_func = set()  # unique with func name, module and num assignments
@@ -49,17 +49,20 @@ class VulnerableTraversalChecker:
         vulnerable_vars = set()
 
         graph = nx.DiGraph()
-        start = Node(func_node, assignments, injection_vars, module, from_node=start_from)
+        start = Node(module_name, func_node=func_node, assignments=assignments, injection_vars=injection_vars, from_node=start_from)
         start.add_to_graph(graph)
         queue.append(start)
 
         while len(queue) != 0:
             node = queue.popleft()
 
-            identifier = get_node_identifier(node)
             node.get_func_node()
-            visited_func.add(identifier)
-            print("visiting func ----------------------", node.get_func_node().name)
+            visited_func.add(node.__repr__())
+            print("visiting func ----------------------", str(node))
+
+            if node.get_func_node() is None:
+                break
+
             vulnerable_vars = self.collect_vulnerable_vars(node.get_func_node(), node.get_assignments(), [{}], [{}],
                                                            node.get_injection_vars())
 
@@ -71,9 +74,9 @@ class VulnerableTraversalChecker:
                 param_indexes_vulnerable = determine_vul_params_location(vulnerable_vars, node.get_func_node())
                 if param_indexes_vulnerable == None: continue
 
-                for nodeNext in UsesFinder.find_function_uses(project_struct, node.get_module_name(), node.get_func_node().name):
+                for nodeNext in UsesFinder.find_function_uses(self.prj_struct, node.get_module_name(), node.get_func_node().name):
 
-                    if get_node_identifier(nodeNext) in visited_func:
+                    if nodeNext.__repr__() in visited_func:
                         if not graph.has_edge(str(node), str(nodeNext)):
                             graph.add_edge(str(node), str(nodeNext))
                         continue

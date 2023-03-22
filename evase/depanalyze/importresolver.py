@@ -49,12 +49,13 @@ class ModuleImportResolver(ast.NodeTransformer):
             print("alias as:", alias_node.asname)
             if self._is_surface:
                 if alias_node.asname is None:
-                    self._surface_imports[name] = [alias_node.name, None]
+                    self._surface_imports[name] = [alias_node.name, name]
                 else:
+                    print("ASNAME:", alias_node.asname, alias_node)
                     self._surface_imports[alias_node.asname] = [alias_node.name, alias_node.asname]
             else:
                 if alias_node.asname is None:
-                    self._local_imports[self._function_name] = [alias_node.name, name]
+                    self._local_imports[self._function_name] = [alias_node.name, self._function_name]
                 else:
                     self._local_imports[self._function_name] = [alias_node.name, alias_node.asname]
 

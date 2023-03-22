@@ -36,16 +36,24 @@ def is_django_api_function(func_node: ast.FunctionDef):
 
 
 class Node:
-    def __init__(self, func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef], assignments: Collection[ast.Assign],
-                 injection_vars, module_name, from_node: ast.Call = None):
-        self.__func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef] = func_node
-        self.__assignments: Collection[ast.Assign] = assignments
-        self.__injection_vars = injection_vars
+    def __init__(self, module_name, assignments: Collection[ast.Assign] = None, injection_vars: Collection[ast.Name] = None, func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef] = None, from_node: ast.Call = None, ):
         self.__module_name: str = module_name
+        self.__assignments: Collection[ast.Assign] = assignments
+        if self.__assignments is None:
+            self.__assignments = []
+
+        self.__injection_vars = injection_vars
+        if self.__injection_vars is None:
+            self.__injection_vars = set()
+
+        self.__func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef] = func_node
         self.__from_node: ast.Call = from_node
 
-        if is_flask_api_function(func_node) or is_django_api_function(func_node):
-            self.is_endpoint = True
+        if self.__func_node is not None:
+            if is_flask_api_function(func_node) or is_django_api_function(func_node):
+                self.is_endpoint = True
+            else:
+                self.is_endpoint = False
         else:
             self.is_endpoint = False
 
@@ -65,10 +73,16 @@ class Node:
         self.__injection_vars = injection_vars
 
     def __str__(self):
-        return f'{self.get_module_name()}.{self.get_func_node().name}'
+        if self.get_func_node() is None:
+            return f'{self.get_module_name()}.*'
+        else:
+            return f'{self.get_module_name()}.{self.get_func_node().name}'
 
     def __repr__(self):
-        return f'{self.get_module_name()} {self.get_func_node().name} {len(self.get_assignments())}'
+        if self.get_func_node() is None:
+            return f'{self.get_module_name()} * {len(self.get_assignments())}'
+        else:
+            return f'{self.get_module_name()} {self.get_func_node().name} {len(self.get_assignments())}'
 
     def get_node_props(self) -> dict:
 
@@ -82,14 +96,16 @@ class Node:
                 'type_comment': assign.type_comment
             })
 
-        func = {
-            'endpoint': self.is_endpoint,
-            'start': self.__func_node.lineno,
-            'end': self.__func_node.end_lineno,
-            'offset_start': self.__func_node.col_offset,
-            'offset_end': self.__func_node.end_col_offset,
-            'name': self.__func_node.name
-        }
+        func = None
+        if self.get_func_node():
+            func = {
+                'endpoint': self.is_endpoint,
+                'start': self.__func_node.lineno,
+                'end': self.__func_node.end_lineno,
+                'offset_start': self.__func_node.col_offset,
+                'offset_end': self.__func_node.end_col_offset,
+                'name': self.__func_node.name
+            }
 
         from_node = None
         if self.__from_node is not None:

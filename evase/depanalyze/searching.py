@@ -167,10 +167,14 @@ class FunctionCallFinder(ast.NodeVisitor):
             if calling_function_name == self.func_name:
                 injection_var = []
                 for arg in node.args:
-                    injection_var.append(get_all_vars(arg))
+                    injection_var.extend(list(get_all_vars(arg)))
                 self.found_calling_lst.append(
-                    Node(self.current_func_node, self.lst_of_assignments.copy(), injection_var, self.module_name,
-                         from_node=node))
+                    Node(
+                        self.module_name,
+                        func_node=self.current_func_node,
+                        assignments=self.lst_of_assignments.copy(),
+                        injection_vars=injection_var,
+                        from_node=node))
         else:
             attrbute_node = node.func
             if hasattr(attrbute_node, "value") and hasattr(attrbute_node, "value"):
@@ -179,10 +183,14 @@ class FunctionCallFinder(ast.NodeVisitor):
                 if calling_function_name == self.func_name and calling_module_name == self.module_target:
                     injection_var = []
                     for arg in node.args:
-                        injection_var.append(get_all_vars(arg))
+                        injection_var.extend(list(get_all_vars(arg)))
                     self.found_calling_lst.append(
-                        Node(self.current_func_node, self.lst_of_assignments.copy(), injection_var, self.module_name,
-                             from_node=node))
+                        Node(
+                            self.module_name,
+                            func_node=self.current_func_node,
+                            assignments=self.lst_of_assignments.copy(),
+                            injection_vars=injection_var,
+                            from_node=node))
 
     def visit_FunctionDef(self, node: ast.Expr):
         self.current_func_scope = node.name

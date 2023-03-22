@@ -76,6 +76,7 @@ def get_mdl_depgraph(mdl_structure) -> Dict:
                 depgraph[k][mdl_name] = []
 
             if fn_name == aname:
+                print("CONTINUE")
                 continue
 
             elif fn_name is None:
