@@ -1,6 +1,7 @@
 import ast
 from typing import List, Union, Collection
 
+
 def is_flask_api_function(func_node: ast.FunctionDef):
     """
     Determines if a function definition approximates one that is used for APIs in Flask.
@@ -35,7 +36,8 @@ def is_django_api_function(func_node: ast.FunctionDef):
 
 
 class Node:
-    def __init__(self, func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef], assignments: Collection[ast.Assign], injection_vars, module_name):
+    def __init__(self, func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef], assignments: Collection[ast.Assign],
+                 injection_vars, module_name):
         self._func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef] = func_node
         self._assignments: Collection[ast.Assign] = assignments
         self._injection_vars = injection_vars
@@ -67,7 +69,7 @@ class Node:
     def __repr__(self):
         return f'{self.get_module_name()} {self.get_func_node().name} {len(self.get_assignments())}'
 
-    def add_to_graph(self, graph):
+    def get_node_props(self) -> dict:
 
         assignment_lines = []
         for assign in self.get_assignments():
@@ -88,4 +90,12 @@ class Node:
             'name': self._func_node.name
         }
 
-        graph.add_node(str(self), vars=self.get_injection_vars(), assignments=assignment_lines, func=func, endpoint=self.is_endpoint)
+        return {
+            'vars': list(self.get_injection_vars()),
+            'assignments': assignment_lines,
+            'func': func,
+            'endpoint': self.is_endpoint
+        }
+
+    def add_to_graph(self, graph):
+        graph.add_node(str(self), **self.get_node_props())
