@@ -61,20 +61,25 @@ class VulnerableTraversalChecker:
             print("visiting func ----------------------", str(node))
 
             if node.get_func_node() is None:
-                break
+                continue
 
             vulnerable_vars = self.collect_vulnerable_vars(node.get_func_node(), node.get_assignments(), [{}], [{}],
                                                            node.get_injection_vars())
 
             if node.is_endpoint:
                 if len(vulnerable_vars) > 0:
-                    print("api ", node.get_func_node().name, " is vulnerable")
-                    break
+                    print("api", node.get_func_node().name, "is vulnerable")
+                    continue
             else:
                 param_indexes_vulnerable = determine_vul_params_location(vulnerable_vars, node.get_func_node())
-                if param_indexes_vulnerable == None: continue
+                if param_indexes_vulnerable == None:
+                    continue
 
                 for nodeNext in UsesFinder.find_function_uses(self.prj_struct, node.get_module_name(), node.get_func_node().name):
+
+                    # stop recursion from breaking the program
+                    if nodeNext.get_func_node() == node.get_func_node():
+                        continue
 
                     if nodeNext.__repr__() in visited_func:
                         if not graph.has_edge(str(node), str(nodeNext)):
@@ -94,11 +99,12 @@ class VulnerableTraversalChecker:
                     print("     adding------------- " + nodeNext.get_func_node().name)
                     queue.append(nodeNext)
                     nodeNext.add_to_graph(graph)
+                    if not graph.has_edge(str(node), str(nodeNext)):
+                        graph.add_edge(str(node), str(nodeNext))
 
         if len(vulnerable_vars) == 0:
             return None
         else:
-            node.add_to_graph(graph)
             return graph
 
     def collect_vulnerable_vars(self, func_node, assignments, possible_marked_var_to_params, var_type_lst,

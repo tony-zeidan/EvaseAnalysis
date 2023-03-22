@@ -135,11 +135,10 @@ class FunctionCallFinder(ast.NodeVisitor):
         """
 
         for module_name, module_struct in self.prj_struct.get_module_structure().items():
+            self.func_target = self.func_name
+            self.module_target = self.module_name
             if module_name != self.module_name:
                 case, asname = differentiate_imports(module_struct, self.func_name, self.module_name)
-
-                self.func_target = self.func_name
-                self.module_target = self.module_name
                 if case == 0:
                     continue
 
@@ -155,9 +154,18 @@ class FunctionCallFinder(ast.NodeVisitor):
                     # print(f"CASE 4: vulnerable class found imported using AS, next step look for [{asname}.{func_name}]")
                     self.module_target = asname
 
+            else:
+                self.module_target = None
+                self.func_target = self.func_name
+            print("VISITING:", module_name, self.module_target, self.func_target)
+            if module_name == self.module_name:
+                print("SAME")
+
             self.visit(module_struct.get_ast())
 
     def visit_Call(self, node: ast.Call):
+        print()
+
         if self.module_target is None:
             if isinstance(node.func, ast.Attribute):
                 calling_function_name = node.func.attr
@@ -167,7 +175,7 @@ class FunctionCallFinder(ast.NodeVisitor):
             if calling_function_name == self.func_name:
                 injection_var = []
                 for arg in node.args:
-                    injection_var.extend(list(get_all_vars(arg)))
+                    injection_var.append(get_all_vars(arg))
                 self.found_calling_lst.append(
                     Node(
                         self.module_name,
@@ -183,7 +191,7 @@ class FunctionCallFinder(ast.NodeVisitor):
                 if calling_function_name == self.func_name and calling_module_name == self.module_target:
                     injection_var = []
                     for arg in node.args:
-                        injection_var.extend(list(get_all_vars(arg)))
+                        injection_var.append(get_all_vars(arg))
                     self.found_calling_lst.append(
                         Node(
                             self.module_name,

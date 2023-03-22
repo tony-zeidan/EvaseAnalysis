@@ -3,6 +3,7 @@ import ast
 from evase.sql_injection.injectionutil import get_all_vars
 from evase.sql_injection.vulnerabletraversal import VulnerableTraversalChecker
 
+
 class InjectionNodeVisitor(ast.NodeVisitor):
     # cursor_name = None
     # sql_package_names = ["sqlite3", "mysql"]

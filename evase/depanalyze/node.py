@@ -126,4 +126,5 @@ class Node:
         }
 
     def add_to_graph(self, graph):
-        graph.add_node(str(self), **self.get_node_props())
+        if not graph.has_node(str(self)):
+            graph.add_node(str(self), **self.get_node_props())
