@@ -183,36 +183,7 @@ class AnalysisPerformer:
         return jform
 
 
-def get_mdl_depgraph(prj: ProjectAnalysisStruct) -> Dict:
-    depgraph = {}
-    for k, v in prj.get_module_structure().items():
-        depgraph[k] = {}
-        for aname, (mdl_name, fn_name) in v.get_module_imports().items():
 
-            if mdl_name not in depgraph[k]:
-                depgraph[k][mdl_name] = []
-
-            if fn_name == aname:
-                continue
-
-            elif fn_name is None:
-                depgraph[k][mdl_name].append(aname)
-
-            else:
-                if fn_name not in depgraph[k][mdl_name]:
-                    depgraph[k][mdl_name].append(fn_name)
-
-        for fn_name, (mdl_name, _) in v.get_local_imports().items():
-
-            namer = f'{k}.{fn_name}'
-            if namer not in depgraph:
-                depgraph[namer] = []
-
-            depgraph[namer].append(mdl_name)
-
-    print("DEPGRAPH")
-    pprint(depgraph)
-    return depgraph
 
 
 def add_node(g, n, groups, edge_settings: dict = None, node_settings: dict = None):
@@ -236,20 +207,6 @@ def add_node(g, n, groups, edge_settings: dict = None, node_settings: dict = Non
         if not g.has_node(n):
             groups[n] = set()
             g.add_node(n, label=n, **node_settings)
-
-
-def get_mdl_depgraphabs(prj: ProjectAnalysisStruct) -> Dict:
-    depgraph = {}
-    for k, v in prj.get_module_structure().items():
-        depgraph[k] = set()
-        for _, (mdl_name, _) in v.get_module_imports().items():
-            depgraph[k].add(mdl_name)
-
-        for _, (mdl_name, _) in v.get_local_imports().items():
-            depgraph[k].add(mdl_name)
-
-    # print("DEPGRAPH")
-    # pprint(depgraph)
 
 
 def trim_depdigraph(graph: nx.DiGraph, groups):
@@ -283,7 +240,7 @@ def trim_depdigraph(graph: nx.DiGraph, groups):
 
 
 def get_mdl_depdigraph(prj: ProjectAnalysisStruct):
-    graph_info = get_mdl_depgraph(prj)
+    graph_info = prj.get_static_depgraph()
     graph = nx.DiGraph()
 
     groups = {}
@@ -335,5 +292,5 @@ def extend_depgraph_attackvectors(graph: nx.DiGraph, groups: Dict, analysis: Dic
 
 
 if __name__ == '__main__':
-    apr = AnalysisPerformer("demo", r"U:\courses\SYSC_4907\EvaseAnalysis\tests\resources\demo")
+    apr = AnalysisPerformer("demo", r"C:\courses\SYSC_4907\EvaseAnalysis\tests\resources\demo")
     apr.perform_analysis()

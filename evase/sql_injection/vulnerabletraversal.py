@@ -37,10 +37,6 @@ def get_node_name(node):
 def get_node_identifier(node):
     return f'{node.get_module_name()} {node.get_func_node().name} {len(node.get_assignments())}'
 
-
-def add_graph_node(g, node):
-    g.add_node(str(node), vars=node.get_injection_vars(), assignments=node.get_assignments(), func=node.get_func_node(), endpoint=node.is_endpoint)
-
 class VulnerableTraversalChecker:
     def traversal_from_exec(self, assignments: List[ast.Assign], func_node, injection_vars: Collection[ast.Name],
                             project_struct, module):

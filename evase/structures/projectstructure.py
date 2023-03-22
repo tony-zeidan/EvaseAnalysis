@@ -2,6 +2,7 @@ import ast
 import os
 from pathlib import Path
 from typing import Dict
+from pprint import pprint
 
 from evase.depanalyze.importresolver import ModuleImportResolver
 from evase.structures.modulestructure import ModuleAnalysisStruct
@@ -65,6 +66,38 @@ def dir_to_module_structure(dirpath: str) -> Dict[str, ModuleAnalysisStruct]:
     return tree
 
 
+def get_mdl_depgraph(mdl_structure) -> Dict:
+    depgraph = {}
+    for k, v in mdl_structure.items():
+        depgraph[k] = {}
+        for aname, (mdl_name, fn_name) in v.get_module_imports().items():
+
+            if mdl_name not in depgraph[k]:
+                depgraph[k][mdl_name] = []
+
+            if fn_name == aname:
+                continue
+
+            elif fn_name is None:
+                depgraph[k][mdl_name].append(aname)
+
+            else:
+                if fn_name not in depgraph[k][mdl_name]:
+                    depgraph[k][mdl_name].append(fn_name)
+
+        for fn_name, (mdl_name, _) in v.get_local_imports().items():
+
+            namer = f'{k}.{fn_name}'
+            if namer not in depgraph:
+                depgraph[namer] = []
+
+            depgraph[namer].append(mdl_name)
+
+    print("DEPGRAPH")
+    pprint(depgraph)
+    return depgraph
+
+
 class ProjectAnalysisStruct:
 
     def __init__(self, prj_name: str, prj_root: str):
@@ -79,17 +112,18 @@ class ProjectAnalysisStruct:
         if not os.path.exists(prj_root):
             raise ValueError("Can't accept a file path that doesn't exist.")
 
-        self._prj_root = prj_root
-        self._module_structure = dir_to_module_structure(self._prj_root)
+        self.__prj_root = prj_root
+        self.__module_structure = dir_to_module_structure(self.__prj_root)
         self.resolve_scopes(ScopeResolver())
-        resolve_project_imports(self._prj_root, self._module_structure)
+        resolve_project_imports(self.__prj_root, self.__module_structure)
+        self.__depgraph = get_mdl_depgraph(self.__module_structure)
 
     def resolve_module_funcs(self):
-        for mdl in self._module_structure.values():
+        for mdl in self.__module_structure.values():
             mdl.resolve_funcs()
 
     def resolve_scopes(self, scr: ScopeResolver):
-        for mdl in self._module_structure.values():
+        for mdl in self.__module_structure.values():
             mdl.resolve_scopes(scr)
             scr.reset()
 
@@ -99,7 +133,7 @@ class ProjectAnalysisStruct:
 
         :return: The root of the project
         """
-        return self._prj_root
+        return self.__prj_root
 
     def get_module_structure(self) -> Dict[str, ModuleAnalysisStruct]:
         """
@@ -107,7 +141,7 @@ class ProjectAnalysisStruct:
 
         :return: Mapping of module names to analysis structures
         """
-        return self._module_structure
+        return self.__module_structure
 
     def get_module(self, module_key) -> ModuleAnalysisStruct:
         """
@@ -115,4 +149,7 @@ class ProjectAnalysisStruct:
 
         :return: module analysis structures
         """
-        return self._module_structure.get(module_key)
+        return self.__module_structure.get(module_key)
+
+    def get_static_depgraph(self) -> Dict:
+        return self.__depgraph
