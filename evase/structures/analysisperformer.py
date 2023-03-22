@@ -11,11 +11,18 @@ import os
 from pprint import pprint
 
 attack_vector_edge_setting = {
+    'vulnerable': True,
     'color': 'red',
+    'arrows': {
+        'to': {
+            'enabled': True
+        },
+    },
     'weight': 2
 }
 
 attack_vector_node_setting = {
+    'vulnerable': True,
     'color': {
         'background': 'red',
         'border': "#FFCCCB",
@@ -24,6 +31,14 @@ attack_vector_node_setting = {
             'border': "#FFCCCB",
         }
     },
+}
+
+uses_edge_setting = {
+    'arrows': {
+        'to': {
+            'enabled': True
+        },
+    }
 }
 
 package_edge_setting = {
@@ -44,6 +59,7 @@ package_edge_setting = {
         }
     }
 }
+
 
 class BehaviourAnalyzer(ABC):
 
@@ -123,7 +139,6 @@ class AnalysisPerformer:
         prj_struct = ProjectAnalysisStruct(self.project_name, self.project_root)
         graph, groups = get_mdl_depdigraph(prj_struct)
 
-
         if self.sql_injection_detector is not None:
             pprint(prj_struct.get_module_structure())
             self.sql_injection_detector.set_project_struct(prj_struct)
@@ -132,26 +147,26 @@ class AnalysisPerformer:
             graph_data = nx.node_link_data(graph, source='from', target='to', link='edges')
 
             # pprint(x)
-            #nt = Network(directed=True, select_menu=True)
-            #nt.from_nx(graph)
+            # nt = Network(directed=True, select_menu=True)
+            # nt.from_nx(graph)
 
             # nx.set_edge_attributes(graph, ']-', name='arrowstyle')
             # nx.draw_networkx(graph, arrowstyle='<|-')
             # plt.show()
 
-            #nt.toggle_physics(True)
+            # nt.toggle_physics(True)
             # print(nt.generate_html("ex.html"))
 
             # nt.set_options('{"edges": {"dashes": true}}')
-            #nt.show("nx.html", notebook=False)
+            # nt.show("nx.html", notebook=False)
 
             self.analysis_results['graph'] = {}
             self.analysis_results['graph']['total'] = graph_data
             sql_results_dct = {}
-            for k, v in sql_injection_results['graph'].items():
-                sql_results_dct[k] = nx.node_link_data(v, source='from', target='to', link='edges')
+            # for k, v in sql_injection_results['graph'].items():
+            #    sql_results_dct[k] = nx.node_link_data(v, source='from', target='to', link='edges')
 
-            self.analysis_results['graph']['vectors'] = sql_results_dct
+            # self.analysis_results['graph']['vectors'] = sql_results_dct
 
             pprint(self.analysis_results)
 
@@ -174,6 +189,7 @@ class AnalysisPerformer:
         :param filepath: The path to the directory
         :return: The JSON formatted string
         """
+        pprint(self.analysis_results)
         jform = json.dumps(self.analysis_results, indent=4)
         if not os.path.exists(filepath) or not os.path.isdir(filepath):
             raise ValueError("Path doesn't exist or it isn't a directory")
@@ -229,6 +245,9 @@ def add_node(g, n, groups, edge_settings: dict = None, node_settings: dict = Non
         if not g.has_node(n):
             groups[parent].add(n)
             g.add_node(n, label=n, **node_settings)
+        else:
+            nx.set_node_attributes(g, {n: node_settings})
+
         if g.has_node(parent):
             if not g.has_edge(n, parent):
                 g.add_edge(n, parent, **edge_settings)
@@ -238,21 +257,10 @@ def add_node(g, n, groups, edge_settings: dict = None, node_settings: dict = Non
             g.add_node(n, label=n, **node_settings)
 
 
-def get_mdl_depgraphabs(prj: ProjectAnalysisStruct) -> Dict:
-    depgraph = {}
-    for k, v in prj.get_module_structure().items():
-        depgraph[k] = set()
-        for _, (mdl_name, _) in v.get_module_imports().items():
-            depgraph[k].add(mdl_name)
+def trim_depdigraph(graph: nx.DiGraph, groups, edge_settings: dict = None):
+    if edge_settings is None:
+        edge_settings = {}
 
-        for _, (mdl_name, _) in v.get_local_imports().items():
-            depgraph[k].add(mdl_name)
-
-    # print("DEPGRAPH")
-    # pprint(depgraph)
-
-
-def trim_depdigraph(graph: nx.DiGraph, groups):
     # Trim unnecessary groups
     toparent = []
     for group, members in groups.items():
@@ -272,11 +280,11 @@ def trim_depdigraph(graph: nx.DiGraph, groups):
 
             for ined in ineds:
                 if ined[0] != group:
-                    graph.add_edge(*ined)
+                    graph.add_edge(*ined, **edge_settings)
 
             for outed in outeds:
                 if outed[1] != group:
-                    graph.add_edge(*outed)
+                    graph.add_edge(*outed, **edge_settings)
 
             toparent.append(mem)
     groups.update({k: set() for k in toparent})
@@ -290,24 +298,20 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct):
     for uses, defs_dct in graph_info.items():
         add_node(graph, uses, groups)
         for defs, defs_props in defs_dct.items():
-            add_node(graph, defs, groups, edge_settings=dict(dashes=True, arrowstyle=']-', arrows=dict(
-                to=dict(enabled=True, type="bar", scaleFactor=0.5))))
+            add_node(graph, defs, groups, edge_settings=package_edge_setting)
 
             if len(defs_props) == 0:
                 if not graph.has_edge(uses, defs):
-                    graph.add_edge(uses, defs, edge_settings=dict(dashes=True, arrowstyle=']-', arrows=dict(
-                        to=dict(enabled=True, type="bar", scaleFactor=0.5))))
+                    graph.add_edge(uses, defs, **uses_edge_setting)
             else:
                 for def_prop in defs_props:
                     namer = f'{defs}.{def_prop}'
-                    add_node(graph, namer, groups, edge_settings=dict(dashes=True, arrowstyle=']-', arrows=dict(
-                        to=dict(enabled=True, type="bar", scaleFactor=0.5))))
+                    add_node(graph, namer, groups, edge_settings=package_edge_setting)
 
                     if not graph.has_edge(uses, namer):
-                        graph.add_edge(uses, namer)
+                        graph.add_edge(uses, namer, **uses_edge_setting)
 
-    trim_depdigraph(graph, groups)
-
+    trim_depdigraph(graph, groups, edge_settings=uses_edge_setting)
 
     return graph, groups
 
@@ -322,14 +326,16 @@ def extend_depgraph_attackvectors(graph: nx.DiGraph, groups: Dict, analysis: Dic
 
         for vul_mdl, attack_graph in res.items():
             for edge in attack_graph.edges:
-                add_node(graph, edge[0], groups, edge_settings=package_edge_setting, node_settings=attack_vector_node_setting)
-                add_node(graph, edge[1], groups, edge_settings=package_edge_setting, node_settings=attack_vector_node_setting)
+                add_node(graph, edge[0], groups, edge_settings=package_edge_setting,
+                         node_settings=attack_vector_node_setting)
+                add_node(graph, edge[1], groups, edge_settings=package_edge_setting,
+                         node_settings=attack_vector_node_setting)
 
                 # safety, only add the edge if it isn't there
                 if not graph.has_edge(edge[1], edge[0]):
                     graph.add_edge(edge[1], edge[0], **attack_vector_edge_setting)
 
-        trim_depdigraph(graph, groups)
+        trim_depdigraph(graph, groups, edge_settings=uses_edge_setting)
 
     return graph, groups
 
