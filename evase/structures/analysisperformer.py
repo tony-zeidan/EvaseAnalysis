@@ -33,7 +33,12 @@ attack_vector_node_setting = {
     },
 }
 
+uses_node_setting = {
+    'vulnerable': False,
+}
+
 uses_edge_setting = {
+    'vulnerable': False,
     'arrows': {
         'to': {
             'enabled': True
@@ -42,6 +47,7 @@ uses_edge_setting = {
 }
 
 package_edge_setting = {
+    'vulnerable': False,
     'dashes': True,
     'color': {
         'inherit': False
@@ -247,9 +253,9 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct):
 
     groups = {}
     for uses, defs_dct in graph_info.items():
-        add_node(graph, uses, groups)
+        add_node(graph, uses, groups, node_settings=uses_node_setting, edge_settings=package_edge_setting)
         for defs, defs_props in defs_dct.items():
-            add_node(graph, defs, groups, edge_settings=package_edge_setting)
+            add_node(graph, defs, groups, node_settings=uses_node_setting, edge_settings=package_edge_setting)
 
             if len(defs_props) == 0:
                 if not graph.has_edge(uses, defs):
@@ -257,7 +263,7 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct):
             else:
                 for def_prop in defs_props:
                     namer = f'{defs}.{def_prop}'
-                    add_node(graph, namer, groups, edge_settings=package_edge_setting)
+                    add_node(graph, namer, groups, node_settings=uses_node_setting, edge_settings=package_edge_setting)
 
                     if not graph.has_edge(uses, namer):
                         graph.add_edge(uses, namer, **uses_edge_setting)
