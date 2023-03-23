@@ -10,6 +10,12 @@ authors = [
     {name = "Ethan Chase", email="e281828c@gmail.com"},
     {name = "Shaopeng Liu", email="shaopengliu@cmail.carleton.ca"},
 ]
+maintainers = [
+    {name = "Tony Abou Zeidan", email="tony.azp25@gmail.com"},
+    {name = "Anthony Dooley", email="anthonydooley@cmail.carleton.ca"},
+    {name = "Ethan Chase", email="e281828c@gmail.com"},
+    {name = "Shaopeng Liu", email="shaopengliu@cmail.carleton.ca"},
+]
 description = "A Python package with tools for the detection of SQL injection vulnerabilities in projects."
 readme = "README.md"
 requires-python = ">=3.7, <=3.11"
