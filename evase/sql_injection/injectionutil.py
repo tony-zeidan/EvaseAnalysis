@@ -9,7 +9,6 @@ def get_function_params(node) -> list:
     :return: The set of the function parameters
     """
     params = []
-    print("test for pip update")
     args = node.args.args
     for arg in args:
         params.append(arg.arg)
@@ -133,7 +132,6 @@ def get_inner_scope_assignments(index, assignments):
             continue
         elif node == "endif" or node == "endwhile" or node == "endfor":
             removed = stack.pop()
-            if removed != node: print("not same val" + removed + " " + node)
             if len(stack) == 0:
                 index += 1
                 break

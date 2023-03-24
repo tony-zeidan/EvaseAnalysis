@@ -36,6 +36,4 @@ def get_user_from_db(username: str) -> list:
     conn.close()
     return userInfo
 
-@app.route('/uf')
-def gtu(username: str):
-    get_user_from_db(username)
+
