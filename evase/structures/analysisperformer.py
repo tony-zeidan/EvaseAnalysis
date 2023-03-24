@@ -252,8 +252,6 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct):
     graph = nx.DiGraph()
 
     groups = {}
-    print("here")
-    print(graph_info)
     for uses, defs_dct in graph_info.items():
         add_node(graph, uses, groups, node_settings=uses_node_setting, edge_settings=package_edge_setting)
         if not hasattr(defs_dct, "items"): continue
