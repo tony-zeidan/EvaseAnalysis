@@ -45,7 +45,7 @@ class VulnerableTraversalChecker:
         visited_func = set()  # unique with func name, module and num assignments
         queue = deque()
 
-        print("start of bfs")
+        # print("start of bfs")
         vulnerable_vars = set()
 
         graph = nx.DiGraph()
@@ -58,7 +58,7 @@ class VulnerableTraversalChecker:
 
             node.get_func_node()
             visited_func.add(node.__repr__())
-            print("visiting func ----------------------", str(node))
+            # print("visiting func ----------------------", str(node))
 
             if node.get_func_node() is None:
                 continue
@@ -68,7 +68,7 @@ class VulnerableTraversalChecker:
 
             if node.is_endpoint:
                 if len(vulnerable_vars) > 0:
-                    print("api", node.get_func_node().name, "is vulnerable")
+                    # print("api", node.get_func_node().name, "is vulnerable")
                     continue
             else:
                 param_indexes_vulnerable = determine_vul_params_location(vulnerable_vars, node.get_func_node())

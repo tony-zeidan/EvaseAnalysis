@@ -43,15 +43,11 @@ class ModuleImportResolver(ast.NodeTransformer):
                 if filepath.is_file():
                     alias_node.name = ".".join(vals)
 
-            print("SURFACE:", self._is_surface)
-            print("name:", name)
-            print("aliasname:", alias_node.name)
-            print("alias as:", alias_node.asname)
             if self._is_surface:
                 if alias_node.asname is None:
                     self._surface_imports[name] = [alias_node.name, name]
                 else:
-                    print("ASNAME:", alias_node.asname, alias_node)
+
                     self._surface_imports[alias_node.asname] = [alias_node.name, alias_node.asname]
             else:
                 if alias_node.asname is None:

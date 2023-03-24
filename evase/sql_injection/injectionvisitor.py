@@ -73,14 +73,8 @@ class InjectionNodeVisitor(ast.NodeVisitor):
     def visit_execute(self, node: ast.Call):
         lst = self.lst_of_assignments.copy()
 
-        print(self.lst_of_assignments)
-
         arg_list = get_all_vars(node.args[0])
         curr_scope = self.get_current_scope()
-        print("EXEC found, curr scope:", curr_scope)
-
-        print(self.module_key)
-        print(self.lst_of_assignments)
 
         result = self.sql_marker.traversal_from_exec(lst, self.current_func_node, arg_list,
                                                      self.module_key, start_from=node)

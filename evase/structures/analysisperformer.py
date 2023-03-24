@@ -8,7 +8,6 @@ from evase.sql_injection.injectionvisitor import InjectionNodeVisitor
 from abc import ABC, abstractmethod
 import json
 import os
-from pprint import pprint
 
 attack_vector_edge_setting = {
     'vulnerable': True,
@@ -146,7 +145,6 @@ class AnalysisPerformer:
         graph, groups = get_mdl_depdigraph(prj_struct)
 
         if self.sql_injection_detector is not None:
-            pprint(prj_struct.get_module_structure())
             self.sql_injection_detector.set_project_struct(prj_struct)
             sql_injection_results = self.sql_injection_detector.do_analysis()
             graph, groups = extend_depgraph_attackvectors(graph, groups, sql_injection_results)
@@ -154,13 +152,6 @@ class AnalysisPerformer:
 
             self.analysis_results['graph'] = {}
             self.analysis_results['graph']['total'] = graph_data
-            sql_results_dct = {}
-            # for k, v in sql_injection_results['graph'].items():
-            #    sql_results_dct[k] = nx.node_link_data(v, source='from', target='to', link='edges')
-
-            # self.analysis_results['graph']['vectors'] = sql_results_dct
-
-            pprint(self.analysis_results)
 
     def get_results(self):
         """
@@ -178,7 +169,6 @@ class AnalysisPerformer:
         :param filepath: The path to the directory
         :return: The JSON formatted string
         """
-        pprint(self.analysis_results)
         jform = json.dumps(self.analysis_results, indent=4)
         if not os.path.exists(filepath) or not os.path.isdir(filepath):
             raise ValueError("Path doesn't exist or it isn't a directory")
@@ -212,6 +202,8 @@ def add_node(g, n, groups, edge_settings: dict = None, node_settings: dict = Non
         if not g.has_node(n):
             groups[n] = set()
             g.add_node(n, label=n, **node_settings)
+        else:
+            nx.set_node_attributes(g, {n: node_settings})
 
 
 def trim_depdigraph(graph: nx.DiGraph, groups, edge_settings: dict = None):
@@ -283,6 +275,7 @@ def extend_depgraph_attackvectors(graph: nx.DiGraph, groups: Dict, analysis: Dic
         res = res['graph']
 
         for vul_mdl, attack_graph in res.items():
+
             for edge in attack_graph.edges:
                 add_node(graph, edge[0], groups, edge_settings=package_edge_setting,
                          node_settings=attack_vector_node_setting)

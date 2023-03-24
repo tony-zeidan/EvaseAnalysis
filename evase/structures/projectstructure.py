@@ -76,7 +76,6 @@ def get_mdl_depgraph(mdl_structure) -> Dict:
                 depgraph[k][mdl_name] = []
 
             if fn_name == aname:
-                print("CONTINUE")
                 continue
 
             elif fn_name is None:
@@ -94,8 +93,6 @@ def get_mdl_depgraph(mdl_structure) -> Dict:
 
             depgraph[namer].append(mdl_name)
 
-    print("DEPGRAPH")
-    pprint(depgraph)
     return depgraph
 
 
@@ -118,6 +115,8 @@ class ProjectAnalysisStruct:
         self.resolve_scopes(ScopeResolver())
         resolve_project_imports(self.__prj_root, self.__module_structure)
         self.__depgraph = get_mdl_depgraph(self.__module_structure)
+        print("DEPENDENCY GRAPH")
+        pprint(self.__depgraph)
 
     def resolve_module_funcs(self):
         for mdl in self.__module_structure.values():

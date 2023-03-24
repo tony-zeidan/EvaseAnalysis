@@ -118,6 +118,7 @@ class FunctionCallFinder(ast.NodeVisitor):
         """
 
         self.module_name = func_mdl_name
+        self.curr_module = None
         self.module_target = None
         self.func_name = func_name
         self.func_target = None
@@ -135,50 +136,48 @@ class FunctionCallFinder(ast.NodeVisitor):
         """
 
         for module_name, module_struct in self.prj_struct.get_module_structure().items():
-            self.func_target = self.func_name
-            self.module_target = self.module_name
+            #self.module_name = module_name
+
             if module_name != self.module_name:
                 case, asname = differentiate_imports(module_struct, self.func_name, self.module_name)
-                if case == 0:
-                    continue
-
-                elif case == 2:
-                    # print(f"CASE 2: vulnerable function found imported, next step look for function calls [{func_name}]")
-                    self.module_target = None
-                elif case == 3:
-                    # print(f"CASE 3: vulnerable function found imported using AS, next step look for function calls [{asname}]")
-                    self.module_target = None
-                    self.func_target = asname
-
-                elif case == 4:
-                    # print(f"CASE 4: vulnerable class found imported using AS, next step look for [{asname}.{func_name}]")
-                    self.module_target = asname
-
             else:
+                case = ImportUsesCase.ONLY_FUNCTION
+
+            self.curr_module = module_name
+            self.func_target = self.func_name
+            self.module_target = module_name
+
+            if case == ImportUsesCase.NO_IMPORTS:
+                continue
+
+            elif case == ImportUsesCase.ONLY_FUNCTION:
+                # print(f"CASE 2: vulnerable function found imported, next step look for function calls [{func_name}]")
                 self.module_target = None
-                self.func_target = self.func_name
-            print("VISITING:", module_name, self.module_target, self.func_target)
-            if module_name == self.module_name:
-                print("SAME")
+            elif case == ImportUsesCase.ONLY_FUNCTION_AS:
+                # print(f"CASE 3: vulnerable function found imported using AS, next step look for function calls [{asname}]")
+                self.module_target = None
+                self.func_target = asname
+
+            elif case == ImportUsesCase.ENTIRE_MODULE_AS:
+                # print(f"CASE 4: vulnerable class found imported using AS, next step look for [{asname}.{func_name}]")
+                self.module_target = asname
 
             self.visit(module_struct.get_ast())
 
     def visit_Call(self, node: ast.Call):
-        print()
-
-        if self.module_target is None:
+        if not self.module_target:
             if isinstance(node.func, ast.Attribute):
                 calling_function_name = node.func.attr
             else:
                 calling_function_name = node.func.id
 
-            if calling_function_name == self.func_name:
+            if calling_function_name == self.func_target:
                 injection_var = []
                 for arg in node.args:
                     injection_var.append(get_all_vars(arg))
                 self.found_calling_lst.append(
                     Node(
-                        self.module_name,
+                        self.curr_module,
                         func_node=self.current_func_node,
                         assignments=self.lst_of_assignments.copy(),
                         injection_vars=injection_var,
@@ -192,9 +191,10 @@ class FunctionCallFinder(ast.NodeVisitor):
                     injection_var = []
                     for arg in node.args:
                         injection_var.append(get_all_vars(arg))
+
                     self.found_calling_lst.append(
                         Node(
-                            self.module_name,
+                            self.curr_module,
                             func_node=self.current_func_node,
                             assignments=self.lst_of_assignments.copy(),
                             injection_vars=injection_var,
