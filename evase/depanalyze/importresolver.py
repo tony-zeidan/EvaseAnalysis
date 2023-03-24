@@ -67,6 +67,10 @@ class ModuleImportResolver(ast.NodeTransformer):
 
     def visit_ImportFrom(self, node: ImportFrom):
         module_name = node.module
+        if module_name is None:
+            node.module = "__init__"
+            module_name = "__init__"
+
         # absolute path
         if "." not in module_name:
             vals = self.key.split(".")

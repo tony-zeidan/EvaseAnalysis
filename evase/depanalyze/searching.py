@@ -185,7 +185,7 @@ class FunctionCallFinder(ast.NodeVisitor):
                         from_node=node))
         else:
             attrbute_node = node.func
-            if hasattr(attrbute_node, "value") and hasattr(attrbute_node, "value"):
+            if hasattr(attrbute_node, "value") and hasattr(attrbute_node.value, "id"):
                 calling_module_name = attrbute_node.value.id
                 calling_function_name = attrbute_node.attr
                 if calling_function_name == self.func_name and calling_module_name == self.module_target:
