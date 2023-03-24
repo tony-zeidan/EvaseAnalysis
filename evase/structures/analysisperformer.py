@@ -297,8 +297,4 @@ def extend_depgraph_attackvectors(graph: nx.DiGraph, groups: Dict, analysis: Dic
     return graph, groups
 
 
-if __name__ == '__main__':
-    test1 = r'C:\Users\tonyz\OneDrive\Desktop\EVASE-MASTER\root'
-    test2 = r'C:\courses\SYSC_4907\EvaseAnalysis\tests\resources\demo'
-    apr = AnalysisPerformer("demo", test2)
-    apr.perform_analysis()
+
