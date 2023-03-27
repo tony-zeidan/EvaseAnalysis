@@ -11,7 +11,6 @@ import sys
 sys.path.insert(0, os.path.abspath('../evase'))
 
 project = 'EvaseAnalysis'
-copyright = '2023, Tony Abou Zeidan, Ethan Chase, Anthony Dooley, Shaopeng Liu'
 author = 'Tony Abou Zeidan, Ethan Chase, Anthony Dooley, Shaopeng Liu'
 release = '1.0.0'
 
