@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Tuple, List
 
 import networkx as nx
 
@@ -8,6 +8,7 @@ from evase.sql_injection.injectionvisitor import InjectionNodeVisitor
 from abc import ABC, abstractmethod
 import json
 import os
+from pprint import pprint
 
 attack_vector_edge_setting = {
     'vulnerable': True,
@@ -73,24 +74,57 @@ class BehaviourAnalyzer(ABC):
             project_struct: ProjectAnalysisStruct = None,
             executor=None
     ):
+        """
+        An abstract class of an analyzer that detects specific attack behaviours within a project.
+
+        :param project_struct: The project structure to analyze
+        :param executor: The execution function to run for analysis
+        """
+
         self.project_struct = project_struct
         self.analysis_results = dict(vulnerabilities=[], found_any=False)
         self.executor = executor
 
-    def get_project_struct(self):
+    def get_project_struct(self) -> ProjectAnalysisStruct:
+        """
+        Retrieve the project analysis structure.
+
+        :return: The analysis structure being analyzed
+        """
         return self.project_struct
 
-    def get_analysis_results(self):
+    def get_analysis_results(self) -> Dict:
+        """
+        Retrieve the analysis result of the analyzer.
+
+        :return: The mapping of analysis results
+        """
+
         return self.analysis_results
 
     def set_project_struct(self, project_struct: ProjectAnalysisStruct):
+        """
+        Set the project structure to analyze.
+
+        :param project_struct: The project structure to analyze
+        """
+
         self.project_struct = project_struct
 
     def set_executor(self, executor):
+        """
+        Set the executor function of this analyzer.
+
+        :param executor: The executor function.
+        """
         self.executor = executor
 
     @abstractmethod
     def do_analysis(self):
+        """
+        Abstract method to do the analysis and output a result.
+        """
+
         if self.project_struct is None:
             raise ValueError("Project structure needs to be set before performing analysis.")
         if self.executor is None:
@@ -101,9 +135,19 @@ class BehaviourAnalyzer(ABC):
 class SQLInjectionBehaviourAnalyzer(BehaviourAnalyzer):
 
     def __init__(self, project_struct: ProjectAnalysisStruct = None):
+        """
+        An SQL injection analyzer that identifies such vulnerabilities in the project structure.
+
+        :param project_struct: The project structure to analyze
+        """
         super().__init__(project_struct)
 
-    def do_analysis(self):
+    def do_analysis(self) -> Dict:
+        """
+        Perform the SQL injection analysis and output the result.
+
+        :return: A dictionary of the analysis results
+        """
         for m_name, m_struct in self.project_struct.get_module_structure().items():
             visitor = InjectionNodeVisitor(self.project_struct, m_name)
             visitor.visit(m_struct.get_ast())
@@ -145,13 +189,21 @@ class AnalysisPerformer:
         graph, groups = get_mdl_depdigraph(prj_struct)
 
         if self.sql_injection_detector is not None:
+            pprint(prj_struct.get_module_structure())
             self.sql_injection_detector.set_project_struct(prj_struct)
             sql_injection_results = self.sql_injection_detector.do_analysis()
-            graph, groups = extend_depgraph_attackvectors(graph, groups, sql_injection_results)
+            graph, groups = extend_depgraph_attackvectors(graph, groups, sql_injection_results['graph'])
             graph_data = nx.node_link_data(graph, source='from', target='to', link='edges')
 
             self.analysis_results['graph'] = {}
             self.analysis_results['graph']['total'] = graph_data
+            sql_results_dct = {}
+            # for k, v in sql_injection_results['graph'].items():
+            #    sql_results_dct[k] = nx.node_link_data(v, source='from', target='to', link='edges')
+
+            # self.analysis_results['graph']['vectors'] = sql_results_dct
+
+            pprint(self.analysis_results)
 
     def get_results(self):
         """
@@ -169,6 +221,7 @@ class AnalysisPerformer:
         :param filepath: The path to the directory
         :return: The JSON formatted string
         """
+        pprint(self.analysis_results)
         jform = json.dumps(self.analysis_results, indent=4)
         if not os.path.exists(filepath) or not os.path.isdir(filepath):
             raise ValueError("Path doesn't exist or it isn't a directory")
@@ -178,7 +231,21 @@ class AnalysisPerformer:
         return jform
 
 
-def add_node(g, n, groups, edge_settings: dict = None, node_settings: dict = None):
+def add_node(g: nx.DiGraph, n: str, groups: Dict[str, List[str]], edge_settings: Dict = None, node_settings: Dict = None):
+    """
+    Add a node to the dependency graph.
+    If the node already exists, update the properties of the node.
+    If the node doesn't exist, create a new node.
+    If the node belongs to a package group, add an edge between the package parent and the new node.
+
+    :param g: The dependency graph
+    :param n: The new node to add to the graph
+    :param groups: The groups of packages to modules in the package
+    :param edge_settings: If an edge is to be added, the settings for that edge
+    :param node_settings: If a node is to be added, the settings for that node
+    :return: None
+    """
+
     if edge_settings is None:
         edge_settings = {}
     if node_settings is None:
@@ -202,11 +269,19 @@ def add_node(g, n, groups, edge_settings: dict = None, node_settings: dict = Non
         if not g.has_node(n):
             groups[n] = set()
             g.add_node(n, label=n, **node_settings)
-        else:
-            nx.set_node_attributes(g, {n: node_settings})
 
 
-def trim_depdigraph(graph: nx.DiGraph, groups, edge_settings: dict = None):
+def trim_depdigraph(graph: nx.DiGraph, groups: Dict[str, List[str]], edge_settings: Dict = None):
+    """
+    Trim NetworkX dependency graph representation by getting rid of groups that only
+    have one element present.
+
+    :param graph: The graph to trim groups from
+    :param groups: The grouping of modules within the graph (package name to nodes in that package)
+    :param edge_settings: The settings of edges when re-adding the edges back
+    :return: None
+    """
+
     if edge_settings is None:
         edge_settings = {}
 
@@ -239,14 +314,20 @@ def trim_depdigraph(graph: nx.DiGraph, groups, edge_settings: dict = None):
     groups.update({k: set() for k in toparent})
 
 
-def get_mdl_depdigraph(prj: ProjectAnalysisStruct):
+def get_mdl_depdigraph(prj: ProjectAnalysisStruct) -> Tuple[nx.DiGraph, Dict[str, List[str]]]:
+    """
+    Turn the module dependency graph into a NetworkX graph.
+
+    :param prj: The project analysis structure containing the static dependency graph
+    :return: The NetworkX graph object and a mapping between modules under similar package names
+    """
+
     graph_info = prj.get_static_depgraph()
     graph = nx.DiGraph()
 
     groups = {}
     for uses, defs_dct in graph_info.items():
         add_node(graph, uses, groups, node_settings=uses_node_setting, edge_settings=package_edge_setting)
-        if not hasattr(defs_dct, "items"): continue
         for defs, defs_props in defs_dct.items():
             add_node(graph, defs, groups, node_settings=uses_node_setting, edge_settings=package_edge_setting)
 
@@ -266,26 +347,45 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct):
     return graph, groups
 
 
-def extend_depgraph_attackvectors(graph: nx.DiGraph, groups: Dict, analysis: Dict):
-    # def helper(d: Dict):
-    #    for k, v in dict
+def extend_depgraph_attackvectors(graph: nx.DiGraph, groups: Dict[str, List[str]], analysis: Dict[str, nx.DiGraph]) -> Tuple[nx.DiGraph, Dict[str, List[str]]]:
+    """
+    Extend the main dependency NetworkX graph with the subgraphs for each individual
+    vulnerability.
 
-    res = analysis
-    if res['found_any']:
-        res = res['graph']
+    Basic Idea:
+    - Go through each vulnerability graph found during the analysis and add
+    all nodes and edges from these subgraphs to the main graph
+    - Copy the vulnerability graphs to the main graph
 
-        for vul_mdl, attack_graph in res.items():
+    :param graph: The main dependency graph
+    :param groups: Groups in the graph (similar modules together)
+    :param analysis: The analysis results of the program, keys are modules and values are the NetworkX graphs
+    :return: The extended graph and new groupings
+    """
 
-            for edge in attack_graph.edges:
-                add_node(graph, edge[0], groups, edge_settings=package_edge_setting,
-                         node_settings=attack_vector_node_setting)
-                add_node(graph, edge[1], groups, edge_settings=package_edge_setting,
-                         node_settings=attack_vector_node_setting)
+    # loop over each vulnerability in each module
+    for vul_mdl, attack_graph in analysis.items():
 
-                # safety, only add the edge if it isn't there
-                if not graph.has_edge(edge[1], edge[0]):
-                    graph.add_edge(edge[1], edge[0], **attack_vector_edge_setting)
+        # loop over attack vector edges (each individual vulnerability graph)
+        for ed1, ed2 in attack_graph.edges:
 
+            # ed1 is the first node in the edge, and ed2 is the second (from->to)
+
+            # TODO: get attributes of the current node and add them to the attack vector setting
+
+            new_attack_vector_node_setting1 = attack_vector_node_setting.copy()
+            new_attack_vector_node_setting2 = attack_vector_node_setting.copy()
+
+            add_node(graph, ed1, groups, edge_settings=package_edge_setting,
+                     node_settings=new_attack_vector_node_setting1)
+            add_node(graph, ed2, groups, edge_settings=package_edge_setting,
+                     node_settings=new_attack_vector_node_setting2)
+
+            # safety, only add the edge if it isn't there
+            if not graph.has_edge(ed2, ed1):
+                graph.add_edge(ed2, ed1, **attack_vector_edge_setting)
+
+        # for safety, trim the graph after; don't worry about this
         trim_depdigraph(graph, groups, edge_settings=uses_edge_setting)
 
     return graph, groups
