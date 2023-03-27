@@ -8,7 +8,7 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../evase'))
 
 project = 'EvaseAnalysis'
 copyright = '2023, Tony Abou Zeidan, Ethan Chase, Anthony Dooley, Shaopeng Liu'
