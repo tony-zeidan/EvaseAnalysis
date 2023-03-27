@@ -37,14 +37,12 @@ def dir_to_module_structure(dirpath: str) -> Dict[str, ModuleAnalysisStruct]:
     return tree
 
 
-
-
-
 class ProjectAnalysisStruct:
 
     def __init__(self, prj_name: str, prj_root: str):
         """
-        Constructor for instances of project analysis structure.
+        A class that represents the structure of a Python project.
+        The class analyzes the dependencies between files, and transforms this into a workable module structure.
 
         :param prj_name: The name of the project
         :param prj_root: The root directory of the project
@@ -114,7 +112,7 @@ class ProjectAnalysisStruct:
         """
         return self.__module_structure.get(module_key)
 
-    def __make_static_depgraph(self) -> Dict:
+    def __make_static_depgraph(self):
         depgraph = {}
         for k, v in self.__module_structure.items():
             depgraph[k] = {}
@@ -144,4 +142,9 @@ class ProjectAnalysisStruct:
         self.__depgraph = depgraph
 
     def get_static_depgraph(self) -> Dict:
+        """
+        Retrieve the static dependency graph from the analysis structure.
+
+        :return: The static dependency graph in dictionary form
+        """
         return self.__depgraph
