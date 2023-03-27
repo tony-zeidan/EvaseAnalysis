@@ -6,36 +6,7 @@ from pprint import pprint
 
 from evase.depanalyze.importresolver import ModuleImportResolver
 from evase.structures.modulestructure import ModuleAnalysisStruct
-from evase.depanalyze.scoperesolver import ScopeResolver
 from evase.depanalyze.surfacedetector import SurfaceLevelVisitor
-
-
-def resolve_project_imports(dirpath: str, module_mapping: Dict[str, ModuleAnalysisStruct]):
-    """
-    Define the dependencies between modules.
-
-    :param module_mapping: The mapping of module names to their analysis structures
-    :param dirpath: The path to the directory of the project
-    :return: An altered module mapping containing
-    """
-
-    surface_values = {}
-    for module_key in module_mapping.keys():
-        ast_tree = module_mapping[module_key].get_ast()
-        surface_detector = SurfaceLevelVisitor()
-        surface_detector.visit(ast_tree)
-        surface_values[module_key] = surface_detector.get_surface_names()
-
-    for module_key in module_mapping.keys():
-        import_resolver = ModuleImportResolver(surface_values, dirpath)
-        import_resolver.set_key(module_key)
-        ast_tree = module_mapping[module_key].get_ast()
-        modified_ast = import_resolver.visit(ast_tree)
-        module_mapping[module_key].set_ast(modified_ast)
-
-        module_imports, local_imports = import_resolver.get_dependencies()
-        module_mapping[module_key].set_module_imports(module_imports)
-        module_mapping[module_key].set_local_imports(local_imports)
 
 
 def dir_to_module_structure(dirpath: str) -> Dict[str, ModuleAnalysisStruct]:
@@ -66,34 +37,7 @@ def dir_to_module_structure(dirpath: str) -> Dict[str, ModuleAnalysisStruct]:
     return tree
 
 
-def get_mdl_depgraph(mdl_structure) -> Dict:
-    depgraph = {}
-    for k, v in mdl_structure.items():
-        depgraph[k] = {}
-        for aname, (mdl_name, fn_name) in v.get_module_imports().items():
 
-            if mdl_name not in depgraph[k]:
-                depgraph[k][mdl_name] = []
-
-            if fn_name == aname:
-                continue
-
-            elif fn_name is None:
-                depgraph[k][mdl_name].append(aname)
-
-            else:
-                if fn_name not in depgraph[k][mdl_name]:
-                    depgraph[k][mdl_name].append(fn_name)
-
-        for fn_name, (mdl_name, _) in v.get_local_imports().items():
-
-            namer = f'{k}.{fn_name}'
-            if namer not in depgraph:
-                depgraph[namer] = []
-
-            depgraph[namer].append(mdl_name)
-
-    return depgraph
 
 
 class ProjectAnalysisStruct:
@@ -112,20 +56,39 @@ class ProjectAnalysisStruct:
 
         self.__prj_root = prj_root
         self.__module_structure = dir_to_module_structure(self.__prj_root)
-        self.resolve_scopes(ScopeResolver())
-        resolve_project_imports(self.__prj_root, self.__module_structure)
-        self.__depgraph = get_mdl_depgraph(self.__module_structure)
+        self.__resolve_imports()
+
+        # dependency graph
+        self.__depgraph = None
+        self.__make_static_depgraph()
         print("DEPENDENCY GRAPH")
         pprint(self.__depgraph)
 
-    def resolve_module_funcs(self):
-        for mdl in self.__module_structure.values():
-            mdl.resolve_funcs()
+    def __resolve_imports(self):
+        """
+        Resolve the dependencies of each individual module structure in the project.
+        Requires a traversal of the module 2 times.
+        One traversal to collect surface level importable items for each module.
+        One traversal to alter dependencies based on possible importable items.
+        """
 
-    def resolve_scopes(self, scr: ScopeResolver):
-        for mdl in self.__module_structure.values():
-            mdl.resolve_scopes(scr)
-            scr.reset()
+        surface_values = {}
+        for module_key in self.__module_structure.keys():
+            ast_tree = self.__module_structure[module_key].get_ast()
+            surface_detector = SurfaceLevelVisitor()
+            surface_detector.visit(ast_tree)
+            surface_values[module_key] = surface_detector.get_surface_names()
+
+        for module_key in self.__module_structure.keys():
+            import_resolver = ModuleImportResolver(surface_values, self.__prj_root)
+            import_resolver.set_key(module_key)
+            ast_tree = self.__module_structure[module_key].get_ast()
+            modified_ast = import_resolver.visit(ast_tree)
+            self.__module_structure[module_key].set_ast(modified_ast)
+
+            module_imports, local_imports = import_resolver.get_dependencies()
+            self.__module_structure[module_key].set_module_imports(module_imports)
+            self.__module_structure[module_key].set_local_imports(local_imports)
 
     def get_prj_root(self):
         """
@@ -150,6 +113,35 @@ class ProjectAnalysisStruct:
         :return: module analysis structures
         """
         return self.__module_structure.get(module_key)
+
+    def __make_static_depgraph(self) -> Dict:
+        depgraph = {}
+        for k, v in self.__module_structure.items():
+            depgraph[k] = {}
+            for aname, (mdl_name, fn_name) in v.get_module_imports().items():
+
+                if mdl_name not in depgraph[k]:
+                    depgraph[k][mdl_name] = []
+
+                if fn_name == aname:
+                    continue
+
+                elif fn_name is None:
+                    depgraph[k][mdl_name].append(aname)
+
+                else:
+                    if fn_name not in depgraph[k][mdl_name]:
+                        depgraph[k][mdl_name].append(fn_name)
+
+            for fn_name, (mdl_name, _) in v.get_local_imports().items():
+
+                namer = f'{k}.{fn_name}'
+                if namer not in depgraph:
+                    depgraph[namer] = []
+
+                depgraph[namer].append(mdl_name)
+
+        self.__depgraph = depgraph
 
     def get_static_depgraph(self) -> Dict:
         return self.__depgraph

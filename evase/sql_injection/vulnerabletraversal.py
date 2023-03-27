@@ -15,6 +15,7 @@ def copy_list_map_set(list_map_set):
         copy.append(map_set.copy())
     return copy
 
+
 def determine_vul_params_location(vul_set: set, func_node):
     """
     Determines the vulnerable parameters of a function definition given a set of vulnerable variables.
@@ -30,6 +31,7 @@ def determine_vul_params_location(vul_set: set, func_node):
         if params[i] in vul_set:
             lst.append(i)
     return params, lst
+
 
 class VulnerableTraversalChecker:
     def __init__(
@@ -49,7 +51,8 @@ class VulnerableTraversalChecker:
         vulnerable_vars = set()
 
         graph = nx.DiGraph()
-        start = Node(module_name, func_node=func_node, assignments=assignments, injection_vars=injection_vars, from_node=start_from)
+        start = Node(module_name, func_node=func_node, assignments=assignments, injection_vars=injection_vars,
+                     from_node=start_from)
         start.add_to_graph(graph)
         queue.append(start)
 
@@ -75,7 +78,8 @@ class VulnerableTraversalChecker:
                 if param_indexes_vulnerable == None:
                     continue
 
-                for nodeNext in UsesFinder.find_function_uses(self.prj_struct, node.get_module_name(), node.get_func_node().name):
+                for nodeNext in UsesFinder.find_function_uses(self.prj_struct, node.get_module_name(),
+                                                              node.get_func_node().name):
 
                     # stop recursion from breaking the program
                     if nodeNext.get_func_node() == node.get_func_node():

@@ -11,6 +11,7 @@ class SurfaceLevelVisitor(ast.NodeVisitor):
 
         if isinstance(node, ast.Module):
             super().generic_visit(node)
+
         elif isinstance(node, ast.Assign):
             # only one assignment
             if hasattr(node.targets[0], 'id'):

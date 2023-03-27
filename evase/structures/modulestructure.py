@@ -1,6 +1,8 @@
 import ast
 from typing import List, Dict
 
+from evase.depanalyze.surfacedetector import SurfaceLevelVisitor
+
 from evase.depanalyze.scoperesolver import ScopeResolver
 
 
@@ -20,17 +22,23 @@ class ModuleAnalysisStruct:
         self.__local_imports = {}
         self.__module_imports = {}
         self.__funcs = []
+        self.__scope_resolver = ScopeResolver()
 
-    def resolve_scopes(self, scr: ScopeResolver):
+        self.__surface_detector = SurfaceLevelVisitor()
+
+        self.__resolve_scopes()
+        self.__resolve_funcs()
+
+    def __resolve_scopes(self):
         """
         Resolve the functional scopes in the ast tree.
 
         :param scr: The scope resolver object
         """
 
-        self.__ast_tree = scr.visit(self.__ast_tree)
+        self.__ast_tree = self.__scope_resolver.visit(self.__ast_tree)
 
-    def resolve_funcs(self):
+    def __resolve_funcs(self):
         """
         Collect the names of function nodes in the project.
         """

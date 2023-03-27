@@ -5,6 +5,11 @@ from _ast import AST
 class ScopeResolver(ast.NodeTransformer):
 
     def __init__(self):
+        """
+        A class
+
+        """
+
         self.class_stack = []
         self.func = None
 
