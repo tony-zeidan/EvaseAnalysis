@@ -9,8 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
       - name: Install dependencies
-        python-version: '3.9'
         run: |
           pip install --upgrade pip
           pip install sphinx sphinx_rtd_theme
