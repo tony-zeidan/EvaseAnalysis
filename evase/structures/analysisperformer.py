@@ -192,6 +192,7 @@ class AnalysisPerformer:
             pprint(prj_struct.get_module_structure())
             self.sql_injection_detector.set_project_struct(prj_struct)
             sql_injection_results = self.sql_injection_detector.do_analysis()
+
             graph, groups = extend_depgraph_attackvectors(graph, groups, sql_injection_results['graph'])
             graph_data = nx.node_link_data(graph, source='from', target='to', link='edges')
 
@@ -342,7 +343,11 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct) -> Tuple[nx.DiGraph, Dict[str
                     if not graph.has_edge(uses, namer):
                         graph.add_edge(uses, namer, **uses_edge_setting)
 
-    trim_depdigraph(graph, groups, edge_settings=uses_edge_setting)
+    #trim_depdigraph(graph, groups, edge_settings=uses_edge_setting)
+
+    import matplotlib.pyplot as plt
+
+    plt.show()
 
     return graph, groups
 

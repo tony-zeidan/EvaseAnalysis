@@ -4,7 +4,7 @@ from enum import Enum
 from evase.depanalyze.node import Node
 from evase.sql_injection.injectionutil import get_all_vars
 from evase.structures.modulestructure import ModuleAnalysisStruct
-from evase.structures.projectstructure import ProjectAnalysisStruct, resolve_project_imports, dir_to_module_structure
+from evase.structures.projectstructure import ProjectAnalysisStruct
 
 
 class ImportUsesCase(Enum):

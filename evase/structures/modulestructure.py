@@ -1,6 +1,8 @@
 import ast
 from typing import List, Dict
 
+from evase.depanalyze.importresolver import ModuleImportResolver
+
 from evase.depanalyze.surfacedetector import SurfaceLevelVisitor
 
 from evase.depanalyze.scoperesolver import ScopeResolver
@@ -22,21 +24,27 @@ class ModuleAnalysisStruct:
         self.__local_imports = {}
         self.__module_imports = {}
         self.__funcs = []
-        self.__scope_resolver = ScopeResolver()
-
-        self.__surface_detector = SurfaceLevelVisitor()
+        self.__surface_items = []
 
         self.__resolve_scopes()
+        self.__resolve_surface_items()
         self.__resolve_funcs()
+
+    def __resolve_surface_items(self):
+        """
+        Resolve the surface level importable items in the module.
+        """
+
+        visitor = SurfaceLevelVisitor()
+        visitor.visit(self.__ast_tree)
+        self.__surface_items = visitor.get_surface_names()
 
     def __resolve_scopes(self):
         """
         Resolve the functional scopes in the ast tree.
-
-        :param scr: The scope resolver object
         """
 
-        self.__ast_tree = self.__scope_resolver.visit(self.__ast_tree)
+        self.__ast_tree = ScopeResolver().visit(self.__ast_tree)
 
     def __resolve_funcs(self):
         """
@@ -46,6 +54,20 @@ class ModuleAnalysisStruct:
         for node in ast.walk(self.__ast_tree):
             if isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
                 self.__funcs.append(node)
+
+    def resolve_imports(self, surface_entities: Dict[str, List[str]], path: str):
+        """
+        Resolve the modules imports at both module and local levels.
+
+        :param surface_entities: The mapping of all surface entities for each module
+        """
+
+        transformer = ModuleImportResolver(surface_entities, path)
+        transformer.set_key(self.__module_name)
+        modified_ast = transformer.visit(self.__ast_tree)
+        self.__ast_tree = modified_ast
+
+        self.__module_imports, self.__local_imports = transformer.get_dependencies()
 
     def get_name(self) -> str:
         """
@@ -89,14 +111,6 @@ class ModuleAnalysisStruct:
 
         return self.__local_imports
 
-    def set_local_imports(self, local_imports: Dict):
-        """
-        Set the local imports.
-
-        :param local_imports: The mapping of local level imports
-        """
-        self.__local_imports = local_imports
-
     def get_module_imports(self) -> Dict:
         """
         Retrieve the module level imports.
@@ -105,11 +119,11 @@ class ModuleAnalysisStruct:
         """
         return self.__module_imports
 
-    def set_module_imports(self, module_imports: Dict):
+    def get_surface_items(self) -> List[str]:
         """
-        Set the module level imports.
+        Get a list of the surface importable items for this module.
 
-        :param module_imports: The module level import mapping
+        :return: The surface items
         """
 
-        self.__module_imports = module_imports
+        return self.__surface_items

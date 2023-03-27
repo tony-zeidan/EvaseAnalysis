@@ -2,11 +2,8 @@ import ast
 import os
 from pathlib import Path
 from typing import Dict
-from pprint import pprint
 
-from evase.depanalyze.importresolver import ModuleImportResolver
 from evase.structures.modulestructure import ModuleAnalysisStruct
-from evase.depanalyze.surfacedetector import SurfaceLevelVisitor
 
 
 def dir_to_module_structure(dirpath: str) -> Dict[str, ModuleAnalysisStruct]:
@@ -59,8 +56,6 @@ class ProjectAnalysisStruct:
         # dependency graph
         self.__depgraph = None
         self.__make_static_depgraph()
-        print("DEPENDENCY GRAPH")
-        pprint(self.__depgraph)
 
     def __resolve_imports(self):
         """
@@ -70,23 +65,11 @@ class ProjectAnalysisStruct:
         One traversal to alter dependencies based on possible importable items.
         """
 
-        surface_values = {}
-        for module_key in self.__module_structure.keys():
-            ast_tree = self.__module_structure[module_key].get_ast()
-            surface_detector = SurfaceLevelVisitor()
-            surface_detector.visit(ast_tree)
-            surface_values[module_key] = surface_detector.get_surface_names()
+        surface_values = {mdl_name: mdl_struct.get_surface_items() for mdl_name, mdl_struct in
+                          self.__module_structure.items()}
 
-        for module_key in self.__module_structure.keys():
-            import_resolver = ModuleImportResolver(surface_values, self.__prj_root)
-            import_resolver.set_key(module_key)
-            ast_tree = self.__module_structure[module_key].get_ast()
-            modified_ast = import_resolver.visit(ast_tree)
-            self.__module_structure[module_key].set_ast(modified_ast)
-
-            module_imports, local_imports = import_resolver.get_dependencies()
-            self.__module_structure[module_key].set_module_imports(module_imports)
-            self.__module_structure[module_key].set_local_imports(local_imports)
+        for mdl_struct in self.__module_structure.values():
+            mdl_struct.resolve_imports(surface_values, self.__prj_root)
 
     def get_prj_root(self):
         """
@@ -113,6 +96,10 @@ class ProjectAnalysisStruct:
         return self.__module_structure.get(module_key)
 
     def __make_static_depgraph(self):
+        """
+        Makes a static dependency graph for the project.
+        """
+
         depgraph = {}
         for k, v in self.__module_structure.items():
             depgraph[k] = {}
@@ -148,3 +135,11 @@ class ProjectAnalysisStruct:
         :return: The static dependency graph in dictionary form
         """
         return self.__depgraph
+
+    def __str__(self):
+        """
+        Make a string representation of the project structure
+        :return:
+        """
+
+        return f'{self.prj_name}@{self.__prj_root}'
