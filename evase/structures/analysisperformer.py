@@ -1,6 +1,7 @@
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Set
 
 import networkx as nx
+from networkx import DiGraph
 
 from evase.structures.projectstructure import ProjectAnalysisStruct
 from evase.sql_injection.injectionvisitor import InjectionNodeVisitor
@@ -9,6 +10,8 @@ from abc import ABC, abstractmethod
 import json
 import os
 from pprint import pprint
+
+import matplotlib.pyplot as plt
 
 attack_vector_edge_setting = {
     'vulnerable': True,
@@ -189,7 +192,7 @@ class AnalysisPerformer:
         graph, groups = get_mdl_depdigraph(prj_struct)
 
         if self.sql_injection_detector is not None:
-            pprint(prj_struct.get_module_structure())
+            #pprint(prj_struct.get_module_structure())
             self.sql_injection_detector.set_project_struct(prj_struct)
             sql_injection_results = self.sql_injection_detector.do_analysis()
             graph, groups = extend_depgraph_attackvectors(graph, groups, sql_injection_results['graph'])
@@ -203,7 +206,7 @@ class AnalysisPerformer:
 
             # self.analysis_results['graph']['vectors'] = sql_results_dct
 
-            pprint(self.analysis_results)
+            #pprint(self.analysis_results)
 
     def get_results(self):
         """
@@ -231,7 +234,7 @@ class AnalysisPerformer:
         return jform
 
 
-def add_node(g: nx.DiGraph, n: str, groups: Dict[str, List[str]], edge_settings: Dict = None, node_settings: Dict = None):
+def add_node(g: nx.DiGraph, n: str, groups: Dict[str, Set[str]], edge_settings: Dict = None, node_settings: Dict = None):
     """
     Add a node to the dependency graph.
     If the node already exists, update the properties of the node.
@@ -253,25 +256,39 @@ def add_node(g: nx.DiGraph, n: str, groups: Dict[str, List[str]], edge_settings:
 
     spl = n.split(".")
 
-    if len(spl) > 1 and ".".join(spl[:len(spl) - 1]) in groups:
+    if len(spl) > 1:
         parent = ".".join(spl[:len(spl) - 1])
+        if parent in groups:
 
-        if not g.has_node(n):
-            groups[parent].add(n)
-            g.add_node(n, label=n, **node_settings)
+            if parent == "backend.app":
+                print("PARENT OF", n)
+                print(groups[parent])
+
+            if not g.has_node(n):
+                groups[parent].add(n)
+                print(groups[parent])
+                g.add_node(n, label=n, **node_settings)
+            else:
+                if n not in groups[parent]:
+                    groups[parent].add(n)
+
+                nx.set_node_attributes(g, {n: node_settings})
+
+            if g.has_node(parent):
+                if not g.has_edge(n, parent):
+                    g.add_edge(n, parent, **edge_settings)
         else:
-            nx.set_node_attributes(g, {n: node_settings})
+            if not g.has_node(n):
+                if parent == "backend.app":
+                    print("RESET APP")
 
-        if g.has_node(parent):
-            if not g.has_edge(n, parent):
-                g.add_edge(n, parent, **edge_settings)
-    else:
-        if not g.has_node(n):
-            groups[n] = set()
-            g.add_node(n, label=n, **node_settings)
+                groups[n] = set()
+                g.add_node(n, label=n, **node_settings)
+
+    return groups
 
 
-def trim_depdigraph(graph: nx.DiGraph, groups: Dict[str, List[str]], edge_settings: Dict = None):
+def trim_depdigraph(graph: nx.DiGraph, groups: Dict[str, Set[str]], edge_settings: Dict = None):
     """
     Trim NetworkX dependency graph representation by getting rid of groups that only
     have one element present.
@@ -286,35 +303,53 @@ def trim_depdigraph(graph: nx.DiGraph, groups: Dict[str, List[str]], edge_settin
         edge_settings = {}
 
     # Trim unnecessary groups
+    remparent = []
     toparent = []
     for group, members in groups.items():
 
-        if len(members) == 1:
-            mem = members.pop()
-            ineds = list(graph.in_edges(mem))
-            outeds = list(graph.out_edges(mem))
+        if len(members) == 0:
+            print("ZERO MEMBERS", group, len(graph.out_edges(group)), len(graph.in_edges(group)))
 
-            for ined in ineds:
-                graph.remove_edge(*ined)
-            for outed in outeds:
-                graph.remove_edge(*outed)
+            if graph.has_node(group) and len(graph.in_edges(group)) == 0 and len(graph.out_edges(group)) == 0:
+                graph.remove_node(group)
+                remparent.append(group)
 
-            # remove the parent
-            graph.remove_node(group)
+        elif len(members) == 1:
 
-            for ined in ineds:
-                if ined[0] != group:
-                    graph.add_edge(*ined, **edge_settings)
+            if graph.has_node(group) and len(graph.out_edges) == 1:
+                mem = members.pop()
+                ineds = list(graph.in_edges(mem))
+                outeds = list(graph.out_edges(mem))
 
-            for outed in outeds:
-                if outed[1] != group:
-                    graph.add_edge(*outed, **edge_settings)
+                for ined in ineds:
+                    graph.remove_edge(*ined)
+                for outed in outeds:
+                    graph.remove_edge(*outed)
 
-            toparent.append(mem)
+                # remove the parent
+
+                graph.remove_node(group)
+
+                for ined in ineds:
+                    if ined[0] != group:
+                        graph.add_edge(*ined, **edge_settings)
+
+                for outed in outeds:
+                    if outed[1] != group:
+                        graph.add_edge(*outed, **edge_settings)
+
+                remparent.append(group)
+                toparent.append(mem)
+                print(groups)
+
+    for par in remparent:
+        del groups[par]
+
     groups.update({k: set() for k in toparent})
+    return groups
 
 
-def get_mdl_depdigraph(prj: ProjectAnalysisStruct) -> Tuple[nx.DiGraph, Dict[str, List[str]]]:
+def get_mdl_depdigraph(prj: ProjectAnalysisStruct) -> Tuple[DiGraph, Dict[str, Set[str]]]:
     """
     Turn the module dependency graph into a NetworkX graph.
 
@@ -327,9 +362,10 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct) -> Tuple[nx.DiGraph, Dict[str
 
     groups = {}
     for uses, defs_dct in graph_info.items():
-        add_node(graph, uses, groups, node_settings=uses_node_setting, edge_settings=package_edge_setting)
+        groups = add_node(graph, uses, groups, node_settings=uses_node_setting, edge_settings=package_edge_setting)
+
         for defs, defs_props in defs_dct.items():
-            add_node(graph, defs, groups, node_settings=uses_node_setting, edge_settings=package_edge_setting)
+            groups = add_node(graph, defs, groups, node_settings=uses_node_setting, edge_settings=package_edge_setting)
 
             if len(defs_props) == 0:
                 if not graph.has_edge(uses, defs):
@@ -337,17 +373,18 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct) -> Tuple[nx.DiGraph, Dict[str
             else:
                 for def_prop in defs_props:
                     namer = f'{defs}.{def_prop}'
-                    add_node(graph, namer, groups, node_settings=uses_node_setting, edge_settings=package_edge_setting)
+                    groups = add_node(graph, namer, groups, node_settings=uses_node_setting, edge_settings=package_edge_setting)
 
                     if not graph.has_edge(uses, namer):
                         graph.add_edge(uses, namer, **uses_edge_setting)
 
-    trim_depdigraph(graph, groups, edge_settings=uses_edge_setting)
+
+    groups = trim_depdigraph(graph, groups, edge_settings=uses_edge_setting)
 
     return graph, groups
 
 
-def extend_depgraph_attackvectors(graph: nx.DiGraph, groups: Dict[str, List[str]], analysis: Dict[str, nx.DiGraph]) -> Tuple[nx.DiGraph, Dict[str, List[str]]]:
+def extend_depgraph_attackvectors(graph: nx.DiGraph, groups: Dict[str, Set[str]], analysis: Dict[str, nx.DiGraph]) -> Tuple[DiGraph, Dict[str, Set[str]]]:
     """
     Extend the main dependency NetworkX graph with the subgraphs for each individual
     vulnerability.
@@ -376,17 +413,17 @@ def extend_depgraph_attackvectors(graph: nx.DiGraph, groups: Dict[str, List[str]
             new_attack_vector_node_setting1 = attack_vector_node_setting.copy()
             new_attack_vector_node_setting2 = attack_vector_node_setting.copy()
 
-            add_node(graph, ed1, groups, edge_settings=package_edge_setting,
+            groups = add_node(graph, ed1, groups, edge_settings=package_edge_setting,
                      node_settings=new_attack_vector_node_setting1)
-            add_node(graph, ed2, groups, edge_settings=package_edge_setting,
+            groups = add_node(graph, ed2, groups, edge_settings=package_edge_setting,
                      node_settings=new_attack_vector_node_setting2)
 
             # safety, only add the edge if it isn't there
             if not graph.has_edge(ed2, ed1):
                 graph.add_edge(ed2, ed1, **attack_vector_edge_setting)
 
-        # for safety, trim the graph after; don't worry about this
-        trim_depdigraph(graph, groups, edge_settings=uses_edge_setting)
+    # for safety, trim the graph after; don't worry about this
+    groups = trim_depdigraph(graph, groups, edge_settings=uses_edge_setting)
 
     return graph, groups
 
