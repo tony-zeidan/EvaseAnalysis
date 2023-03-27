@@ -1,4 +1,6 @@
 import ast
+from typing import List, Dict
+
 from evase.depanalyze.scoperesolver import ScopeResolver
 
 
@@ -12,52 +14,94 @@ class ModuleAnalysisStruct:
 
         :param ast_tree: The ast of the module
         """
-        self.module_name = module_name
-        self.ast_tree = ast_tree
-        self.path = path
-        self.local_imports = {}
-        self.module_imports = {}
-        self.funcs = []
+        self.__module_name = module_name
+        self.__ast_tree = ast_tree
+        self.__path = path
+        self.__local_imports = {}
+        self.__module_imports = {}
+        self.__funcs = []
 
     def resolve_scopes(self, scr: ScopeResolver):
-        self.ast_tree = scr.visit(self.ast_tree)
+        """
+        Resolve the functional scopes in the ast tree.
+
+        :param scr: The scope resolver object
+        """
+
+        self.__ast_tree = scr.visit(self.__ast_tree)
 
     def resolve_funcs(self):
-        for node in ast.walk(self.ast_tree):
-            if isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
-                self.funcs.append(node)
+        """
+        Collect the names of function nodes in the project.
+        """
 
-    def get_name(self):
-        return self.module_name
+        for node in ast.walk(self.__ast_tree):
+            if isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
+                self.__funcs.append(node)
+
+    def get_name(self) -> str:
+        """
+        Retrieve the name of the module being analyzed.
+
+        :return: The module name as string
+        """
+
+        return self.__module_name
 
     def get_ast(self) -> ast.AST:
         """
         Retrieve the internal ast tree.
-    def get_ast(self) -> ast.AST:
+
         :return: ast for the module
         """
-        return self.ast_tree
+        return self.__ast_tree
 
-    def set_ast(self, ast):
-        self.ast_tree = ast
+    def set_ast(self, ast_tree: ast.AST):
+        """
+        Set the internal AST tree.
 
-    def get_funcs(self):
-        return self.funcs
+        :param ast_tree: The syntax tree for the module
+        """
+        self.__ast_tree = ast_tree
 
-    def get_local_imports(self):
-        return self.local_imports
+    def get_funcs(self) -> List[ast.FunctionType]:
+        """
+        Get the resolved function nodes.
 
-    def set_local_imports(self, local_imports):
-        self.local_imports = local_imports
+        :return: The list of function nodes
+        """
+        return self.__funcs
 
-    def get_module_imports(self):
-        return self.module_imports
+    def get_local_imports(self) -> Dict:
+        """
+        Get the given local imports.
 
-    def set_module_imports(self, module_imports):
-        self.module_imports = module_imports
+        :return: The mapping of local imports
+        """
 
-    def to_json(self):
-        return {
-            'pkg_name': self.module_name,
-            'mdl_path': self.path
-        }
+        return self.__local_imports
+
+    def set_local_imports(self, local_imports: Dict):
+        """
+        Set the local imports.
+
+        :param local_imports: The mapping of local level imports
+        """
+        self.__local_imports = local_imports
+
+    def get_module_imports(self) -> Dict:
+        """
+        Retrieve the module level imports.
+
+        :return: The mapping of module level imports
+        """
+        return self.__module_imports
+
+    def set_module_imports(self, module_imports: Dict):
+        """
+        Set the module level imports.
+
+        :param module_imports: The module level import mapping
+        """
+
+        self.__module_imports = module_imports

@@ -2,22 +2,40 @@ import ast
 import os
 from _ast import Module, ImportFrom, ClassDef, FunctionDef
 from pathlib import Path
+from typing import Tuple, Dict
 
 
 class ModuleImportResolver(ast.NodeTransformer):
-    def __init__(self, surface_values, directory, logger=None):
+    def __init__(self, surface_values, directory):
+        """
+        A class that collects local and module level imports for a module.
+
+        :param surface_values: The surface values to look for
+        :param directory: The directory to look within
+        """
+
         self._directory = directory
         self._is_surface = True
         self._surface_imports = {}
         self._local_imports = {}
         self._surface_values = surface_values
         self._function_name = ""
-        self.logger = logger
 
-    def get_dependencies(self):
+    def get_dependencies(self) -> Tuple[Dict, Dict]:
+        """
+        Retrieve the imports found.
+
+        :return: The module and local level imports
+        """
         return self._surface_imports, self._local_imports
 
     def set_key(self, key):
+        """
+        The module to look for?
+
+        :param key: The module name?
+        """
+
         self.key = key
 
     def visit_Module(self, node: Module):
