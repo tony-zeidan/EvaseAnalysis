@@ -348,13 +348,10 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct) -> Tuple[DiGraph, Dict[str, S
     for uses, defs_dct in graph_info.items():
         groups = add_node(graph, uses, groups, node_settings=uses_node_setting, edge_settings=package_edge_setting)
 
-        print(defs_dct)
-
         for defs, defs_props in defs_dct.items():
             groups = add_node(graph, defs, groups, node_settings=uses_node_setting, edge_settings=package_edge_setting)
 
             if len(defs_props) == 0:
-                print(defs)
                 if not graph.has_edge(uses, defs):
                     graph.add_edge(uses, defs, **uses_edge_setting)
             else:
@@ -366,9 +363,7 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct) -> Tuple[DiGraph, Dict[str, S
                     if not graph.has_edge(uses, namer):
                         graph.add_edge(uses, namer, **uses_edge_setting)
 
-    print(groups)
     groups = trim_depdigraph(graph, groups, edge_settings=uses_edge_setting)
-    print(groups)
 
     return graph, groups
 
@@ -415,6 +410,5 @@ Tuple[DiGraph, Dict[str, Set[str]]]:
 
     # for safety, trim the graph after; don't worry about this
     groups = trim_depdigraph(graph, groups, edge_settings=uses_edge_setting)
-    print(groups)
 
     return graph, groups
