@@ -303,25 +303,24 @@ def trim_depdigraph(graph: nx.DiGraph, groups: Dict[str, Set[str]], edge_setting
         elif len(members) == 1:
             if graph.has_node(group) and len(graph.in_edges(group)) == 1 and len(graph.out_edges) == 0:
                 mem = members.pop()
-                ineds = list(graph.in_edges(mem))
-                outeds = list(graph.out_edges(mem))
+                in_edges = list(graph.in_edges(mem))
+                out_edges = list(graph.out_edges(mem))
 
-                for ined in ineds:
-                    graph.remove_edge(*ined)
-                for outed in outeds:
-                    graph.remove_edge(*outed)
+                for edge in in_edges:
+                    graph.remove_edge(*edge)
+                for edge in out_edges:
+                    graph.remove_edge(*edge)
 
                 # remove the parent
-
                 graph.remove_node(group)
 
-                for ined in ineds:
-                    if ined[0] != group:
-                        graph.add_edge(*ined, **edge_settings)
+                for edge in in_edges:
+                    if edge[0] != group:
+                        graph.add_edge(*edge, **edge_settings)
 
-                for outed in outeds:
-                    if outed[1] != group:
-                        graph.add_edge(*outed, **edge_settings)
+                for edge in out_edges:
+                    if edge[1] != group:
+                        graph.add_edge(*edge, **edge_settings)
 
                 remparent.append(group)
                 toparent.append(mem)
