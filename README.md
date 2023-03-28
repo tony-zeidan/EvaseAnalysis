@@ -16,24 +16,29 @@ The user is able to analyze the project with an instance of the `AnalysisPerform
 ```python
 from evase.structures.analysisperformer import AnalysisPerformer
 
+# make the analysis performer object
 code_analyzer = AnalysisPerformer(
     project_name="myProject",
     project_root="<filepath to root>"
 )
 
+# perform the analysis on the code!
 code_analyzer.perform_analysis()
 
+# print the results
 print(code_analyzer.get_results())
-
-# optionally, output to JSON
-code_analyzer.results_to_JSON("<output directory>")
 ```
 
 Behind the scenes, this instance is performing multiple traversals of the abstract syntax trees (ASTs) generated from
 the source code in the project.
 
 ## Installation
-The package will be installable via PyPI. For now clone the repository, and run the following command:
+The package is now installable via PyPI! You can use the following command to install via pip:
+
+`pip install evase-analysis`
+
+You may also clone the repository, and run the following command:
 
 `pip install .`
 
+(in the directory with `pyproject.toml`)
