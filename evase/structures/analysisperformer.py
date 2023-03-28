@@ -301,7 +301,7 @@ def trim_depdigraph(graph: nx.DiGraph, groups: Dict[str, Set[str]], edge_setting
                 remparent.append(group)
 
         elif len(members) == 1:
-            if graph.has_node(group) and len(graph.in_edges(group)) == 1 and len(graph.out_edges) == 0:
+            if graph.has_node(group) and len(graph.in_edges(group)) == 1 and len(graph.out_edges(group)) == 0:
                 mem = members.pop()
                 in_edges = list(graph.in_edges(mem))
                 out_edges = list(graph.out_edges(mem))
