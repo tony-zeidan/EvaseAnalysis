@@ -9,18 +9,20 @@ authors = [
     {name = "Anthony Dooley", email="anthonydooley@cmail.carleton.ca"},
     {name = "Ethan Chase", email="e281828c@gmail.com"},
     {name = "Shaopeng Liu", email="shaopengliu@cmail.carleton.ca"},
+    {name = "Jason Jaskolka", email="jason.jaskolka@carleton.ca"}
 ]
 maintainers = [
     {name = "Tony Abou Zeidan", email="tony.azp25@gmail.com"},
     {name = "Anthony Dooley", email="anthonydooley@cmail.carleton.ca"},
     {name = "Ethan Chase", email="e281828c@gmail.com"},
     {name = "Shaopeng Liu", email="shaopengliu@cmail.carleton.ca"},
+    {name = "Jason Jaskolka", email="jason.jaskolka@carleton.ca"}
 ]
 description = "A Python package with tools for the detection of SQL injection vulnerabilities in projects."
 readme = "README.md"
 requires-python = ">=3.7"
 keywords = ["attack", "security", "SQL", "injection"]
-version="1.0.1"
+version="1.0.2"
 classifiers=[
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3"
