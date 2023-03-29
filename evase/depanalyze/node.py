@@ -88,6 +88,9 @@ class Node:
 
         assignment_lines = []
         for assign in self.get_assignments():
+
+            if not isinstance(assign, ast.Assign): continue
+
             assignment_lines.append({
                 'start': assign.lineno,
                 'end': assign.end_lineno,
