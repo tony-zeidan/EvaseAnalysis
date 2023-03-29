@@ -1,6 +1,6 @@
 from vul import add_user_to_db as y, get_user_from_db as x
 
-@app.route('/addUser/<username>/<password>', methods=['POST'], strict_slashes=False)
+#@app.route('/addUser/<username>/<password>', methods=['POST'], strict_slashes=False)
 def afdjinsdfnsdfj(username=None, password=None):
     """
     Flask API function to add a user to the system.
@@ -37,5 +37,6 @@ def get_user_wrapper(username: str) -> list:
     :return: Any user information retrieved
     """
     a = username
+    afdjinsdfnsdfj(username, password="")
     return x(a)
 

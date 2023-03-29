@@ -69,6 +69,8 @@ class ModuleAnalysisStruct:
 
         self.__module_imports, self.__local_imports = transformer.get_dependencies()
 
+        print(self.__module_name, self.__local_imports)
+
     def get_name(self) -> str:
         """
         Retrieve the name of the module being analyzed.

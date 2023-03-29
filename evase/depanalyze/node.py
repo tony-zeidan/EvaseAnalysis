@@ -1,6 +1,8 @@
 import ast
 from typing import List, Union, Collection
 
+import networkx as nx
+
 
 def is_flask_api_function(func_node: ast.FunctionDef):
     """
@@ -14,7 +16,7 @@ def is_flask_api_function(func_node: ast.FunctionDef):
         if isinstance(dec, ast.Call):
             if isinstance(dec.func, ast.Attribute):
                 name = f'{dec.func.value.id}.{dec.func.attr}'
-                if name == 'app.route':
+                if name == 'app.route' or name == 'bp.route':
                     return True
     return False
 
@@ -36,7 +38,11 @@ def is_django_api_function(func_node: ast.FunctionDef):
 
 
 class Node:
-    def __init__(self, module_name, assignments: Collection[ast.Assign] = None, injection_vars: Collection[ast.Name] = None, func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef] = None, from_node: ast.Call = None, ):
+    def __init__(self, module_name, assignments: Collection[ast.Assign] = None,
+                 injection_vars: Collection[ast.Name] = None,
+                 func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef] = None, from_node: ast.Call = None):
+
+
         self.__module_name: str = module_name
         self.__assignments: Collection[ast.Assign] = assignments
         if self.__assignments is None:
@@ -47,7 +53,11 @@ class Node:
             self.__injection_vars = set()
 
         self.__func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef] = func_node
+
         self.__from_node: ast.Call = from_node
+
+        print(module_name)
+        print(self.__func_node.name)
 
         if self.__func_node is not None:
             if is_flask_api_function(func_node) or is_django_api_function(func_node):
@@ -74,15 +84,15 @@ class Node:
 
     def __str__(self):
         if self.get_func_node() is None:
-            return f'{self.get_module_name()}.*'
+            return f'{self.get_module_name()}:*'
         else:
-            return f'{self.get_module_name()}.{self.get_func_node().name}'
+            return f'{self.get_module_name()}:{self.get_func_node().name}'
 
     def __repr__(self):
         if self.get_func_node() is None:
-            return f'{self.get_module_name()} * {len(self.get_assignments())}'
+            return f'{self.get_module_name()}:*={len(self.get_assignments())}'
         else:
-            return f'{self.get_module_name()} {self.get_func_node().name} {len(self.get_assignments())}'
+            return f'{self.get_module_name()}:{self.get_func_node().name}={len(self.get_assignments())}'
 
     def get_node_props(self) -> dict:
 
@@ -110,7 +120,7 @@ class Node:
                 'name': self.__func_node.name
             }
 
-        from_node = None
+        from_nodes = []
         if self.__from_node is not None:
             from_node = {
                 'start': self.__from_node.lineno,
@@ -123,11 +133,31 @@ class Node:
         return {
             'vars': list(self.get_injection_vars()),
             'assignments': assignment_lines,
-            'func': func,
-            'from_node': from_node,
+            'func_scope': func,
+            'calls_vulnerable': from_nodes,
             'endpoint': self.is_endpoint
         }
 
     def add_to_graph(self, graph):
         if not graph.has_node(str(self)):
-            graph.add_node(str(self), **self.get_node_props())
+
+            data = {
+                str()
+            }
+            graph.add_node(str(self))
+        else:
+            nodes_data = nx.get_node_attributes(graph, '__node_data')
+            data = nodes_data[str(self)]
+
+    def __eq__(self, other):
+        if isinstance(other, Node):
+            return all(
+                [
+                    self.get_module_name() == other.get_module_name(),
+                    self.get_func_node() == other.get_func_node()
+                ]
+            )
+        return False
+
+    def __hash__(self):
+        return hash(self.__repr__())

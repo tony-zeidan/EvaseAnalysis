@@ -347,6 +347,8 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct) -> Tuple[DiGraph, Dict[str, S
     for uses, defs_dct in graph_info.items():
         groups = add_node(graph, uses, groups, node_settings=uses_node_setting, edge_settings=package_edge_setting)
 
+        print(defs_dct)
+
         for defs, defs_props in defs_dct.items():
             groups = add_node(graph, defs, groups, node_settings=uses_node_setting, edge_settings=package_edge_setting)
 

@@ -6,6 +6,8 @@ from evase.depanalyze.searching import FunctionCallFinder as UsesFinder
 import evase.sql_injection.injectionutil as injectionutil
 import networkx as nx
 
+from pprint import pprint
+
 from evase.structures.projectstructure import ProjectAnalysisStruct
 
 
@@ -44,7 +46,8 @@ class VulnerableTraversalChecker:
                             , module_name: str, start_from: ast.Call = None):
 
         # allow to continuously add to the
-        visited_func = set()  # unique with func name, module and num assignments
+        visited_func = set()
+        visited_func_reprs = {}
         queue = deque()
 
         # print("start of bfs")
@@ -53,14 +56,24 @@ class VulnerableTraversalChecker:
         graph = nx.DiGraph()
         start = Node(module_name, func_node=func_node, assignments=assignments, injection_vars=injection_vars,
                      from_node=start_from)
+
+        parent_nodes = {
+            start: [[start]]
+        }
+
         start.add_to_graph(graph)
         queue.append(start)
+
+        vul_endpoints = []
 
         while len(queue) != 0:
             node = queue.popleft()
 
+            # curr_path = curr_path[str(node)]
+
             node.get_func_node()
             visited_func.add(node.__repr__())
+
             # print("visiting func ----------------------", str(node))
 
             if node.get_func_node() is None:
@@ -70,9 +83,17 @@ class VulnerableTraversalChecker:
                                                            node.get_injection_vars())
 
             if node.is_endpoint:
+                print("ENDPOINT FOUND")
+                print(node)
+
                 if len(vulnerable_vars) > 0:
-                    # print("api", node.get_func_node().name, "is vulnerable")
+                    print("api", node.get_func_node().name, "is vulnerable")
+                    vul_endpoints.append(node)
                     continue
+                else:
+                    # delete the non-vulnerable traversal branch
+                    print("The endpoint isn't vulnerable.")
+
             else:
                 param_indexes_vulnerable = determine_vul_params_location(vulnerable_vars, node.get_func_node())
                 if param_indexes_vulnerable == None:
@@ -102,17 +123,54 @@ class VulnerableTraversalChecker:
                     if len(inj) == 0: continue  # unique is in set
                     print("     adding------------- " + nodeNext.get_func_node().name)
                     queue.append(nodeNext)
+
+                    if node in parent_nodes:
+                        print(nodeNext.__repr__())
+
+                        if nodeNext in parent_nodes:
+                            for path in parent_nodes[node]:
+                                lst = path.copy()
+                                lst.append(nodeNext)
+                                parent_nodes[nodeNext].append(lst)
+                        else:
+                            parent_nodes[nodeNext] = []
+                            for path in parent_nodes[node]:
+                                lst = path.copy()
+                                lst.append(nodeNext)
+                                parent_nodes[nodeNext].append(lst)
+                    else:
+                        raise ValueError("ERROR parent not in paths")
+
                     nodeNext.add_to_graph(graph)
                     if not graph.has_edge(str(node), str(nodeNext)):
                         graph.add_edge(str(node), str(nodeNext))
 
-        if len(vulnerable_vars) == 0:
-            return None
-        else:
-            return graph
+        print("PATHS", parent_nodes)
+
+        vul_paths = parent_nodes.copy()
+        for key in parent_nodes:
+            if key not in vul_endpoints:
+                try:
+                    del vul_paths[key]
+                except KeyError:
+                    print("No such key found.")
+                    pass
+
+        print("ALT PATHS", parent_nodes)
+
+        node_data = {}
+        for endpoint, paths in vul_paths.items():
+            for path in paths:
+                for node in path:
+                    if str(node) not in node_data:
+                        node_data[str(node)] = {
+                            ''
+                        }
+
+
 
     def collect_vulnerable_vars(self, func_node, assignments, possible_marked_var_to_params, var_type_lst,
-                                injection_vars={}):
+                                injection_vars={}, is_endpoint: bool = False):
         vulnerable = set()  # params
         parameters = injectionutil.get_function_params(func_node)
         #               possible flow         possible flow

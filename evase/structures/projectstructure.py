@@ -5,6 +5,8 @@ from typing import Dict
 
 from evase.structures.modulestructure import ModuleAnalysisStruct
 
+from pprint import pprint
+
 
 def dir_to_module_structure(dirpath: str) -> Dict[str, ModuleAnalysisStruct]:
     """
@@ -102,31 +104,56 @@ class ProjectAnalysisStruct:
 
         depgraph = {}
         for k, v in self.__module_structure.items():
+
             depgraph[k] = {}
+
             for aname, (mdl_name, fn_name) in v.get_module_imports().items():
 
-                if mdl_name not in depgraph[k]:
-                    depgraph[k][mdl_name] = []
+                print(f"\nSURFACE LEVEL\naname:{aname}\nmdl_name:{mdl_name}\nfn_name:{fn_name}")
 
-                if fn_name == aname:
-                    continue
-
-                elif fn_name is None:
-                    depgraph[k][mdl_name].append(aname)
-
+                if mdl_name == "__init__":
+                    # handle this case differently
+                    if fn_name is None and aname not in depgraph[k]:
+                        depgraph[k][aname] = []
                 else:
-                    if fn_name not in depgraph[k][mdl_name]:
-                        depgraph[k][mdl_name].append(fn_name)
+                    if mdl_name not in depgraph[k]:
+                        depgraph[k][mdl_name] = []
 
-            for fn_name, (mdl_name, _) in v.get_local_imports().items():
+                    if fn_name == aname:
+                        continue
 
-                namer = f'{k}.{fn_name}'
+                    elif fn_name is None:
+                        depgraph[k][mdl_name].append(aname)
+
+                    else:
+                        if fn_name not in depgraph[k][mdl_name]:
+                            depgraph[k][mdl_name].append(fn_name)
+
+            for fn_name, names in v.get_local_imports().items():
+
+                namer = f'{k}:{fn_name}'
                 if namer not in depgraph:
-                    depgraph[namer] = []
+                    depgraph[namer] = {}
 
-                depgraph[namer].append(mdl_name)
+                for mdl_name, aname in names:
+
+                    print(f"\nLOCAL LEVEL\nkey:{k}\naname:{aname}\nmdl_name:{mdl_name}\nfn_name:{fn_name}\nnamer:{namer}")
+
+                    if mdl_name == "__init__":
+                        if aname not in depgraph[namer]:
+                            depgraph[namer][aname] = []
+                    else:
+                        if fn_name == aname:
+                            continue
+
+                        else:
+                            if mdl_name not in depgraph[namer]:
+                                depgraph[namer][mdl_name] = []
+
+                        depgraph[namer][mdl_name].append(aname)
 
         self.__depgraph = depgraph
+        pprint(depgraph)
 
     def get_static_depgraph(self) -> Dict:
         """

@@ -65,13 +65,15 @@ class ModuleImportResolver(ast.NodeTransformer):
                 if alias_node.asname is None:
                     self._surface_imports[name] = [alias_node.name, name]
                 else:
-
                     self._surface_imports[alias_node.asname] = [alias_node.name, alias_node.asname]
             else:
+                print("LOCAL NOT FROM", alias_node.name, self._function_name, alias_node.asname)
                 if alias_node.asname is None:
                     self._local_imports[self._function_name] = [alias_node.name, self._function_name]
                 else:
                     self._local_imports[self._function_name] = [alias_node.name, alias_node.asname]
+
+                print(self._local_imports)
 
         prev = self._is_surface
         self._is_surface = False
@@ -110,10 +112,14 @@ class ModuleImportResolver(ast.NodeTransformer):
                 else:
                     self._surface_imports[alias_node.asname] = [node.module, alias_node.name]
             else:
+                print("LOCAL FROM", alias_node.name, self._function_name, alias_node.asname)
+                if self._function_name not in self._local_imports:
+                    self._local_imports[self._function_name] = set()
+
                 if not hasattr(alias_node, "asname") or alias_node.asname is None:
-                    self._local_imports[self._function_name] = [node.module, alias_node.name]
+                    self._local_imports[self._function_name].add((node.module, alias_node.name))
                 else:
-                    self._local_imports[self._function_name] = [node.module, alias_node.asname]
+                    self._local_imports[self._function_name].add((node.module, alias_node.asname))
 
         prev = self._is_surface
         self._is_surface = False

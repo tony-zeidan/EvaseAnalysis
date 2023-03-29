@@ -31,3 +31,10 @@ def get_user(username=None) -> list:
     """
     respond = wrap.get_user_wrapper(username)
     return respond
+
+@app.route('/getUserSafe/<username>', methods=['GET'])
+def get_u_safe() -> list:
+
+    username = "safeUser"
+    respond = wrap.get_user_wrapper(username)
+    return respond

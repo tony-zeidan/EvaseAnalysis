@@ -73,12 +73,11 @@ def differentiate_imports(mdl_struct: ModuleAnalysisStruct, import_func: str, im
         return ImportUsesCase.ONLY_FUNCTION, import_func
 
     # case3, importing vul function with AS
-    for key in local_import:
-        func_as_name = key
-        class_name, original_func_name = local_import[key]
-        # print("Checking 3" + class_name, original_func_name)
-        if original_func_name == import_func:
-            return ImportUsesCase.ONLY_FUNCTION_AS, func_as_name
+    for key, val in local_import.items():
+        for class_name, original_func_name in val:
+            # print("Checking 3" + class_name, original_func_name)
+            if original_func_name == import_func:
+                return ImportUsesCase.ONLY_FUNCTION_AS, key
 
     for key in module_import:
         func_as_name = key
@@ -88,12 +87,12 @@ def differentiate_imports(mdl_struct: ModuleAnalysisStruct, import_func: str, im
             return ImportUsesCase.ONLY_FUNCTION_AS, func_as_name
 
     # case4, importing entire module with AS
-    for key in local_import:
-        class_name, class_as_name = local_import[key]
-        # print("Checking 4" + class_name, class_as_name)
+    for key, val in local_import.items():
+        for class_name, class_as_name in val:
+            # print("Checking 4" + class_name, class_as_name)
 
-        if class_name == import_module:
-            return ImportUsesCase.ENTIRE_MODULE_AS, class_as_name
+            if class_name == import_module:
+                return ImportUsesCase.ENTIRE_MODULE_AS, class_as_name
 
     for key in module_import:
         class_name, class_as_name = module_import[key]
