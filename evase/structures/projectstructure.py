@@ -1,26 +1,15 @@
 import ast
-import os
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Union
 
 from evase.structures.modulestructure import ModuleAnalysisStruct
 
 from pprint import pprint
 
-
-def package_name(file, dirpath, initial_init: bool = False):
-    if initial_init:
-        module_style = Path(os.path.splitext(file.relative_to(dirpath.parent))[0])
-    else:
-        module_style = Path(os.path.splitext(file.relative_to(dirpath))[0])
-    module_style = str(module_style).replace(os.sep, '.')
-    return module_style
-
-def has_init_file(dirpath):
-    return any(p.name == "__init__.py" for p in Path.iterdir(dirpath))
+from evase.util.fileutil import get_project_module_names, check_path
 
 
-def dir_to_module_structure(dirpath: str) -> Dict[str, ModuleAnalysisStruct]:
+def dir_to_module_structure(dirpath: Union[str, Path]) -> Dict[str, ModuleAnalysisStruct]:
     """
     Converts a directory into a mapping of package style names to module analysis structures
 
@@ -29,24 +18,21 @@ def dir_to_module_structure(dirpath: str) -> Dict[str, ModuleAnalysisStruct]:
     """
 
     tree = {}
-    dirpath = Path(dirpath)
+    dirpath = Path(dirpath).absolute()
 
-    keep_last = has_init_file(dirpath)
+    for module_name, path in get_project_module_names(dirpath):
 
-    files = dirpath.glob('**/*.py')
-    for file in files:
-        module_style = package_name(file, dirpath, initial_init=keep_last)
+        path = Path(path).absolute()
 
-        with open(file, 'r') as openfile:
-            path = os.path.abspath(file)
-            tree[module_style] = ModuleAnalysisStruct(module_style, ast.parse(openfile.read()), path)
+        with open(path, 'r') as file:
+            tree[module_name] = ModuleAnalysisStruct(module_name, ast.parse(file.read()), path, dirpath)
 
     return tree
 
 
 class ProjectAnalysisStruct:
 
-    def __init__(self, prj_name: str, prj_root: str):
+    def __init__(self, prj_name: str, prj_root: Union[str, Path]):
         """
         A class that represents the structure of a Python project.
         The class analyzes the dependencies between files, and transforms this into a workable module structure.
@@ -55,11 +41,7 @@ class ProjectAnalysisStruct:
         :param prj_root: The root directory of the project
         """
         self.prj_name = prj_name
-
-        if not os.path.exists(prj_root):
-            raise ValueError("Can't accept a file path that doesn't exist.")
-
-        self.__prj_root = prj_root
+        self.__prj_root = check_path(prj_root, file_ok=False, absolute_req=False, ret_absolute=True)
         self.__module_structure = dir_to_module_structure(self.__prj_root)
         self.__resolve_imports()
 
@@ -176,3 +158,12 @@ class ProjectAnalysisStruct:
         """
 
         return f'{self.prj_name}@{self.__prj_root}'
+
+    def __getitem__(self, key: str) -> ModuleAnalysisStruct:
+        """
+        Dictionary-like behavior, allow for accessing of modules through their names.
+
+        :param key: The name of a module in the structure
+        :return: The module structure for the module specified
+        """
+        return self.__module_structure[key]

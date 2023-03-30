@@ -1,16 +1,18 @@
 import ast
-from typing import List, Dict
+from pathlib import Path
+from typing import List, Dict, Union
 
 from evase.depanalyze.importresolver import ModuleImportResolver
 
 from evase.depanalyze.surfacedetector import SurfaceLevelVisitor
 
 from evase.depanalyze.scoperesolver import ScopeResolver
+from evase.util.fileutil import check_path
 
 
 class ModuleAnalysisStruct:
 
-    def __init__(self, module_name: str, ast_tree: ast.AST, path: str):
+    def __init__(self, module_name: str, ast_tree: ast.AST, within_root_path: Union[str, Path], root_path: Union[str, Path]):
         """
         A structure for the easier analysis of a single code module.
         Contains properties of the module such as scoping information.
@@ -20,7 +22,10 @@ class ModuleAnalysisStruct:
         """
         self.__module_name = module_name
         self.__ast_tree = ast_tree
-        self.__path = path
+
+        self.__path = check_path(within_root_path, file_ok=True, file_req=True, absolute_req=False, ret_absolute=True)
+        self.__root = check_path(root_path, file_ok=False, file_req=False, absolute_req=False, ret_absolute=True)
+
         self.__local_imports = {}
         self.__module_imports = {}
         self.__funcs = []
@@ -55,10 +60,11 @@ class ModuleAnalysisStruct:
             if isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
                 self.__funcs.append(node)
 
-    def resolve_imports(self, surface_entities: Dict[str, List[str]], path: str):
+    def resolve_imports(self, surface_entities: Dict[str, List[str]], path: Union[str, Path]):
         """
         Resolve the modules imports at both module and local levels.
 
+        :param path:
         :param surface_entities: The mapping of all surface entities for each module
         """
 

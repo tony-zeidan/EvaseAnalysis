@@ -1,4 +1,5 @@
-from typing import Dict, Tuple, List, Set
+from pathlib import Path
+from typing import Dict, Tuple, Set, Union
 
 import networkx as nx
 from networkx import DiGraph
@@ -9,6 +10,8 @@ from evase.sql_injection.injectionvisitor import InjectionNodeVisitor
 from abc import ABC, abstractmethod
 import json
 import os
+
+from evase.util.fileutil import check_path
 
 attack_vector_edge_setting = {
     'vulnerable': True,
@@ -164,7 +167,8 @@ class AnalysisPerformer:
     def __init__(
             self,
             project_name: str = None,
-            project_root: str = None):
+            project_root: Union[str, Path] = None
+    ):
         """
         Analyzes the code given for SQL injection vulnerabilities.
         This class is a wrapper for evase tools provided in this package.
@@ -174,7 +178,7 @@ class AnalysisPerformer:
         """
 
         self.project_name = project_name
-        self.project_root = project_root
+        self.project_root = check_path(project_root, file_ok=False, file_req=False, absolute_req=False, ret_absolute=True)
         self.analysis_results = {}
 
         self.sql_injection_detector = SQLInjectionBehaviourAnalyzer()

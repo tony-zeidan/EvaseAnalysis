@@ -1,14 +1,21 @@
 import evase.structures.analysisperformer as ap
 import evase.structures.projectstructure as prj
+import evase.util.fileutil as futil
+
 from pathlib import Path
 import unittest
 from testutil import *
 
 from pprint import pprint
 
+
 class TestProjectAnalysisPerformer(unittest.TestCase):
 
     def setUp(self):
+        """
+        Set up initial testing structures.
+        """
+        
         self.test_struct1 = ap.AnalysisPerformer(
             "test-demo",
             prjroot3_filename
@@ -27,9 +34,10 @@ class TestProjectAnalysisPerformer(unittest.TestCase):
         results = self.test_struct1.get_results()
 
         dirpath = Path(prjroot3_filename)
-        all_files = dirpath.glob("**/*.py")
-        init_preset = prj.has_init_file(dirpath)
-        all_package_names = [prj.package_name(file, dirpath, initial_init=init_preset) for file in all_files]
+        all_package_names = [name for name, _ in futil.get_project_module_names(dirpath)]
+
+        print("PACKAGES", all_package_names)
+
         nodes_present = [x['id'] for x in results['graph']['total']['nodes']]
 
         exclusion_list = ["flask_webgoat.templates.hello"]
@@ -47,9 +55,7 @@ class TestProjectAnalysisPerformer(unittest.TestCase):
         pprint(results)
 
         dirpath = Path(prjroot2_filename)
-        all_files = dirpath.glob("**/*.py")
-        init_preset = prj.has_init_file(dirpath)
-        all_package_names = [prj.package_name(file, dirpath, initial_init=init_preset) for file in all_files]
+        all_package_names = [name for name, _ in futil.get_project_module_names(dirpath)]
         nodes_present = [x['id'] for x in results['graph']['total']['nodes']]
 
         # exclude files when they have no incoming or outgoing dependencies
@@ -60,4 +66,3 @@ class TestProjectAnalysisPerformer(unittest.TestCase):
         self.assertTrue(
             all([x in nodes_present for x in all_package_names])
         )
-

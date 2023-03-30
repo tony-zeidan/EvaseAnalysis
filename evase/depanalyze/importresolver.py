@@ -62,7 +62,7 @@ class ModuleImportResolver(ast.NodeTransformer):
             else:
                 vals = self.key.split(".")
                 vals[len(vals) - 1] = name
-                filepath = Path(self._directory + os.sep + os.sep.join(vals) + ".py")
+                filepath = Path(self._directory, os.sep.join(vals) + ".py")
                 # if it exists in local directory it is a local file, not library
                 if filepath.is_file():
                     alias_node.name = ".".join(vals)
@@ -105,11 +105,13 @@ class ModuleImportResolver(ast.NodeTransformer):
         # absolute path
         if "." not in module_name:
             vals = self.key.split(".")
+            print(self.key)
+
             for i in range(dot_count):
                 vals.pop()
 
             vals.append(node.module)
-            filepath = Path(self._directory + os.sep + os.sep.join(vals) + ".py")
+            filepath = Path(self._directory, os.sep.join(vals) + ".py")
             # if it exists in local directory it is a local file, not library
             if filepath.is_file():
                 node.module = ".".join(vals)
@@ -132,7 +134,7 @@ class ModuleImportResolver(ast.NodeTransformer):
                     vals.pop()
 
                 vals.append(alias_node.name)
-                filepath = Path(self._directory + os.sep + os.sep.join(vals) + ".py")
+                filepath = Path(self._directory, os.sep.join(vals) + ".py")
                 # if it exists in local directory it is a local file, not library
 
                 if filepath.is_file():
