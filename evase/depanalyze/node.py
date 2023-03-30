@@ -136,16 +136,10 @@ class Node:
 
             props = self.get_node_props()
 
-            data = {
-                str(props['calls_vulnerable'].get('name', None)): {
-                    **props
-                }
-            }
-
             graph.add_node(str(self), **{
-                '__node_data': {
-                    **data
-                }
+                '__node_data': [
+                    props
+                ]
             })
         else:
             nodes_data = nx.get_node_attributes(graph, '__node_data')
@@ -153,11 +147,7 @@ class Node:
 
             props = self.get_node_props()
 
-            data.update({
-                str(props['calls_vulnerable'].get('name', None)): {
-                    **props
-                }
-            })
+            data.append(props)
 
             nx.set_node_attributes(graph, {str(self): data}, name='__node_data')
 

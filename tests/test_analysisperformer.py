@@ -4,9 +4,7 @@ from pathlib import Path
 import unittest
 from testutil import *
 
-import os
-from glob import glob
-
+from pprint import pprint
 
 class TestProjectAnalysisPerformer(unittest.TestCase):
 
@@ -45,6 +43,8 @@ class TestProjectAnalysisPerformer(unittest.TestCase):
 
         self.test_struct2.perform_analysis()
         results = self.test_struct2.get_results()
+
+        pprint(results)
 
         dirpath = Path(prjroot2_filename)
         all_files = dirpath.glob("**/*.py")
