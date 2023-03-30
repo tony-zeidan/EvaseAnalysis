@@ -2,7 +2,7 @@ from typing import Collection, List, Set, Dict
 import ast
 from collections import deque
 
-from evase.depanalyze.node import Node
+from evase.depanalyze.codetraversalnode import CodeTraversalNode
 from evase.depanalyze.searching import FunctionCallFinder as UsesFinder
 import evase.sql_injection.injectionutil as injectionutil
 import networkx as nx
@@ -75,8 +75,8 @@ class VulnerableTraversalChecker:
         # print("start of bfs")
         vulnerable_vars = set()
 
-        start = Node(module_name, func_node=func_node, assignments=assignments, injection_vars=injection_vars,
-                     from_node=start_from)
+        start = CodeTraversalNode(module_name, func_node=func_node, assignments=assignments, variables=injection_vars,
+                                  from_node=start_from)
         parent_nodes = {
             start: [[start]]
         }
@@ -86,27 +86,21 @@ class VulnerableTraversalChecker:
 
         while len(queue) != 0:
             node = queue.popleft()
-
-            # curr_path = curr_path[str(node)]
-
-            node.get_func_node()
-            visited_func.add(node.__repr__())
-
             # print("visiting func ----------------------", str(node))
 
             if node.get_func_node() is None:
                 continue
 
             vulnerable_vars = self.collect_vulnerable_vars(node.get_func_node(), node.get_assignments(), [{}], [{}],
-                                                           node.get_injection_vars())
+                                                           node.get_variables())
 
             if node.is_endpoint:
                 if len(vulnerable_vars) > 0:
-                    print("api", node.get_func_node().name, "is vulnerable")
+                    #print("api", node.get_func_node().name, "is vulnerable")
                     vul_endpoints.append(node)
                     continue
                 else:
-                    print("The endpoint isn't vulnerable.")
+                    #print("The endpoint isn't vulnerable.")
                     continue
 
             else:
@@ -121,10 +115,12 @@ class VulnerableTraversalChecker:
                     if nodeNext.get_func_node() == node.get_func_node():
                         continue
 
-                    if nodeNext.__repr__() in visited_func:
+
+                    if nodeNext in visited_func:
+                        #print("SKIPPING")
                         continue
 
-                    injection_vars = nodeNext.get_injection_vars()
+                    injection_vars = nodeNext.get_variables()
                     ind = 0
                     inj = set()
                     while ind < len(injection_vars):
@@ -132,9 +128,9 @@ class VulnerableTraversalChecker:
                             inj.update(injection_vars[ind])
                         ind += 1
 
-                    nodeNext.set_injection_vars(inj)
+                    nodeNext.set_variables(inj)
                     if len(inj) == 0: continue  # unique is in set
-                    print("     adding------------- " + nodeNext.get_func_node().name)
+                    #print("     adding------------- " + nodeNext.get_func_node().name)
                     queue.append(nodeNext)
 
                     if node in parent_nodes:
@@ -169,11 +165,6 @@ class VulnerableTraversalChecker:
         #               possible flow         possible flow
         # marked_lst [{a ->{param1, param2}}, {a->{param3}}]      list<Map<string, set>>
         # var_type_lst [{a -> [Integer]},{a -> [class1,class2]}]
-
-        print("ASSIGNMENTS")
-        for asn in assignments:
-            if isinstance(asn, ast.Assign):
-                print(ast.unparse(asn))
 
         index = 0
         while index < len(assignments):
@@ -224,7 +215,6 @@ class VulnerableTraversalChecker:
                     vulnerable = vulnerable.union(new_vulnerable)
             index += 1
 
-        print("INJECTION VARS:", injection_vars, possible_marked_var_to_params)
         # if injection_vars -> cursor.execute() determine if vars used in injection are dangerous
         if len(injection_vars) != 0:
             for val in injection_vars:

@@ -39,8 +39,5 @@ class TestProjectAnalysisStruct(unittest.TestCase):
 
     def test_other(self):
         for mdl in self.test_struct1.get_module_structure().values():
-            print(mdl.get_name())
-            print("MODULE LEVEL")
             print(mdl.get_module_imports())
-            print("LOCAL LEVEL")
             print(mdl.get_local_imports())

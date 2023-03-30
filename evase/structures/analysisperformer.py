@@ -425,6 +425,5 @@ def extend_depgraph_attackvectors(graph: nx.DiGraph, groups: Dict[str, Set[str]]
 
     # for safety, trim the graph after; don't worry about this
     groups = trim_depdigraph(graph, groups, edge_settings=uses_edge_setting)
-    print(groups)
 
     return graph, groups

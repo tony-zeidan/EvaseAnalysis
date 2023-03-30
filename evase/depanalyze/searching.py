@@ -1,7 +1,7 @@
 import ast
 from typing import List
 from enum import Enum
-from evase.depanalyze.node import Node
+from evase.depanalyze.codetraversalnode import CodeTraversalNode
 from evase.sql_injection.injectionutil import get_all_vars
 from evase.structures.modulestructure import ModuleAnalysisStruct
 from evase.structures.projectstructure import ProjectAnalysisStruct
@@ -176,11 +176,11 @@ class FunctionCallFinder(ast.NodeVisitor):
                 for arg in node.args:
                     injection_var.append(get_all_vars(arg))
                 self.found_calling_lst.append(
-                    Node(
+                    CodeTraversalNode(
                         self.curr_module,
                         func_node=self.current_func_node,
                         assignments=self.lst_of_assignments.copy(),
-                        injection_vars=injection_var,
+                        variables=injection_var,
                         from_node=node))
         else:
             attrbute_node = node.func
@@ -193,11 +193,11 @@ class FunctionCallFinder(ast.NodeVisitor):
                         injection_var.append(get_all_vars(arg))
 
                     self.found_calling_lst.append(
-                        Node(
+                        CodeTraversalNode(
                             self.curr_module,
                             func_node=self.current_func_node,
                             assignments=self.lst_of_assignments.copy(),
-                            injection_vars=injection_var,
+                            variables=injection_var,
                             from_node=node))
 
     def visit_FunctionDef(self, node: ast.Expr):
@@ -247,12 +247,12 @@ class FunctionCallFinder(ast.NodeVisitor):
         super().generic_visit(node)
         self.lst_of_assignments.append(node)
 
-    def get_uses(self) -> List[Node]:
+    def get_uses(self) -> List[CodeTraversalNode]:
         return self.found_calling_lst
 
     @staticmethod
     def find_function_uses(prj_struct: ProjectAnalysisStruct, function_module_name: str, function_name: str) -> List[
-        Node]:
+        CodeTraversalNode]:
         """
         Find the uses for a function in other modules.
         Instantiates a FunctionCallFinder on the project, runs it on the project, and retrieves the uses.

@@ -117,8 +117,6 @@ class ProjectAnalysisStruct:
 
             for aname, (mdl_name, fn_name) in v.get_module_imports().items():
 
-                print(f"\nSURFACE LEVEL\naname:{aname}\nmdl_name:{mdl_name}\nfn_name:{fn_name}")
-
                 if "*" in mdl_name:
                     if aname not in mdl_name:
                         depgraph[k][aname] = []
@@ -143,9 +141,6 @@ class ProjectAnalysisStruct:
                     depgraph[namer] = {}
 
                 for mdl_name, aname in names:
-
-                    print(
-                        f"\nLOCAL LEVEL\nkey:{k}\naname:{aname}\nmdl_name:{mdl_name}\nfn_name:{fn_name}\nnamer:{namer}")
 
                     if "*" in mdl_name:
                         if aname not in depgraph[namer]:
