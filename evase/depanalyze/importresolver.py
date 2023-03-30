@@ -4,6 +4,12 @@ from _ast import Module, ImportFrom, ClassDef, FunctionDef
 from pathlib import Path
 from typing import Tuple, Dict
 
+import re
+COUNT_DOTS = re.compile(r"(from|import)\s(\.+)")
+
+
+def module_in_package(to_find: str, directory_path: str):
+    return any([fname == f'{to_find}.py' for fname in os.listdir(directory_path)])
 
 class ModuleImportResolver(ast.NodeTransformer):
     def __init__(self, surface_values, directory):
@@ -67,13 +73,10 @@ class ModuleImportResolver(ast.NodeTransformer):
                 else:
                     self._surface_imports[alias_node.asname] = [alias_node.name, alias_node.asname]
             else:
-                print("LOCAL NOT FROM", alias_node.name, self._function_name, alias_node.asname)
                 if alias_node.asname is None:
                     self._local_imports[self._function_name] = [alias_node.name, self._function_name]
                 else:
                     self._local_imports[self._function_name] = [alias_node.name, alias_node.asname]
-
-                print(self._local_imports)
 
         prev = self._is_surface
         self._is_surface = False
@@ -82,15 +85,30 @@ class ModuleImportResolver(ast.NodeTransformer):
         return node
 
     def visit_ImportFrom(self, node: ImportFrom):
+
+        # use the regex pattern to count the amount of continuous dots in the from statement
+        imp_str = ast.unparse(node)
+        match = COUNT_DOTS.match(imp_str)
+        dot_count = 1
+        if match:
+            dot_count = len(match.group(2))
+
         module_name = node.module
+        was_relative = False
+        was_init = False
         if module_name is None:
+            was_init = True
+            was_relative = True
             node.module = "__init__"
             module_name = "__init__"
 
         # absolute path
         if "." not in module_name:
             vals = self.key.split(".")
-            vals[len(vals) - 1] = node.module
+            for i in range(dot_count):
+                vals.pop()
+
+            vals.append(node.module)
             filepath = Path(self._directory + os.sep + os.sep.join(vals) + ".py")
             # if it exists in local directory it is a local file, not library
             if filepath.is_file():
@@ -106,17 +124,37 @@ class ModuleImportResolver(ast.NodeTransformer):
         for alias_node in node.names:
             if alias_node.name == "*":
                 break
+
+            if was_relative:
+
+                vals = self.key.split(".")
+                for i in range(dot_count):
+                    vals.pop()
+
+                vals.append(alias_node.name)
+                filepath = Path(self._directory + os.sep + os.sep.join(vals) + ".py")
+                # if it exists in local directory it is a local file, not library
+
+                if filepath.is_file():
+                    alias_node.name = ".".join(vals)
+                    was_relative = False
+
             if self._is_surface:
                 if not hasattr(alias_node, "asname") or alias_node.asname is None:
+                    if was_init and not was_relative:
+                        node.module = node.module.replace("__init__", "*")
+
                     self._surface_imports[alias_node.name] = [node.module, None]
                 else:
                     self._surface_imports[alias_node.asname] = [node.module, alias_node.name]
             else:
-                print("LOCAL FROM", alias_node.name, self._function_name, alias_node.asname)
                 if self._function_name not in self._local_imports:
                     self._local_imports[self._function_name] = set()
 
                 if not hasattr(alias_node, "asname") or alias_node.asname is None:
+                    if was_init and not was_relative:
+                        node.module = node.module.replace("__init__", "*")
+
                     self._local_imports[self._function_name].add((node.module, alias_node.name))
                 else:
                     self._local_imports[self._function_name].add((node.module, alias_node.asname))

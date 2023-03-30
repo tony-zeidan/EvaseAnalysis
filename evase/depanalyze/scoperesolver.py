@@ -28,7 +28,7 @@ class ScopeResolver(ast.NodeTransformer):
         newname = '.'.join(self.class_stack)
         setattr(node, 'parent_classes', list(reversed(self.class_stack.copy())))
         if len(self.class_stack) > 0:
-            node.name = f'{newname}.{node.name}'
+            node.name = f'{newname}:{node.name}'
         super().generic_visit(node)
         return node
 

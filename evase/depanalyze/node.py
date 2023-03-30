@@ -42,7 +42,6 @@ class Node:
                  injection_vars: Collection[ast.Name] = None,
                  func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef] = None, from_node: ast.Call = None):
 
-
         self.__module_name: str = module_name
         self.__assignments: Collection[ast.Assign] = assignments
         if self.__assignments is None:
@@ -55,9 +54,6 @@ class Node:
         self.__func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef] = func_node
 
         self.__from_node: ast.Call = from_node
-
-        print(module_name)
-        print(self.__func_node.name)
 
         if self.__func_node is not None:
             if is_flask_api_function(func_node) or is_django_api_function(func_node):
@@ -109,7 +105,7 @@ class Node:
                 'type_comment': assign.type_comment
             })
 
-        func = None
+        func = {}
         if self.get_func_node():
             func = {
                 'endpoint': self.is_endpoint,
@@ -120,13 +116,14 @@ class Node:
                 'name': self.__func_node.name
             }
 
-        from_nodes = []
+        from_node = {}
         if self.__from_node is not None:
             from_node = {
                 'start': self.__from_node.lineno,
                 'end': self.__from_node.end_lineno,
                 'offset_start': self.__from_node.col_offset,
                 'offset_end': self.__from_node.end_col_offset,
+                'name': ast.unparse(self.__from_node.func),
                 'text': ast.unparse(self.__from_node)
             }
 
@@ -134,20 +131,39 @@ class Node:
             'vars': list(self.get_injection_vars()),
             'assignments': assignment_lines,
             'func_scope': func,
-            'calls_vulnerable': from_nodes,
+            'calls_vulnerable': from_node,
             'endpoint': self.is_endpoint
         }
 
     def add_to_graph(self, graph):
         if not graph.has_node(str(self)):
 
+            props = self.get_node_props()
+
             data = {
-                str()
+                str(props['calls_vulnerable'].get('name', None)): {
+                    **props
+                }
             }
-            graph.add_node(str(self))
+
+            graph.add_node(str(self), **{
+                '__node_data': {
+                    **data
+                }
+            })
         else:
             nodes_data = nx.get_node_attributes(graph, '__node_data')
             data = nodes_data[str(self)]
+
+            props = self.get_node_props()
+
+            data.update({
+                str(props['calls_vulnerable'].get('name', None)): {
+                    **props
+                }
+            })
+
+            nx.set_node_attributes(graph, {str(self): data}, name='__node_data')
 
     def __eq__(self, other):
         if isinstance(other, Node):

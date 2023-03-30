@@ -4,6 +4,8 @@ import os
 from evase.structures.modulestructure import ModuleAnalysisStruct
 
 prjroot1_filename = 'resources/prjstructtest'
+prjroot2_filename = 'resources/demo'
+prjroot3_filename = 'resources/webgoat'
 scres1_filename = 'resources/screstest.py'
 safe1_filename = 'resources/sql_injection_safe1.py'
 safe2_filename = 'resources/sql_injection_safe2.py'

@@ -1,7 +1,7 @@
 from typing import Any, Dict
 import ast
 from evase.sql_injection.injectionutil import get_all_vars
-from evase.sql_injection.vulnerabletraversal import VulnerableTraversalChecker
+from evase.sql_injection.vulnerabletraversal import VulnerableTraversalChecker, make_vul_path_graph
 
 
 class InjectionNodeVisitor(ast.NodeVisitor):
@@ -78,9 +78,10 @@ class InjectionNodeVisitor(ast.NodeVisitor):
 
         result = self.sql_marker.traversal_from_exec(lst, self.current_func_node, arg_list,
                                                      self.module_key, start_from=node)
+
         if result is not None:
             module_full_name = f'{self.module_key}.{self.current_func_node.name}'
-            self.vulnerable_funcs[module_full_name] = result
+            self.vulnerable_funcs[module_full_name] = make_vul_path_graph(result)
         self.execute_funcs[curr_scope] = self.current_func_node
 
     def visit_FunctionDef(self, node: ast.FunctionDef):

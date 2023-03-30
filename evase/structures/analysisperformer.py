@@ -193,6 +193,7 @@ class AnalysisPerformer:
             sql_injection_results = self.sql_injection_detector.do_analysis()
 
             graph, groups = extend_depgraph_attackvectors(graph, groups, sql_injection_results['graph'])
+
             graph_data = nx.node_link_data(graph, source='from', target='to', link='edges')
 
             self.analysis_results['graph'] = {}
@@ -244,7 +245,8 @@ def add_node(g: nx.DiGraph, n: str, groups: Dict[str, Set[str]], edge_settings: 
     if node_settings is None:
         node_settings = {}
 
-    spl = n.split(".")
+    spl = ".".join(n.split(":"))
+    spl = spl.split(".")
 
     if len(spl) > 1:
         parent = ".".join(spl[:len(spl) - 1])
@@ -347,7 +349,7 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct) -> Tuple[DiGraph, Dict[str, S
     for uses, defs_dct in graph_info.items():
         groups = add_node(graph, uses, groups, node_settings=uses_node_setting, edge_settings=package_edge_setting)
 
-        print(defs_dct)
+        if not isinstance(defs_dct, dict): continue
 
         for defs, defs_props in defs_dct.items():
             groups = add_node(graph, defs, groups, node_settings=uses_node_setting, edge_settings=package_edge_setting)
@@ -357,7 +359,15 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct) -> Tuple[DiGraph, Dict[str, S
                     graph.add_edge(uses, defs, **uses_edge_setting)
             else:
                 for def_prop in defs_props:
-                    namer = f'{defs}.{def_prop}'
+
+                    if defs in prj.get_module_structure():
+                        namer = f'{defs}:{def_prop}'
+                    else:
+                        namer = f'{defs}.{def_prop}'
+                    if def_prop in groups:
+                        namer = def_prop
+
+
                     groups = add_node(graph, namer, groups, node_settings=uses_node_setting,
                                       edge_settings=package_edge_setting)
 

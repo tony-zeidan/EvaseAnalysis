@@ -1,6 +1,6 @@
 import sqlite3
 
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request as req, render_template
 from . import query_db
 
 bp = Blueprint("ui", __name__)
@@ -8,7 +8,7 @@ bp = Blueprint("ui", __name__)
 
 @bp.route("/search")
 def search():
-    query_param = request.args.get("query")
+    query_param = req.args.get("query")
     if query_param is None:
         message = "please provide the query parameter"
         return render_template("error.html", message=message)

@@ -8,6 +8,18 @@ from evase.structures.modulestructure import ModuleAnalysisStruct
 from pprint import pprint
 
 
+def package_name(file, dirpath, initial_init: bool = False):
+    if initial_init:
+        module_style = Path(os.path.splitext(file.relative_to(dirpath.parent))[0])
+    else:
+        module_style = Path(os.path.splitext(file.relative_to(dirpath))[0])
+    module_style = str(module_style).replace(os.sep, '.')
+    return module_style
+
+def has_init_file(dirpath):
+    return any(p.name == "__init__.py" for p in Path.iterdir(dirpath))
+
+
 def dir_to_module_structure(dirpath: str) -> Dict[str, ModuleAnalysisStruct]:
     """
     Converts a directory into a mapping of package style names to module analysis structures
@@ -19,15 +31,11 @@ def dir_to_module_structure(dirpath: str) -> Dict[str, ModuleAnalysisStruct]:
     tree = {}
     dirpath = Path(dirpath)
 
-    keep_last = any(p.name == "__init__.py" for p in Path.iterdir(dirpath))
+    keep_last = has_init_file(dirpath)
 
     files = dirpath.glob('**/*.py')
     for file in files:
-        if keep_last:
-            module_style = Path(os.path.splitext(file.relative_to(dirpath.parent))[0])
-        else:
-            module_style = Path(os.path.splitext(file.relative_to(dirpath))[0])
-        module_style = str(module_style).replace(os.sep, '.')
+        module_style = package_name(file, dirpath, initial_init=keep_last)
 
         with open(file, 'r') as openfile:
             path = os.path.abspath(file)
@@ -111,9 +119,8 @@ class ProjectAnalysisStruct:
 
                 print(f"\nSURFACE LEVEL\naname:{aname}\nmdl_name:{mdl_name}\nfn_name:{fn_name}")
 
-                if mdl_name == "__init__":
-                    # handle this case differently
-                    if fn_name is None and aname not in depgraph[k]:
+                if "*" in mdl_name:
+                    if aname not in mdl_name:
                         depgraph[k][aname] = []
                 else:
                     if mdl_name not in depgraph[k]:
@@ -137,9 +144,10 @@ class ProjectAnalysisStruct:
 
                 for mdl_name, aname in names:
 
-                    print(f"\nLOCAL LEVEL\nkey:{k}\naname:{aname}\nmdl_name:{mdl_name}\nfn_name:{fn_name}\nnamer:{namer}")
+                    print(
+                        f"\nLOCAL LEVEL\nkey:{k}\naname:{aname}\nmdl_name:{mdl_name}\nfn_name:{fn_name}\nnamer:{namer}")
 
-                    if mdl_name == "__init__":
+                    if "*" in mdl_name:
                         if aname not in depgraph[namer]:
                             depgraph[namer][aname] = []
                     else:
@@ -153,6 +161,9 @@ class ProjectAnalysisStruct:
                         depgraph[namer][mdl_name].append(aname)
 
         self.__depgraph = depgraph
+
+        # display dependency graph after generation
+        print("Static Dependency Graph")
         pprint(depgraph)
 
     def get_static_depgraph(self) -> Dict:

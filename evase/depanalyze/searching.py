@@ -30,7 +30,8 @@ def get_function_call_origin(func_node: ast.Call, mdl_struct: ModuleAnalysisStru
     fn_name = func_node.func.id
 
     if caller_type is None:
-        print("Regular function call, not an object function call.")
+        #print("Regular function call, not an object function call.")
+        pass
     else:
         fn_name = caller_type + '.' + fn_name
 
