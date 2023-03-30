@@ -2,8 +2,6 @@ from typing import Collection, List, Set, Dict
 import ast
 from collections import deque
 
-from evase.structures.modulestructure import ModuleAnalysisStruct
-
 from evase.depanalyze.node import Node
 from evase.depanalyze.searching import FunctionCallFinder as UsesFinder
 import evase.sql_injection.injectionutil as injectionutil
@@ -19,10 +17,6 @@ def copy_list_map_set(list_map_set):
     for map_set in list_map_set:
         copy.append(map_set.copy())
     return copy
-def is_node_request_injectable(node: ast.AST):
-    patt = re.compile(f"request\\.(.+\\.)?(json|form|text|body|get)")
-    strform = ast.unparse(node)
-    return patt.fullmatch(strform)
 
 
 def determine_vul_params_location(vul_set: set, func_node):
@@ -167,7 +161,6 @@ class VulnerableTraversalChecker:
                     pass
 
         return vul_paths
-
 
     def collect_vulnerable_vars(self, func_node, assignments, possible_marked_var_to_params, var_type_lst,
                                 injection_vars={}):

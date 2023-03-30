@@ -86,9 +86,13 @@ class Node:
 
     def __repr__(self):
         if self.get_func_node() is None:
-            return f'{self.get_module_name()}:*={len(self.get_assignments())}'
-        else:
+            if self.__from_node is None:
+                return f'{self.get_module_name()}:*={len(self.get_assignments())}'
+            return f'{self.get_module_name()}:*;{ast.unparse(self.__from_node.func)}={len(self.get_assignments())}'
+        if self.__from_node is None:
             return f'{self.get_module_name()}:{self.get_func_node().name}={len(self.get_assignments())}'
+        return f'{self.get_module_name()}:{self.get_func_node().name};{ast.unparse(self.__from_node.func)}={len(self.get_assignments())}'
+
 
     def get_node_props(self) -> dict:
 
@@ -170,7 +174,8 @@ class Node:
             return all(
                 [
                     self.get_module_name() == other.get_module_name(),
-                    self.get_func_node() == other.get_func_node()
+                    self.get_func_node() == other.get_func_node(),
+                    self.__from_node == other.__from_node
                 ]
             )
         return False
