@@ -104,9 +104,6 @@ class Node:
             assignment_lines.append({
                 'start': assign.lineno,
                 'end': assign.end_lineno,
-                'offset_start': assign.col_offset,
-                'offset_end': assign.end_col_offset,
-                'type_comment': assign.type_comment
             })
 
         func = {}
@@ -115,8 +112,6 @@ class Node:
                 'endpoint': self.is_endpoint,
                 'start': self.__func_node.lineno,
                 'end': self.__func_node.end_lineno,
-                'offset_start': self.__func_node.col_offset,
-                'offset_end': self.__func_node.end_col_offset,
                 'name': self.__func_node.name
             }
 
@@ -125,10 +120,7 @@ class Node:
             from_node = {
                 'start': self.__from_node.lineno,
                 'end': self.__from_node.end_lineno,
-                'offset_start': self.__from_node.col_offset,
-                'offset_end': self.__from_node.end_col_offset,
-                'name': ast.unparse(self.__from_node.func),
-                'text': ast.unparse(self.__from_node)
+                'name': ast.unparse(self.__from_node.func)
             }
 
         return {

@@ -273,7 +273,6 @@ def add_node(g: nx.DiGraph, n: str, groups: Dict[str, Set[str]], edge_settings: 
             groups[n] = set()
             g.add_node(n, label=n, **node_settings)
 
-
     return groups
 
 
@@ -367,7 +366,6 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct) -> Tuple[DiGraph, Dict[str, S
                     if def_prop in groups:
                         namer = def_prop
 
-
                     groups = add_node(graph, namer, groups, node_settings=uses_node_setting,
                                       edge_settings=package_edge_setting)
 
@@ -380,7 +378,7 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct) -> Tuple[DiGraph, Dict[str, S
 
 
 def extend_depgraph_attackvectors(graph: nx.DiGraph, groups: Dict[str, Set[str]], analysis: Dict[str, nx.DiGraph]) -> \
-Tuple[DiGraph, Dict[str, Set[str]]]:
+        Tuple[DiGraph, Dict[str, Set[str]]]:
     """
     Extend the main dependency NetworkX graph with the subgraphs for each individual
     vulnerability.
@@ -404,16 +402,22 @@ Tuple[DiGraph, Dict[str, Set[str]]]:
 
             # ed1 is the first node in the edge, and ed2 is the second (from->to)
 
-            # TODO: get attributes of the current node and add them to the attack vector setting
+            prev_attack_data, prev_attack_data_2 = {}, {}
+            try:
+                prev_data = nx.get_node_attributes(attack_graph, "__node_data")
+                prev_attack_data, prev_attack_data_2 = prev_data[ed1], prev_data[ed2]
+            except KeyError:
+                pass
 
             new_attack_vector_node_setting1 = attack_vector_node_setting.copy()
+            new_attack_vector_node_setting1.update({"__node_data": prev_attack_data})
             new_attack_vector_node_setting2 = attack_vector_node_setting.copy()
+            new_attack_vector_node_setting2.update({"__node_data": prev_attack_data_2})
 
             groups = add_node(graph, ed1, groups, edge_settings=package_edge_setting,
                               node_settings=new_attack_vector_node_setting1)
             groups = add_node(graph, ed2, groups, edge_settings=package_edge_setting,
                               node_settings=new_attack_vector_node_setting2)
-
 
             # safety, only add the edge if it isn't there
             if not graph.has_edge(ed2, ed1):
