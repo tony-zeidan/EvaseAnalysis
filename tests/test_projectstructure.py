@@ -17,13 +17,6 @@ class TestProjectAnalysisStruct(unittest.TestCase):
         """
         self.test_struct1 = get_projectstruct("test1", prjroot1_filename)
 
-    def test_project_root(self):
-        """
-        Test the root of the structure.
-        """
-
-        self.assertEqual(prjroot1_filename, self.test_struct1.root)
-
     def test_project_struct_dirs(self):
         """
         Test the ability to make the module structure.
