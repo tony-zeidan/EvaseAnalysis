@@ -1,5 +1,5 @@
 import unittest
-from testutil import *
+from tests.testutil import *
 
 import os
 

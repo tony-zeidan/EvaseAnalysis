@@ -1,7 +1,7 @@
 import evase.util.fileutil as futil
 
 import unittest
-from testutil import *
+from tests.testutil import *
 
 
 class TestFileUtilities(unittest.TestCase):

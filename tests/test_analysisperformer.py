@@ -2,7 +2,7 @@ import evase.structures.analysisperformer as ap
 import evase.util.fileutil as futil
 
 import unittest
-from testutil import *
+from tests.testutil import *
 
 
 class TestProjectAnalysisPerformer(unittest.TestCase):
