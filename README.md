@@ -52,8 +52,87 @@ code_analyzer.results_to_JSON("<output directory>")
 Behind the scenes, this instance is performing multiple traversals of the abstract syntax trees (ASTs) generated from
 the source code in the project.
 
-## Installation
-The package will be installable via PyPI. For now clone the repository, and run the following command:
+## Important Information
 
-`pip install .`
+The code made in this package relies on various functions applied to Abstract Syntax Trees (ASTs).
+
+Many of the functions in the code are required to perform other functions.
+The functions directly relating to ASTs at a low level require that the input ASTs be modified. 
+The functions inside of input ASTs must have their scopes resolved. 
+```python
+# example.py
+
+def foo():
+  print("FOO")
+  
+class Bar:
+  
+  def foo(self):
+    print("FOO")
+```
+In this example, the AST output would look something like:
+```
+<FunctionDef name='foo'>
+<ClassDef name='Bar'>
+  <FunctionDef name='foo'>
+```
+As you can see, while traversing using a `NodeVisitor` it would be difficult to determine the scope of the inner
+function.
+As such we created the `ScopeResolver` such that the output AST would look something like:
+```
+<FunctionDef name='foo'>
+<ClassDef name='Bar'>
+  <FunctionDef name='Bar.foo'>
+```
+
+For functions involving the analysis of dependencies, the import nodes inside of input ASTs must also have their
+`module` attribute be absolute rather than relative. The importable items from the imported module must also be directly
+specified if an import in the form of `<from | import> ... *` is being used. Take the following script for example:
+
+```python
+# package/imported.py
+def foo():
+  print("FOO")
+  
+def bar():
+  print("BAR")
+  
+class Bar:
+  
+  def bar(self):
+    print("BAR")
+
+# package/inner/example.py
+
+from ..imported import *
+```
+Imports in this form are very hard to analyze because ASTs don't provide any information other than the form of the
+import. The AST for `package/inner/example.py` would look something like:
+```
+<Import module=None names="*">
+```
+It's clear that this doesn't help much when analyzing dependencies. For this reason we created the `SurfaceLevelVisitor`
+and `ModuleImportResolver` that work in tandem.
+The `SurfaceLevelVisitor` collects all the surface level importable items from a module. We then combine these
+into a list and make an instance of `ModuleImportResolver` that resolves module names in import nodes and their imported
+items. Using these two instances properly retrieves the following AST.
+```
+<Import module="package.imported" names=["foo", "bar", "Bar"]>
+```
+
+Most of the classes within this library rely on the fact that the scopes will be resolved, and that the imports are
+correctly resolved.
+
+## Installation
+This package is available on PyPI! You can install it using:
+```
+pip install evase-analysis
+```
+
+Or you can simply clone the repository and run:
+
+```
+pip install .
+```
+(in the directory with `pyproject.toml`)
 
