@@ -1,6 +1,6 @@
 import ast
 import unittest
-import testutil
+import tests.testutil as testutil
 import copy
 
 from evase.depanalyze.scoperesolver import ScopeResolver
