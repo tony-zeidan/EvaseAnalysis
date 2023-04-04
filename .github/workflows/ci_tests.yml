@@ -29,5 +29,9 @@ jobs:
           pip install .
       - name: Test
         run: |
-          export PYTHONPATH=$PYTHONPATH:tests/
+          if [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
+            export PYTHONPATH=$PYTHONPATH:test/
+          elif [ ${{ matrix.os }} == 'windows-latest' ]; then
+            set PYTHONPATH=%PYTHONPATH%;test\
+          fi
           python -m unittest discover
