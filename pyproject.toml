@@ -27,6 +27,12 @@ classifiers=[
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3"
 ]
+dependencies = [
+    'Flask~=2.2.2',
+    'Jinja2~=3.1.2',
+    'networkx~=2.8.8',
+    'matplotlib~=3.7.1'
+]
 
 [tool.setuptools.packages.find]
 exclude=["tests"]
