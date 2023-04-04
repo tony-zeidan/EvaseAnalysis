@@ -9,6 +9,11 @@ for detecting the SQL injection-related vulnerabilities was separated out into t
 ## What's New
 
 In the latest version of the library:
+- The performance of the code has been slightly improved by the removal of creating unnecessary expensive `NodeVisitor` and `NodeTransformer` objects.
+  - Instead, the objects are created as a single instance and have their states reset.
+- Most classes in the system now use `@property` annotations for getters and setters now.
+- The `ProjectAnalysisStruct` class can now be queried for module structures like a dictionary.
+  - By passing the name of the module, you can retrieve the corresponding `ModuleAnalysisStruct`.
 - The functions are able to fail more gracefully when encountering unexpected AST nodes.
 - The Breadth-First search functions keep track of paths traversed.
   - The main traversal function (`traversal_from_exec`) now outputs a mapping of ending nodes to their possible paths.
