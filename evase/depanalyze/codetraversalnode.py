@@ -58,55 +58,77 @@ class CodeTraversalNode:
         self.__module_name: str = module_name
 
         # assignments
-        self.__assignments: Collection[ast.Assign] = assignments
-        if self.__assignments is None:
-            self.__assignments = []
+        self._assignments: Collection[ast.Assign] = assignments
+        if self._assignments is None:
+            self._assignments = []
 
         # variables
-        self.__variables = variables
-        if self.__variables is None:
-            self.__variables = set()
+        self._variables = variables
+        if self._variables is None:
+            self._variables = set()
 
-        self.__func_node: ast.FunctionType = func_node
-        self.__from_node: ast.Call = from_node
+        self._func_node: ast.FunctionType = func_node
+        self._from_node: ast.Call = from_node
 
         # check if the function node is an endpoint or not
-        if self.__func_node is not None:
-            if is_flask_api_function(func_node) or is_django_api_function(func_node):
+        if self._func_node is not None:
+            if is_flask_api_function(self._func_node) or is_django_api_function(self._func_node):
                 self.is_endpoint = True
             else:
                 self.is_endpoint = False
         else:
             self.is_endpoint = False
 
-    def get_func_node(self) -> ast.FunctionType:
+    @property
+    def func_node(self) -> ast.FunctionType:
         """
         Get the ast function node of this node.
 
-        :return:
+        :return: The function node containing vulnerable node
         """
+        return self._func_node
 
-        return self.__func_node
+    @property
+    def from_node(self) -> ast.Call:
+        """
+        Get the ast function vulnerable node of this node.
 
-    def get_assignments(self):
+        :return: The vulnerable node
+        """
+        return self._from_node
+
+    @property
+    def assignments(self):
         """
         Retrieve the set of assignment-nodes for this node.
 
         :return: The assignment nodes for the node
         """
 
-        return self.__assignments
+        return self._assignments
 
-    def get_variables(self):
+    @property
+    def variables(self):
         """
         Get the set of variables to look present in this node.
 
         :return: The variables of the node
         """
 
-        return self.__variables
+        return self._variables
 
-    def get_module_name(self):
+    @variables.setter
+    def variables(self, injection_vars):
+        """
+        Set the variables to look for.
+
+        :param injection_vars: The set of injection related variables to look for
+        """
+
+        self._variables = injection_vars
+
+    @property
+    def module_name(self) -> str:
         """
         Retrieve the module name for this node.
 
@@ -115,15 +137,6 @@ class CodeTraversalNode:
 
         return self.__module_name
 
-    def set_variables(self, injection_vars):
-        """
-        Set the variables to look for.
-
-        :param injection_vars: The set of injection related variables to look for
-        """
-
-        self.__variables = injection_vars
-
     def __str__(self) -> str:
         """
         Retrieve a string representation of the node.
@@ -131,10 +144,10 @@ class CodeTraversalNode:
         :return: String representation
         """
 
-        if self.get_func_node() is None:
-            return f'{self.get_module_name()}:*'
+        if self.func_node is None:
+            return f'{self.module_name}:*'
         else:
-            return f'{self.get_module_name()}:{self.get_func_node().name}'
+            return f'{self.module_name}:{self.func_node.name}'
 
     def __repr__(self) -> str:
         """
@@ -143,15 +156,16 @@ class CodeTraversalNode:
         :return: Detailed string representation
         """
 
-        if self.get_func_node() is None:
-            if self.__from_node is None:
-                return f'{self.get_module_name()}:*={len(self.get_assignments())}'
-            return f'{self.get_module_name()}:*;{ast.unparse(self.__from_node.func)}={len(self.get_assignments())}'
-        if self.__from_node is None:
-            return f'{self.get_module_name()}:{self.get_func_node().name}={len(self.get_assignments())}'
-        return f'{self.get_module_name()}:{self.get_func_node().name};{ast.unparse(self.__from_node.func)}={len(self.get_assignments())}'
+        if self.func_node is None:
+            if self.from_node is None:
+                return f'{self.module_name}:*={len(self.assignments)}'
+            return f'{self.module_name}:*;{ast.unparse(self.from_node.func)}={len(self.assignments)}'
+        if self.from_node is None:
+            return f'{self.module_name}:{self.func_node.name}={len(self.assignments)}'
+        return f'{self.module_name}:{self.func_node.name};{ast.unparse(self.from_node.func)}={len(self.assignments)}'
 
-    def get_node_props(self) -> Dict:
+    @property
+    def node_props(self) -> Dict:
         """
         Return the properties of this node in a dictionary for adding to the graph.
 
@@ -160,7 +174,7 @@ class CodeTraversalNode:
 
         # collect assignment lines
         assignment_lines = []
-        for assign in self.get_assignments():
+        for assign in self.assignments:
 
             if not isinstance(assign, ast.Assign): continue
 
@@ -171,25 +185,25 @@ class CodeTraversalNode:
 
         # collect the function node
         func = {}
-        if self.get_func_node():
+        if self.func_node:
             func = {
                 'endpoint': self.is_endpoint,
-                'start': self.__func_node.lineno,
-                'end': self.__func_node.end_lineno,
-                'name': self.__func_node.name
+                'start': self.func_node.lineno,
+                'end': self.func_node.end_lineno,
+                'name': self.func_node.name
             }
 
         # collect the calls vulnerable node
         from_node = {}
-        if self.__from_node is not None:
+        if self.from_node is not None:
             from_node = {
-                'start': self.__from_node.lineno,
-                'end': self.__from_node.end_lineno,
-                'name': ast.unparse(self.__from_node.func)
+                'start': self.from_node.lineno,
+                'end': self.from_node.end_lineno,
+                'name': ast.unparse(self.from_node.func)
             }
 
         return {
-            'vars': list(self.get_variables()),
+            'vars': list(self.variables),
             'assignments': assignment_lines,
             'func_scope': func,
             'calls_vulnerable': from_node,
@@ -209,7 +223,7 @@ class CodeTraversalNode:
         # if the graph doesn't already have the node, simply add it
         if not graph.has_node(str(self)):
 
-            props = self.get_node_props()
+            props = self.node_props
 
             # add with props
             graph.add_node(str(self), **{
@@ -227,7 +241,7 @@ class CodeTraversalNode:
             try:
                 data = nodes_data[str(self)]
 
-                props = self.get_node_props()
+                props = self.node_props
 
                 # don't allow duplicate graph data
                 if len(data) != 0:
@@ -252,9 +266,9 @@ class CodeTraversalNode:
         if isinstance(other, CodeTraversalNode):
             return all(
                 [
-                    self.get_module_name() == other.get_module_name(),
-                    self.get_func_node() == other.get_func_node(),
-                    ast.unparse(self.__from_node.func) == ast.unparse(other.__from_node.func)
+                    self.module_name == other.module_name,
+                    self.func_node == other.func_node,
+                    ast.unparse(self.from_node.func) == ast.unparse(other.from_node.func)
                 ]
             )
         return False

@@ -64,7 +64,7 @@ class ModuleAnalysisStruct:
 
         visitor = SurfaceLevelVisitor()
         visitor.visit(self._ast_tree)
-        self._surface_items = visitor.get_surface_names()
+        self._surface_items = visitor.surface_names
 
     def resolve_imports(self, surface_entities: Dict[str, List[str]]):
         """

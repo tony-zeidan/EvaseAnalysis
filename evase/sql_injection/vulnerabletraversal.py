@@ -106,11 +106,11 @@ def traversal_from_exec(
         node = queue.popleft()
         # print("visiting func ----------------------", str(node))
 
-        if node.get_func_node() is None:
+        if node.func_node is None:
             continue
 
-        vulnerable_vars = collect_vulnerable_vars(node.get_func_node(), node.get_assignments(), [{}], [{}],
-                                                  node.get_variables())
+        vulnerable_vars = collect_vulnerable_vars(node.func_node, node.assignments, [{}], [{}],
+                                                  node.variables)
 
         if node.is_endpoint:
             if len(vulnerable_vars) > 0:
@@ -122,27 +122,27 @@ def traversal_from_exec(
                 continue
 
         else:
-            param_indexes_vulnerable = determine_vul_params_location(vulnerable_vars, node.get_func_node())
+            param_indexes_vulnerable = determine_vul_params_location(vulnerable_vars, node.func_node)
             if param_indexes_vulnerable == None:
                 continue
 
-            if node.get_func_node() is not None:
+            if node.func_node is not None:
                 uses_finder.reset_same_project()
-                uses_finder.module_name = node.get_module_name()
-                uses_finder.func_name = node.get_func_node().name
+                uses_finder.module_name = node.module_name
+                uses_finder.func_name = node.func_node.name
                 uses_finder.process()
 
                 for nodeNext in uses_finder.function_uses:
 
                     # stop recursion from breaking the program
-                    if nodeNext.get_func_node() == node.get_func_node():
+                    if nodeNext.func_node == node.func_node:
                         continue
 
                     if nodeNext in visited_func:
                         # print("SKIPPING")
                         continue
 
-                    injection_vars = nodeNext.get_variables()
+                    injection_vars = nodeNext.variables
                     ind = 0
                     inj = set()
                     while ind < len(injection_vars):
@@ -150,7 +150,7 @@ def traversal_from_exec(
                             inj.update(injection_vars[ind])
                         ind += 1
 
-                    nodeNext.set_variables(inj)
+                    nodeNext.variables = inj
                     if len(inj) == 0: continue  # unique is in set
                     # print("     adding------------- " + nodeNext.get_func_node().name)
                     queue.append(nodeNext)
