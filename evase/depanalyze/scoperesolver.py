@@ -49,8 +49,8 @@ class ScopeResolver(ast.NodeTransformer):
         :return: The module definition node
         """
         setattr(node, 'module_name', self._module_name)
+        super().generic_visit(node)
         return node
-
 
     def visit_ClassDef(self, node: ast.ClassDef):
         """
@@ -59,7 +59,7 @@ class ScopeResolver(ast.NodeTransformer):
         :param node: The class definition node
         :return: The class definition node
         """
-
+        print("CLASS ADDED")
         self._class_stack.append(node)
         super().generic_visit(node)
         self._class_stack.pop()
@@ -78,9 +78,9 @@ class ScopeResolver(ast.NodeTransformer):
         setattr(node, 'parent_classes', list(reversed(self._class_stack.copy())))
         if len(self._class_stack) > 0:
             node.name = f'{newname}:{node.name}'
+            print("NEWNAME", node.name)
         self.funcs.append(node)
 
-        super().generic_visit(node)
         return node
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> ast.FunctionDef:
@@ -91,6 +91,7 @@ class ScopeResolver(ast.NodeTransformer):
         :param node: The function definition node
         :return: The function definition with altered name
         """
+        super().generic_visit(node)
         return self.visit_Function(node)
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> ast.AsyncFunctionDef:
@@ -101,6 +102,7 @@ class ScopeResolver(ast.NodeTransformer):
         :param node: The function definition node
         :return: The function definition with altered name
         """
+        super().generic_visit(node)
         return self.visit_Function(node)
 
     @property
@@ -112,14 +114,3 @@ class ScopeResolver(ast.NodeTransformer):
         """
 
         return self._funcs.copy()
-
-    def generic_visit(self, node: ast.AST) -> ast.AST:
-        """
-        Overwritten generic visit function.
-
-        :param node: Any AST node
-        :return: The visited node
-        """
-
-        super().generic_visit(node)
-        return node
