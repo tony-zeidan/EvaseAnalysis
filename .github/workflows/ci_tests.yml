@@ -29,10 +29,10 @@ jobs:
           pip install .
       - name: Test
         run: |
-          if [[ ${{ runner.os }} -eq 'Linux' ]]; then
+          if [[ ${{ matrix.os }} -eq 'ubuntu-latest' ]]; then
             export PYTHONPATH=$PYTHONPATH:/path/to/test/
-          else
-            set PYTHONPATH=%PYTHONPATH%;C:\path\to\test\
+          elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            set PYTHONPATH=%PYTHONPATH_WINDOWS%
           fi
           python -m unittest discover
         shell: bash
