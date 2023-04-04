@@ -57,11 +57,11 @@ class ProjectAnalysisStruct:
         One traversal to alter dependencies based on possible importable items.
         """
 
-        surface_values = {mdl_name: mdl_struct.get_surface_items() for mdl_name, mdl_struct in
+        surface_values = {mdl_name: mdl_struct.surface_items for mdl_name, mdl_struct in
                           self.__module_structure.items()}
 
         for mdl_struct in self.__module_structure.values():
-            mdl_struct.resolve_imports(surface_values, self.__prj_root)
+            mdl_struct.resolve_imports(surface_values)
 
     def get_prj_root(self):
         """
@@ -97,7 +97,7 @@ class ProjectAnalysisStruct:
 
             depgraph[k] = {}
 
-            for aname, (mdl_name, fn_name) in v.get_module_imports().items():
+            for aname, (mdl_name, fn_name) in v.module_imports.items():
 
                 if "*" in mdl_name:
                     if aname not in mdl_name:
@@ -116,7 +116,7 @@ class ProjectAnalysisStruct:
                         if fn_name not in depgraph[k][mdl_name]:
                             depgraph[k][mdl_name].append(fn_name)
 
-            for fn_name, names in v.get_local_imports().items():
+            for fn_name, names in v.local_imports.items():
 
                 namer = f'{k}:{fn_name}'
                 if namer not in depgraph:

@@ -153,7 +153,7 @@ class SQLInjectionBehaviourAnalyzer(BehaviourAnalyzer):
         """
         for m_name, m_struct in self.project_struct.get_module_structure().items():
             visitor = InjectionNodeVisitor(self.project_struct, m_name)
-            visitor.visit(m_struct.get_ast())
+            visitor.visit(m_struct.tree)
             results = visitor.get_vulnerable_funcs()
             if len(results) > 0:
                 self.analysis_results['found_any'] = True

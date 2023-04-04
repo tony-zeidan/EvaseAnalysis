@@ -37,7 +37,7 @@ def get_function_call_origin(func_node: ast.Call, mdl_struct: ModuleAnalysisStru
 
     # using the dependencies of the current module, find the modules that is uses the function from (should be one).
     mdls = []
-    for imp, (imp_mdl, imp_name) in mdl_struct.get_module_imports().items():
+    for imp, (imp_mdl, imp_name) in mdl_struct.module_imports.items():
         if fn_name == imp_name:
             mdls.append(imp_mdl)
 
@@ -45,7 +45,7 @@ def get_function_call_origin(func_node: ast.Call, mdl_struct: ModuleAnalysisStru
     fn_defs = []
     for mdl in mdls:
         mdl = prj_struct.get_module(mdl)
-        for mdl_func in mdl.get_funcs():
+        for mdl_func in mdl.funcs:
             if mdl_func.name == fn_name:
                 fn_defs.append(mdl_func)
 
@@ -63,8 +63,8 @@ def differentiate_imports(mdl_struct: ModuleAnalysisStruct, import_func: str, im
     """
 
     # function can tell us if the vulnerale is imported as function or module
-    local_import = mdl_struct.get_local_imports()
-    module_import = mdl_struct.get_module_imports()
+    local_import = mdl_struct.local_imports
+    module_import = mdl_struct.module_imports
     # case1, importing entire module
     if import_module in local_import.keys() or import_module in module_import.keys():
         return ImportUsesCase.ENTIRE_MODULE, import_module
@@ -162,7 +162,7 @@ class FunctionCallFinder(ast.NodeVisitor):
                 # print(f"CASE 4: vulnerable class found imported using AS, next step look for [{asname}.{func_name}]")
                 self.module_target = asname
 
-            self.visit(module_struct.get_ast())
+            self.visit(module_struct.tree)
 
     def visit_Call(self, node: ast.Call):
         if not self.module_target:

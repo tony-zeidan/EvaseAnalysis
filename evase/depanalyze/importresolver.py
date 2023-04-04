@@ -1,55 +1,188 @@
 import ast
 import os
-from _ast import Module, ImportFrom, ClassDef, FunctionDef
 from pathlib import Path
-from typing import Tuple, Dict
+from typing import Tuple, TypedDict, Optional, Union, Dict, Set
 
 import re
-COUNT_DOTS = re.compile(r"(from|import)\s(\.+)")
 
+from evase.util.fileutil import check_path
 
-def module_in_package(to_find: str, directory_path: str):
-    return any([fname == f'{to_find}.py' for fname in os.listdir(directory_path)])
+COUNT_DOTS = re.compile(r"(from|import)\s(\.+)")  # pattern for relative imports
+
+# custom type
+DependencyMapping = TypedDict('DependencyMapping', {
+    str: Tuple[str, Optional[str]]
+})
+
+LocalDependencyMapping = TypedDict('LocalDependencyMapping', {
+    str: Set[Tuple[str, Optional[str]]]
+})
+
 
 class ModuleImportResolver(ast.NodeTransformer):
-    def __init__(self, surface_values, directory):
+    def __init__(self):
         """
         A class that collects local and module level imports for a module.
+        """
+        self._directory = None
+        self._is_surface = True
+        self._surface_imports: DependencyMapping = {}
+        self._local_imports: LocalDependencyMapping = {}
+        self._surface_values = {}
+        self._function_name = ""
+        self._key = None
 
-        :param surface_values: The surface values to look for
-        :param directory: The directory to look within
+    @property
+    def directory(self) -> Path:
+        """
+        Retrieve the current directory.
+
+        :return: The directory path
+        """
+        return self._directory
+
+    @directory.setter
+    def directory(self, directory: Union[str, Path]):
+        """
+        Set the directory.
+        This function will throw an error if the directory isn't valid.
+
+        :param directory: The directory for the project
+        """
+        self._directory = check_path(directory, file_ok=False, file_req=False, absolute_req=False, ret_absolute=False)
+
+    @property
+    def surface_values(self):
+        """
+        Retrieve the surface import values.
+
+        :return: The surface importable items
         """
 
-        self._directory = directory
-        self._is_surface = True
-        self._surface_imports = {}
-        self._local_imports = {}
-        self._surface_values = surface_values
-        self._function_name = ""
+        return self._surface_imports.copy()
 
-    def get_dependencies(self) -> Tuple[Dict, Dict]:
+    @surface_values.setter
+    def surface_values(self, surface_values: Dict):
+        """
+        Set the current surface importable items.
+
+        :param surface_values:
+        :return:
+        """
+        if not isinstance(surface_values, dict):
+            raise ValueError("The surface values need to be a dictionary of module names (package style) to strings "
+                             "of importable items.")
+
+        self._surface_values = surface_values
+
+    @property
+    def key(self):
+        """
+        Get the current key.
+
+        :return: The current module key
+        """
+
+        return self._key
+
+    @key.setter
+    def key(self, key: str):
+        """
+        Set the module to search for in the project structure.
+
+        :param key: The module key
+        """
+
+        self._key = key
+
+    @property
+    def local_dependencies(self) -> LocalDependencyMapping:
+        """
+        Retrieve the local level dependencies.
+        It is a mapping of strings of function names to tuples of where they come from.
+
+        e.g. in module example.py INSIDE foo()
+        def foo():
+            from example2 import bar
+            from example3 import baz as sam
+
+        looks like:
+        {
+            'foo': {('example2:bar', None), ('example3:baz', 'sam')}
+        }
+
+        :return: Local level dependencies
+        """
+        return self._local_imports.copy()
+
+    @property
+    def module_dependencies(self) -> DependencyMapping:
+        """
+        Retrieve the module level dependencies.
+        It is a mapping of strings of module names to tuples of where they come from.
+
+        e.g. in module example.py:
+        from example2 import foo as bar
+
+        looks like:
+        {
+            'example2': ('example2.foo', 'bar')
+        }
+
+        :return: Module level dependencies
+        """
+
+        return self._surface_imports.copy()
+
+    @property
+    def deps(self) -> Tuple[DependencyMapping, DependencyMapping]:
         """
         Retrieve the imports found.
 
         :return: The module and local level imports
         """
-        return self._surface_imports, self._local_imports
+        return self.module_dependencies, self.local_dependencies
 
-    def set_key(self, key):
+    def reset_same_project(self):
         """
-        The module to look for?
-
-        :param key: The module name?
+        Reset the import resolver to a state where it can be reused for the modules in the same project.
         """
 
-        self.key = key
+        self._is_surface = True
+        self._surface_imports.clear()
+        self._local_imports.clear()
+        self._function_name = ""
 
-    def visit_Module(self, node: Module):
+    def reset(self):
+        """
+        Reset the import resolver entirely.
+        """
+
+        self.reset_same_project()
+        self._directory = None
+        self._surface_values.clear()
+
+    def visit_Module(self, node: ast.Module):
+        """
+        When a module is visited set the scope to surface level.
+
+        :param node: The module node
+        :return: The module node
+        """
+
         super().generic_visit(node)
         self._is_surface = True
         return node
 
-    def visit_Import(self, node: Module):
+    def visit_Import(self, node: ast.Import):
+        """
+        Logic when an import node is visited.
+        If the import is relative, the resolver attempts to resolve the package names
+        and make the import absolute.
+
+        :param node: The import node
+        :return: The possibly altered import node
+        """
 
         for alias_node in node.names:
             name = alias_node.name
@@ -69,14 +202,17 @@ class ModuleImportResolver(ast.NodeTransformer):
 
             if self._is_surface:
                 if alias_node.asname is None:
-                    self._surface_imports[name] = [alias_node.name, name]
+                    self._surface_imports[name] = (alias_node.name, name)
                 else:
-                    self._surface_imports[alias_node.asname] = [alias_node.name, alias_node.asname]
+                    self._surface_imports[alias_node.asname] = (alias_node.name, alias_node.asname)
             else:
+                if self._function_name not in self._local_imports:
+                    self._local_imports[self._function_name] = set()
+
                 if alias_node.asname is None:
-                    self._local_imports[self._function_name] = [alias_node.name, self._function_name]
+                    self._local_imports[self._function_name].add((alias_node.name, None))
                 else:
-                    self._local_imports[self._function_name] = [alias_node.name, alias_node.asname]
+                    self._local_imports[self._function_name].add((alias_node.name, alias_node.asname))
 
         prev = self._is_surface
         self._is_surface = False
@@ -84,7 +220,17 @@ class ModuleImportResolver(ast.NodeTransformer):
         self._is_surface = prev
         return node
 
-    def visit_ImportFrom(self, node: ImportFrom):
+    def visit_ImportFrom(self, node: ast.ImportFrom):
+        """
+        Logic when an import from node is visited.
+        If the import is relative, the resolver attempts to resolve the package names
+        and make the import absolute.
+        There is some more logic to consider because relative imports using from can be
+        actual modules themselves.
+
+        :param node: The import from node
+        :return: The possibly altered import from node
+        """
 
         # use the regex pattern to count the amount of continuous dots in the from statement
         imp_str = ast.unparse(node)
@@ -146,9 +292,9 @@ class ModuleImportResolver(ast.NodeTransformer):
                     if was_init and not was_relative:
                         node.module = node.module.replace("__init__", "*")
 
-                    self._surface_imports[alias_node.name] = [node.module, None]
+                    self._surface_imports[alias_node.name] = (node.module, None)
                 else:
-                    self._surface_imports[alias_node.asname] = [node.module, alias_node.name]
+                    self._surface_imports[alias_node.asname] = (node.module, alias_node.name)
             else:
                 if self._function_name not in self._local_imports:
                     self._local_imports[self._function_name] = set()
@@ -167,13 +313,46 @@ class ModuleImportResolver(ast.NodeTransformer):
         self._is_surface = prev
         return node
 
-    def generic_visit(self, node):
+    def visit(self, node: ast.AST):
+        if self._directory is None:
+            raise ValueError("Can't visit without knowing project directory.")
+        if self.key is None:
+            raise ValueError("Can't visit without knowing the current module name.")
+
+        return super().visit(node)
+
+    def generic_visit(self, node: ast.AST) -> ast.AST:
+        """
+        Overwritten generic visit.
+
+        :param node: Any other node visit not overwritten
+        :return: The original node
+        """
+
         prev = self._is_surface
         self._is_surface = False
         super().generic_visit(node)
         self._is_surface = prev
         return node
 
-    def visit_FunctionDef(self, node: FunctionDef):
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> ast.AST:
+        """
+        Set the function scope to the current function.
+
+        :param node: The function node
+        :return: The function node (visited)
+        """
+
+        self._function_name = node.name
+        return self.generic_visit(node)
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> ast.AST:
+        """
+        Set the function scope to the current async function.
+
+        :param node: The async function node
+        :return: The async function node (visited)
+        """
+
         self._function_name = node.name
         return self.generic_visit(node)
