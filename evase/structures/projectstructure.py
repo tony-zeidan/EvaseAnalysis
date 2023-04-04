@@ -1,26 +1,23 @@
 import ast
-import os
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Union, TypedDict
+
+from evase.depanalyze.importresolver import ModuleImportResolver
+
+from evase.depanalyze.scoperesolver import ScopeResolver
 
 from evase.structures.modulestructure import ModuleAnalysisStruct
 
 from pprint import pprint
 
+from evase.util.fileutil import get_project_module_names, check_path
 
-def package_name(file, dirpath, initial_init: bool = False):
-    if initial_init:
-        module_style = Path(os.path.splitext(file.relative_to(dirpath.parent))[0])
-    else:
-        module_style = Path(os.path.splitext(file.relative_to(dirpath))[0])
-    module_style = str(module_style).replace(os.sep, '.')
-    return module_style
-
-def has_init_file(dirpath):
-    return any(p.name == "__init__.py" for p in Path.iterdir(dirpath))
+ProjectStructure = TypedDict('ModuleStructure', {
+    str: ModuleAnalysisStruct
+})
 
 
-def dir_to_module_structure(dirpath: str) -> Dict[str, ModuleAnalysisStruct]:
+def dir_to_module_structure(dirpath: Union[str, Path]) -> ProjectStructure:
     """
     Converts a directory into a mapping of package style names to module analysis structures
 
@@ -29,24 +26,29 @@ def dir_to_module_structure(dirpath: str) -> Dict[str, ModuleAnalysisStruct]:
     """
 
     tree = {}
-    dirpath = Path(dirpath)
+    dirpath = Path(dirpath).absolute()
+    scr = ScopeResolver()
+    mdr = ModuleImportResolver()
 
-    keep_last = has_init_file(dirpath)
+    for module_name, path in get_project_module_names(dirpath):
+        path = Path(path).absolute()
 
-    files = dirpath.glob('**/*.py')
-    for file in files:
-        module_style = package_name(file, dirpath, initial_init=keep_last)
-
-        with open(file, 'r') as openfile:
-            path = os.path.abspath(file)
-            tree[module_style] = ModuleAnalysisStruct(module_style, ast.parse(openfile.read()), path)
+        with open(path, 'r') as file:
+            tree[module_name] = ModuleAnalysisStruct(
+                module_name,
+                ast.parse(file.read()),
+                path,
+                dirpath,
+                scope_resolver_instance=scr,  # for efficiency, use the same scope resolver instance
+                import_resolver_instance=mdr  # for efficiency, use the same import resolver instance
+            )
 
     return tree
 
 
 class ProjectAnalysisStruct:
 
-    def __init__(self, prj_name: str, prj_root: str):
+    def __init__(self, prj_name: str, prj_root: Union[str, Path]):
         """
         A class that represents the structure of a Python project.
         The class analyzes the dependencies between files, and transforms this into a workable module structure.
@@ -54,20 +56,46 @@ class ProjectAnalysisStruct:
         :param prj_name: The name of the project
         :param prj_root: The root directory of the project
         """
-        self.prj_name = prj_name
-
-        if not os.path.exists(prj_root):
-            raise ValueError("Can't accept a file path that doesn't exist.")
-
-        self.__prj_root = prj_root
-        self.__module_structure = dir_to_module_structure(self.__prj_root)
-        self.__resolve_imports()
+        self._prj_name = prj_name
+        self._prj_root = check_path(prj_root, file_ok=False, absolute_req=False, ret_absolute=True)
+        self._module_structure = dir_to_module_structure(self._prj_root)
+        self._resolve_imports()
 
         # dependency graph
-        self.__depgraph = None
-        self.__make_static_depgraph()
+        self._depgraph = None
+        self._make_static_depgraph()
 
-    def __resolve_imports(self):
+    @property
+    def root(self) -> Path:
+        """
+        Retrieve the root given for the project.
+
+        :return: The root of the project
+        """
+        return self._prj_root
+
+    @property
+    def structure(self) -> ProjectStructure:
+        """
+        Retrieve the structure of the project.
+        It is a mapping between module names and their structures.
+
+        :return: The structure mapping
+        """
+        return self._module_structure
+
+    @property
+    def dependency_mapping(self):
+        """
+        Retrieve a dependency graph of the project.
+        It is a mapping between the names of a module/module function and
+        a collection of the modules that it imports, etc.
+
+        :return: The static dependency graph of the project
+        """
+        return self._depgraph
+
+    def _resolve_imports(self):
         """
         Resolve the dependencies of each individual module structure in the project.
         Requires a traversal of the module 2 times.
@@ -75,49 +103,23 @@ class ProjectAnalysisStruct:
         One traversal to alter dependencies based on possible importable items.
         """
 
-        surface_values = {mdl_name: mdl_struct.get_surface_items() for mdl_name, mdl_struct in
-                          self.__module_structure.items()}
+        surface_values = {mdl_name: mdl_struct.surface_items for mdl_name, mdl_struct in
+                          self._module_structure.items()}
 
-        for mdl_struct in self.__module_structure.values():
-            mdl_struct.resolve_imports(surface_values, self.__prj_root)
+        for mdl_struct in self._module_structure.values():
+            mdl_struct.resolve_imports(surface_values)
 
-    def get_prj_root(self):
-        """
-        Retrieve the root given for the project.
-
-        :return: The root of the project
-        """
-        return self.__prj_root
-
-    def get_module_structure(self) -> Dict[str, ModuleAnalysisStruct]:
-        """
-        Retrieve the structure of the modules (use after processing)
-
-        :return: Mapping of module names to analysis structures
-        """
-        return self.__module_structure
-
-    def get_module(self, module_key) -> ModuleAnalysisStruct:
-        """
-        Retrieve the structure of the module
-
-        :return: module analysis structures
-        """
-        return self.__module_structure.get(module_key)
-
-    def __make_static_depgraph(self):
+    def _make_static_depgraph(self):
         """
         Makes a static dependency graph for the project.
         """
 
         depgraph = {}
-        for k, v in self.__module_structure.items():
+        for k, v in self._module_structure.items():
 
             depgraph[k] = {}
 
-            for aname, (mdl_name, fn_name) in v.get_module_imports().items():
-
-                print(f"\nSURFACE LEVEL\naname:{aname}\nmdl_name:{mdl_name}\nfn_name:{fn_name}")
+            for aname, (mdl_name, fn_name) in v.module_imports.items():
 
                 if "*" in mdl_name:
                     if aname not in mdl_name:
@@ -136,16 +138,13 @@ class ProjectAnalysisStruct:
                         if fn_name not in depgraph[k][mdl_name]:
                             depgraph[k][mdl_name].append(fn_name)
 
-            for fn_name, names in v.get_local_imports().items():
+            for fn_name, names in v.local_imports.items():
 
                 namer = f'{k}:{fn_name}'
                 if namer not in depgraph:
                     depgraph[namer] = {}
 
                 for mdl_name, aname in names:
-
-                    print(
-                        f"\nLOCAL LEVEL\nkey:{k}\naname:{aname}\nmdl_name:{mdl_name}\nfn_name:{fn_name}\nnamer:{namer}")
 
                     if "*" in mdl_name:
                         if aname not in depgraph[namer]:
@@ -160,19 +159,11 @@ class ProjectAnalysisStruct:
 
                         depgraph[namer][mdl_name].append(aname)
 
-        self.__depgraph = depgraph
+        self._depgraph = depgraph
 
         # display dependency graph after generation
-        print("Static Dependency Graph")
-        pprint(depgraph)
-
-    def get_static_depgraph(self) -> Dict:
-        """
-        Retrieve the static dependency graph from the analysis structure.
-
-        :return: The static dependency graph in dictionary form
-        """
-        return self.__depgraph
+        #print("Static Dependency Graph")
+        #pprint(depgraph)
 
     def __str__(self):
         """
@@ -180,4 +171,13 @@ class ProjectAnalysisStruct:
         :return:
         """
 
-        return f'{self.prj_name}@{self.__prj_root}'
+        return f'{self._prj_name}@{self._prj_root}'
+
+    def __getitem__(self, key: str) -> ModuleAnalysisStruct:
+        """
+        Dictionary-like behavior, allow for accessing of modules through their names.
+
+        :param key: The name of a module in the structure
+        :return: The module structure for the module specified
+        """
+        return self._module_structure[key]

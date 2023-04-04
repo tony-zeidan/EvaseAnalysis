@@ -1,4 +1,5 @@
-from typing import Dict, Tuple, List, Set
+from pathlib import Path
+from typing import Dict, Tuple, Set, Union
 
 import networkx as nx
 from networkx import DiGraph
@@ -9,6 +10,8 @@ from evase.sql_injection.injectionvisitor import InjectionNodeVisitor
 from abc import ABC, abstractmethod
 import json
 import os
+
+from evase.util.fileutil import check_path
 
 attack_vector_edge_setting = {
     'vulnerable': True,
@@ -148,9 +151,9 @@ class SQLInjectionBehaviourAnalyzer(BehaviourAnalyzer):
 
         :return: A dictionary of the analysis results
         """
-        for m_name, m_struct in self.project_struct.get_module_structure().items():
+        for m_name, m_struct in self.project_struct.structure.items():
             visitor = InjectionNodeVisitor(self.project_struct, m_name)
-            visitor.visit(m_struct.get_ast())
+            visitor.visit(m_struct.tree)
             results = visitor.get_vulnerable_funcs()
             if len(results) > 0:
                 self.analysis_results['found_any'] = True
@@ -164,7 +167,8 @@ class AnalysisPerformer:
     def __init__(
             self,
             project_name: str = None,
-            project_root: str = None):
+            project_root: Union[str, Path] = None
+    ):
         """
         Analyzes the code given for SQL injection vulnerabilities.
         This class is a wrapper for evase tools provided in this package.
@@ -174,7 +178,7 @@ class AnalysisPerformer:
         """
 
         self.project_name = project_name
-        self.project_root = project_root
+        self.project_root = check_path(project_root, file_ok=False, file_req=False, absolute_req=False, ret_absolute=True)
         self.analysis_results = {}
 
         self.sql_injection_detector = SQLInjectionBehaviourAnalyzer()
@@ -273,7 +277,6 @@ def add_node(g: nx.DiGraph, n: str, groups: Dict[str, Set[str]], edge_settings: 
             groups[n] = set()
             g.add_node(n, label=n, **node_settings)
 
-
     return groups
 
 
@@ -342,7 +345,7 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct) -> Tuple[DiGraph, Dict[str, S
     :return: The NetworkX graph object and a mapping between modules under similar package names
     """
 
-    graph_info = prj.get_static_depgraph()
+    graph_info = prj.dependency_mapping
     graph = nx.DiGraph()
 
     groups = {}
@@ -360,13 +363,12 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct) -> Tuple[DiGraph, Dict[str, S
             else:
                 for def_prop in defs_props:
 
-                    if defs in prj.get_module_structure():
+                    if defs in prj.structure:
                         namer = f'{defs}:{def_prop}'
                     else:
                         namer = f'{defs}.{def_prop}'
                     if def_prop in groups:
                         namer = def_prop
-
 
                     groups = add_node(graph, namer, groups, node_settings=uses_node_setting,
                                       edge_settings=package_edge_setting)
@@ -380,7 +382,7 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct) -> Tuple[DiGraph, Dict[str, S
 
 
 def extend_depgraph_attackvectors(graph: nx.DiGraph, groups: Dict[str, Set[str]], analysis: Dict[str, nx.DiGraph]) -> \
-Tuple[DiGraph, Dict[str, Set[str]]]:
+        Tuple[DiGraph, Dict[str, Set[str]]]:
     """
     Extend the main dependency NetworkX graph with the subgraphs for each individual
     vulnerability.
@@ -404,16 +406,22 @@ Tuple[DiGraph, Dict[str, Set[str]]]:
 
             # ed1 is the first node in the edge, and ed2 is the second (from->to)
 
-            # TODO: get attributes of the current node and add them to the attack vector setting
+            prev_attack_data, prev_attack_data_2 = {}, {}
+            try:
+                prev_data = nx.get_node_attributes(attack_graph, "__node_data")
+                prev_attack_data, prev_attack_data_2 = prev_data[ed1], prev_data[ed2]
+            except KeyError:
+                pass
 
             new_attack_vector_node_setting1 = attack_vector_node_setting.copy()
+            new_attack_vector_node_setting1.update({"__node_data": prev_attack_data})
             new_attack_vector_node_setting2 = attack_vector_node_setting.copy()
+            new_attack_vector_node_setting2.update({"__node_data": prev_attack_data_2})
 
             groups = add_node(graph, ed1, groups, edge_settings=package_edge_setting,
                               node_settings=new_attack_vector_node_setting1)
             groups = add_node(graph, ed2, groups, edge_settings=package_edge_setting,
                               node_settings=new_attack_vector_node_setting2)
-
 
             # safety, only add the edge if it isn't there
             if not graph.has_edge(ed2, ed1):
@@ -421,6 +429,5 @@ Tuple[DiGraph, Dict[str, Set[str]]]:
 
     # for safety, trim the graph after; don't worry about this
     groups = trim_depdigraph(graph, groups, edge_settings=uses_edge_setting)
-    print(groups)
 
     return graph, groups

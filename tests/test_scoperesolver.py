@@ -7,12 +7,21 @@ from evase.depanalyze.scoperesolver import ScopeResolver
 
 
 class TestScopeResolver(unittest.TestCase):
+    """
+    Unit tests for scope resolver functionality.
+    """
 
     def setUp(self):
+        """
+        Setup with AST.
+        """
         self.test_file1 = testutil.get_ast_from_filename(testutil.scres1_filename)
 
     def test_resolverobj(self):
-        test_resolver = ScopeResolver()
+        """
+        Test the ability of the scope resolver to accurately resolve the scopes of functions in an AST.=
+        """
+
         classdefs = []
         belongs = []
         funcdefs = []
@@ -34,8 +43,9 @@ class TestScopeResolver(unittest.TestCase):
                 if not found:
                     belongs.append((None, nodecpy))
 
-        test_resolver.visit(self.test_file1)
+        self.test_file1 = ScopeResolver().visit(self.test_file1)
+        print(ast.dump(self.test_file1))
 
         for node, (cls, fn) in zip(funcdefs, belongs):
-            shname = f'{cls.name}.{fn.name}' if cls else fn.name
+            shname = f'{cls.name}:{fn.name}' if cls else fn.name
             self.assertEqual(shname, node.name, "Node name wasn't formatted properly")
