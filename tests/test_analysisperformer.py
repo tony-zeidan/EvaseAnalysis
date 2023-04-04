@@ -1,15 +1,14 @@
 import evase.structures.analysisperformer as ap
-import evase.structures.projectstructure as prj
 import evase.util.fileutil as futil
 
-from pathlib import Path
 import unittest
 from testutil import *
 
-from pprint import pprint
-
 
 class TestProjectAnalysisPerformer(unittest.TestCase):
+    """
+    Tests for the functionality of the analysis performer.
+    """
 
     def setUp(self):
         """
@@ -35,9 +34,6 @@ class TestProjectAnalysisPerformer(unittest.TestCase):
 
         dirpath = Path(prjroot3_filename)
         all_package_names = [name for name, _ in futil.get_project_module_names(dirpath)]
-
-        print("PACKAGES", all_package_names)
-
         nodes_present = [x['id'] for x in results['graph']['total']['nodes']]
 
         exclusion_list = ["flask_webgoat.templates.hello"]
@@ -51,8 +47,6 @@ class TestProjectAnalysisPerformer(unittest.TestCase):
 
         self.test_struct2.perform_analysis()
         results = self.test_struct2.get_results()
-
-        pprint(results)
 
         dirpath = Path(prjroot2_filename)
         all_package_names = [name for name, _ in futil.get_project_module_names(dirpath)]

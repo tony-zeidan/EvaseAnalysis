@@ -1,11 +1,13 @@
 import evase.util.fileutil as futil
 
-from pathlib import Path
 import unittest
 from testutil import *
 
 
-class TestProjectAnalysisPerformer(unittest.TestCase):
+class TestFileUtilities(unittest.TestCase):
+    """
+    Tests for the functionality of file utility functions.
+    """
 
     def test_package_names1(self):
         """
@@ -39,7 +41,6 @@ class TestProjectAnalysisPerformer(unittest.TestCase):
 
         for module_name in expected_modules:
             self.assertIn(module_name, actual_modules)
-
 
     def test_package_names2(self):
         """

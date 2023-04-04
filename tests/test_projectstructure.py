@@ -3,20 +3,20 @@ from testutil import *
 
 import os
 
-from evase.structures.projectstructure import ProjectAnalysisStruct, dir_to_module_structure
+from evase.structures.projectstructure import dir_to_module_structure
 
 
 class TestProjectAnalysisStruct(unittest.TestCase):
 
     def setUp(self):
-        self.test_struct1 = ProjectAnalysisStruct("test1", prjroot1_filename)
+        self.test_struct1 = get_projectstruct("test1", prjroot1_filename)
 
     def test_project_root(self):
-        self.assertEqual(prjroot1_filename, self.test_struct1.get_prj_root())
+        self.assertEqual(prjroot1_filename, self.test_struct1.root)
 
     def test_project_struct_dirs(self):
 
-        md_struct = self.test_struct1.get_module_structure()
+        md_struct = self.test_struct1.structure
 
         total_len = 0
         for root, dirs, files in os.walk(prjroot1_filename):
@@ -38,6 +38,6 @@ class TestProjectAnalysisStruct(unittest.TestCase):
         self.assertIn('prjstructtest.util.moreutil.__init__', test_mdl_struct)
 
     def test_other(self):
-        for mdl in self.test_struct1.get_module_structure().values():
+        for mdl in self.test_struct1.structure.values():
             print(mdl.module_imports)
             print(mdl.local_imports)

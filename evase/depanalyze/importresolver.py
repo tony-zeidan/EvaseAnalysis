@@ -2,7 +2,6 @@ import ast
 import os
 from pathlib import Path
 from typing import Tuple, TypedDict, Optional, Union, Dict, Set
-
 import re
 
 from evase.util.fileutil import check_path
@@ -23,6 +22,9 @@ class ModuleImportResolver(ast.NodeTransformer):
     def __init__(self):
         """
         A class that collects local and module level imports for a module.
+
+        For this class to behave properly, it requires that the surface values to have their scopes resolved.
+        It also requires that the AST of this module had its scope resolved.
         """
         self._directory = None
         self._is_surface = True
@@ -55,6 +57,7 @@ class ModuleImportResolver(ast.NodeTransformer):
     def surface_values(self):
         """
         Retrieve the surface import values.
+        Ensure that these surface values have been had their scopes resolved.
 
         :return: The surface importable items
         """
@@ -314,6 +317,14 @@ class ModuleImportResolver(ast.NodeTransformer):
         return node
 
     def visit(self, node: ast.AST):
+        """
+        Use this visit function to begin traversal.
+        Throws exceptions if the current key or directory aren't set.
+
+        :param node: The node to find
+        :return:
+        """
+
         if self._directory is None:
             raise ValueError("Can't visit without knowing project directory.")
         if self.key is None:

@@ -151,7 +151,7 @@ class SQLInjectionBehaviourAnalyzer(BehaviourAnalyzer):
 
         :return: A dictionary of the analysis results
         """
-        for m_name, m_struct in self.project_struct.get_module_structure().items():
+        for m_name, m_struct in self.project_struct.structure.items():
             visitor = InjectionNodeVisitor(self.project_struct, m_name)
             visitor.visit(m_struct.tree)
             results = visitor.get_vulnerable_funcs()
@@ -345,7 +345,7 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct) -> Tuple[DiGraph, Dict[str, S
     :return: The NetworkX graph object and a mapping between modules under similar package names
     """
 
-    graph_info = prj.get_static_depgraph()
+    graph_info = prj.dependency_mapping
     graph = nx.DiGraph()
 
     groups = {}
@@ -363,7 +363,7 @@ def get_mdl_depdigraph(prj: ProjectAnalysisStruct) -> Tuple[DiGraph, Dict[str, S
             else:
                 for def_prop in defs_props:
 
-                    if defs in prj.get_module_structure():
+                    if defs in prj.structure:
                         namer = f'{defs}:{def_prop}'
                     else:
                         namer = f'{defs}.{def_prop}'

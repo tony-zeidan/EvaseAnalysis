@@ -7,11 +7,21 @@ from evase.depanalyze.scoperesolver import ScopeResolver
 
 
 class TestScopeResolver(unittest.TestCase):
+    """
+    Unit tests for scope resolver functionality.
+    """
 
     def setUp(self):
+        """
+        Setup with AST.
+        """
         self.test_file1 = testutil.get_ast_from_filename(testutil.scres1_filename)
 
     def test_resolverobj(self):
+        """
+        Test the ability of the scope resolver to accurately resolve the scopes of functions in an AST.=
+        """
+
         test_resolver = ScopeResolver()
         classdefs = []
         belongs = []

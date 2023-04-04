@@ -4,21 +4,53 @@ from typing import List
 
 class ScopeResolver(ast.NodeTransformer):
 
-    def __init__(self):
+    def __init__(self, module_name: str = None):
         """
         A class to help resolve the parent nodes of certain functions.
         """
-
+        self._module_name: str = module_name
         self._class_stack: List[ast.ClassDef] = []
         self._funcs: List[ast.FunctionType] = []
+
+    @property
+    def module_name(self) -> str:
+        """
+        Retrieve the module name.
+
+        :return: The module name of the module that this resolver is linked to
+        """
+        return self._module_name
+
+    @module_name.setter
+    def module_name(self, module_name: str):
+        """
+        Set the name of the module that this resolver is linked to
+
+        :param module_name: The name of the module that this resolver is linked to
+        """
+        if module_name is None:
+            raise ValueError("Can't set the name of the module to none!")
+
+        self._module_name = module_name
 
     def reset(self):
         """
         Reset the scope resolver back to original state for reuse.
         """
-
+        self._module_name = None
         self._class_stack.clear()
         self._funcs.clear()
+
+    def visit_Module(self, node: ast.Module):
+        """
+        Set the name of the module ast node.
+
+        :param node: The module definition node
+        :return: The module definition node
+        """
+        setattr(node, 'module_name', self._module_name)
+        return node
+
 
     def visit_ClassDef(self, node: ast.ClassDef):
         """
