@@ -28,4 +28,5 @@ jobs:
           pip install .
       - name: Test
         run: |
+          export PYTHONPATH=$PYTHONPATH:tests/
           python -m unittest discover
