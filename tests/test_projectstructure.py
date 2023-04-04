@@ -7,14 +7,27 @@ from evase.structures.projectstructure import dir_to_module_structure
 
 
 class TestProjectAnalysisStruct(unittest.TestCase):
+    """
+    Tests the functionality of the project structure object.
+    """
 
     def setUp(self):
+        """
+        Set up project structure.
+        """
         self.test_struct1 = get_projectstruct("test1", prjroot1_filename)
 
     def test_project_root(self):
+        """
+        Test the root of the structure.
+        """
+
         self.assertEqual(prjroot1_filename, self.test_struct1.root)
 
     def test_project_struct_dirs(self):
+        """
+        Test the ability to make the module structure.
+        """
 
         md_struct = self.test_struct1.structure
 
@@ -37,7 +50,3 @@ class TestProjectAnalysisStruct(unittest.TestCase):
         self.assertIn('prjstructtest.util.moreutil.helper2', test_mdl_struct)
         self.assertIn('prjstructtest.util.moreutil.__init__', test_mdl_struct)
 
-    def test_other(self):
-        for mdl in self.test_struct1.structure.values():
-            print(mdl.module_imports)
-            print(mdl.local_imports)
