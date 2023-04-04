@@ -1,4 +1,4 @@
-[![CI Backend Tests](https://github.com/Bruce-liushaopeng/Evase/actions/workflows/ci_tests.yml/badge.svg?branch=main)](https://github.com/Bruce-liushaopeng/Evase/actions/workflows/ci_tests.yml)
+[![CI Tests](https://github.com/tony-zeidan/EvaseAnalysis/actions/workflows/ci_tests.yml/badge.svg)](https://github.com/tony-zeidan/EvaseAnalysis/actions/workflows/ci_tests.yml)
 
 # Evase Analysis Library
 This library intends to help users detect SQL Injection vulnerabilities from their source code. 
