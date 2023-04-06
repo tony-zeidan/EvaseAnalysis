@@ -1,8 +1,11 @@
 import logging
 import os
+from pathlib import Path
 
 
 class AnalysisLogger(object):
+
+    log_path = Path(Path.cwd(), 'analysis-log.log')
 
     def __init__(self, log_path: str):
         """
@@ -11,7 +14,7 @@ class AnalysisLogger(object):
         :param log_path: The path to the log directory
         """
         if os.path.isdir(log_path):
-            self.__log_path = os.path.join(log_path, 'analysis-log.log')
+            log_path = AnalysisLogger.log_path
 
             logging.basicConfig(filename=f'{log_path}',
                                 filemode='w',
@@ -19,7 +22,7 @@ class AnalysisLogger(object):
                                 datefmt='%H:%M:%S',
                                 level=logging.DEBUG)
 
-            self.logger = logging.getLogger(".sim")
+            self.logger = logging.getLogger(__file__)
         else:
             raise NotADirectoryError("The path you gave was not a directory.")
 
@@ -32,6 +35,14 @@ class AnalysisLogger(object):
         """
 
         self.logger.log(level, msg)
+
+    def info(self, msg: str):
+        """
+        Make an info log.
+
+        :param msg: The log message
+        """
+        self.logger.info(msg)
 
     # Singleton class
     def __new__(cls, *args, **kw):

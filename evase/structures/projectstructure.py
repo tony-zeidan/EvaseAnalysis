@@ -5,8 +5,11 @@ from typing import Dict, Union, TypedDict
 from evase.depanalyze.importresolver import ModuleImportResolver
 
 from evase.depanalyze.scoperesolver import ScopeResolver
+from evase.depanalyze.surfacedetector import SurfaceLevelVisitor
 
 from evase.structures.modulestructure import ModuleAnalysisStruct
+
+from evase.util.logger import AnalysisLogger
 
 from pprint import pprint
 
@@ -29,8 +32,10 @@ def dir_to_module_structure(dirpath: Union[str, Path]) -> ProjectStructure:
     dirpath = Path(dirpath).absolute()
     scr = ScopeResolver()
     mdr = ModuleImportResolver()
+    slre = SurfaceLevelVisitor()
 
     for module_name, path in get_project_module_names(dirpath):
+        AnalysisLogger().info(f"Module name {module_name} found.")
         path = Path(path).absolute()
 
         with open(path, 'r') as file:
@@ -41,7 +46,9 @@ def dir_to_module_structure(dirpath: Union[str, Path]) -> ProjectStructure:
                 dirpath,
                 scope_resolver_instance=scr,  # for efficiency, use the same scope resolver instance
                 import_resolver_instance=mdr  # for efficiency, use the same import resolver instance
+                surface_resolver_instance=slre, # for efficiency, use the same surface resolver instance
             )
+            AnalysisLogger().info(f"Module name {module_name} created.")
 
     return tree
 
@@ -63,7 +70,9 @@ class ProjectAnalysisStruct:
 
         # dependency graph
         self._depgraph = None
+        AnalysisLogger().info("Making static dependency graph for project.")
         self._make_static_depgraph()
+        
 
     @property
     def root(self) -> Path:
@@ -106,6 +115,7 @@ class ProjectAnalysisStruct:
         surface_values = {mdl_name: mdl_struct.surface_items for mdl_name, mdl_struct in
                           self._module_structure.items()}
 
+        AnalysisLogger().info("Resolving imports for the entire project.")
         for mdl_struct in self._module_structure.values():
             mdl_struct.resolve_imports(surface_values)
 

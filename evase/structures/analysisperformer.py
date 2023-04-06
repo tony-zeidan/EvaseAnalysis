@@ -6,6 +6,7 @@ from networkx import DiGraph
 
 from evase.structures.projectstructure import ProjectAnalysisStruct
 from evase.sql_injection.injectionvisitor import InjectionNodeVisitor
+from evase.util.logger import AnalysisLogger
 
 from abc import ABC, abstractmethod
 import json
@@ -167,7 +168,8 @@ class AnalysisPerformer:
     def __init__(
             self,
             project_name: str = None,
-            project_root: Union[str, Path] = None
+            project_root: Union[str, Path] = None,
+            output_path: Union[str, Path] = None
     ):
         """
         Analyzes the code given for SQL injection vulnerabilities.
@@ -179,6 +181,8 @@ class AnalysisPerformer:
 
         self.project_name = project_name
         self.project_root = check_path(project_root, file_ok=False, file_req=False, absolute_req=False, ret_absolute=True)
+        output_path = check_path(output_path, file_ok=False, file_req=False, absolute_req=False, ret_absolute=True)
+        AnalysisLogger.log_path = output_path
         self.analysis_results = {}
 
         self.sql_injection_detector = SQLInjectionBehaviourAnalyzer()
