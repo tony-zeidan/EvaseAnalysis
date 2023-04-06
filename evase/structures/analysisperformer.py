@@ -183,7 +183,8 @@ class AnalysisPerformer:
         self.project_root = check_path(project_root, file_ok=False, file_req=False, absolute_req=False, ret_absolute=True)
         if output_path is not None:
             output_path = check_path(output_path, file_ok=False, file_req=False, absolute_req=False, ret_absolute=True)
-            AnalysisLogger.log_path = output_path
+            AnalysisLogger.log_path = Path(output_path, 'analysis-log.log')
+
         self.analysis_results = {}
 
         self.sql_injection_detector = SQLInjectionBehaviourAnalyzer()
