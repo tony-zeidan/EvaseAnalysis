@@ -16,7 +16,7 @@ class AnalysisLogger(object):
 
         logger = logging.getLogger(__file__)
         logger.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter('%(asctime)s - %(message)s')
         handler = logging.FileHandler(log_path)
         handler.setFormatter(formatter)
         logger.addHandler(handler)
