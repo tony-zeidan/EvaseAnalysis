@@ -178,12 +178,14 @@ class AnalysisPerformer:
         :param project_name: The name of the project
         :param project_root: The root directory of the project
         """
-
+        print(output_path)
         self.project_name = project_name
         self.project_root = check_path(project_root, file_ok=False, file_req=False, absolute_req=False, ret_absolute=True)
         if output_path is not None:
+            print("HERE")
             output_path = check_path(output_path, file_ok=False, file_req=False, absolute_req=False, ret_absolute=True)
             AnalysisLogger.log_path = Path(output_path, 'analysis-log.log')
+            print(output_path)
 
         self.analysis_results = {}
 

@@ -14,13 +14,13 @@ class AnalysisLogger(object):
         AnalysisLogger.log_path = check_path(AnalysisLogger.log_path, file_ok=True, file_req=True, absolute_req=False, ret_absolute=True, notexists_ok=True)
         log_path = AnalysisLogger.log_path
 
-        logging.basicConfig(filename=f'{log_path}',
-                            filemode='w',
-                            format='%(asctime)s - %(module)s - %(levelname)s - %(message)s',
-                            datefmt='%H:%M:%S',
-                            level=logging.DEBUG)
-
-        self.logger = logging.getLogger(__file__)
+        logger = logging.getLogger(__file__)
+        logger.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler = logging.FileHandler(log_path)
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        self.logger = logger
 
     def make_log(self, msg: str, level):
         """

@@ -17,11 +17,13 @@ class TestProjectAnalysisPerformer(unittest.TestCase):
         
         self.test_struct1 = ap.AnalysisPerformer(
             "test-demo",
-            prjroot3_filename
+            prjroot3_filename,
+            output_path=r"C:\Users\tonyz\AppData\Local\Temp\EVASE_DEMO222_1c70afaa-074f-422c-89bb-44bf02a74d89_w9dlbc3k"
         )
         self.test_struct2 = ap.AnalysisPerformer(
             "test-demo",
-            prjroot2_filename
+            prjroot2_filename,
+            output_path=r"C:\Users\tonyz\AppData\Local\Temp\EVASE_DEMO222_1c70afaa-074f-422c-89bb-44bf02a74d89_w9dlbc3k"
         )
 
     def test_dependency_graph(self):
