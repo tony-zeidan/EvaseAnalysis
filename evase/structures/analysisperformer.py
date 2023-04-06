@@ -155,7 +155,7 @@ class SQLInjectionBehaviourAnalyzer(BehaviourAnalyzer):
         for m_name, m_struct in self.project_struct.structure.items():
             visitor = InjectionNodeVisitor(self.project_struct, m_name)
             visitor.visit(m_struct.tree)
-            results = visitor.get_vulnerable_funcs()
+            results = visitor.vulnerable_funcs
             if len(results) > 0:
                 self.analysis_results['found_any'] = True
                 self.analysis_results['graph'] = results
@@ -181,8 +181,9 @@ class AnalysisPerformer:
 
         self.project_name = project_name
         self.project_root = check_path(project_root, file_ok=False, file_req=False, absolute_req=False, ret_absolute=True)
-        output_path = check_path(output_path, file_ok=False, file_req=False, absolute_req=False, ret_absolute=True)
-        AnalysisLogger.log_path = output_path
+        if output_path is not None:
+            output_path = check_path(output_path, file_ok=False, file_req=False, absolute_req=False, ret_absolute=True)
+            AnalysisLogger.log_path = output_path
         self.analysis_results = {}
 
         self.sql_injection_detector = SQLInjectionBehaviourAnalyzer()

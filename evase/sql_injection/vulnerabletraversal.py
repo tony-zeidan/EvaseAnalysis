@@ -5,6 +5,7 @@ from collections import deque
 from evase.depanalyze.codetraversalnode import CodeTraversalNode
 from evase.depanalyze.searching import FunctionCallFinder as UsesFinder
 import evase.sql_injection.injectionutil as injectionutil
+from evase.util.logger import AnalysisLogger
 import networkx as nx
 
 
@@ -91,6 +92,7 @@ def traversal_from_exec(
     queue = deque()
 
     # print("start of bfs")
+    AnalysisLogger().info("starting breadth-first search traversal.")
     vulnerable_vars = set()
 
     start = CodeTraversalNode(module_name, func_node=func_node, assignments=assignments, variables=injection_vars,
@@ -104,7 +106,7 @@ def traversal_from_exec(
 
     while len(queue) != 0:
         node = queue.popleft()
-        # print("visiting func ----------------------", str(node))
+        AnalysisLogger().info(f"visiting func ---------------------- {str(node)}")
 
         if node.func_node is None:
             continue
@@ -114,11 +116,11 @@ def traversal_from_exec(
 
         if node.is_endpoint:
             if len(vulnerable_vars) > 0:
-                # print("api", node.get_func_node().name, "is vulnerable")
+                AnalysisLogger().info(f"the endpoint {str(node)} is vulnerable.")
                 vul_endpoints.append(node)
                 continue
             else:
-                # print("The endpoint isn't vulnerable.")
+                AnalysisLogger().info(f"the endpoint {str(node)} is not vulnerable.")
                 continue
 
         else:
@@ -139,7 +141,6 @@ def traversal_from_exec(
                         continue
 
                     if nodeNext in visited_func:
-                        # print("SKIPPING")
                         continue
 
                     injection_vars = nodeNext.variables
@@ -152,6 +153,7 @@ def traversal_from_exec(
 
                     nodeNext.variables = inj
                     if len(inj) == 0: continue  # unique is in set
+                    AnalysisLogger().info(f"\tadding ------------- {str(nodeNext)}")
                     # print("     adding------------- " + nodeNext.get_func_node().name)
                     queue.append(nodeNext)
 
@@ -170,6 +172,7 @@ def traversal_from_exec(
                     else:
                         raise ValueError("There was an error with tracking the breadth-first search paths.")
 
+    AnalysisLogger().info("breath-first search traversal ended.")
     vul_paths = parent_nodes.copy()
     for key in parent_nodes:
         if key not in vul_endpoints:

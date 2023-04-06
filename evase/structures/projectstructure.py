@@ -15,7 +15,7 @@ from pprint import pprint
 
 from evase.util.fileutil import get_project_module_names, check_path
 
-ProjectStructure = TypedDict('ModuleStructure', {
+ProjectStructure = TypedDict('ProjectStructure', {
     str: ModuleAnalysisStruct
 })
 
@@ -45,8 +45,8 @@ def dir_to_module_structure(dirpath: Union[str, Path]) -> ProjectStructure:
                 path,
                 dirpath,
                 scope_resolver_instance=scr,  # for efficiency, use the same scope resolver instance
-                import_resolver_instance=mdr  # for efficiency, use the same import resolver instance
-                surface_resolver_instance=slre, # for efficiency, use the same surface resolver instance
+                import_resolver_instance=mdr,  # for efficiency, use the same import resolver instance
+                surface_resolver_instance=slre  # for efficiency, use the same surface resolver instance
             )
             AnalysisLogger().info(f"Module name {module_name} created.")
 
@@ -72,7 +72,6 @@ class ProjectAnalysisStruct:
         self._depgraph = None
         AnalysisLogger().info("Making static dependency graph for project.")
         self._make_static_depgraph()
-        
 
     @property
     def root(self) -> Path:
@@ -172,8 +171,8 @@ class ProjectAnalysisStruct:
         self._depgraph = depgraph
 
         # display dependency graph after generation
-        #print("Static Dependency Graph")
-        #pprint(depgraph)
+        # print("Static Dependency Graph")
+        # pprint(depgraph)
 
     def __str__(self):
         """
