@@ -1,6 +1,6 @@
 import ast
 from pathlib import Path
-from typing import List, Dict, Union, Optional
+from typing import List, Dict, Union
 
 from evase.depanalyze.importresolver import ModuleImportResolver, DependencyMapping
 
@@ -8,7 +8,7 @@ from evase.depanalyze.surfacedetector import SurfaceLevelVisitor
 
 from evase.depanalyze.scoperesolver import ScopeResolver
 from evase.util.fileutil import check_path
-
+from evase.util.logger import AnalysisLogger
 
 class ModuleAnalysisStruct:
 
@@ -19,7 +19,8 @@ class ModuleAnalysisStruct:
             within_root_path: Union[str, Path],
             root_path: Union[str, Path],
             import_resolver_instance: ModuleImportResolver = None,
-            scope_resolver_instance: ScopeResolver = None
+            scope_resolver_instance: ScopeResolver = None,
+            surface_resolver_instance: SurfaceLevelVisitor = None
     ):
         """
         A structure for the easier analysis of a single code module.
@@ -46,8 +47,12 @@ class ModuleAnalysisStruct:
 
         if scope_resolver_instance is None:
             scope_resolver_instance = ScopeResolver()
-
         self._scope_resolver_instance = scope_resolver_instance
+
+        if surface_resolver_instance is None:
+            surface_resolver_instance = SurfaceLevelVisitor()
+        self._surface_resolver_instance = surface_resolver_instance
+        
         self._resolve()
 
     def _resolve(self):
@@ -56,15 +61,16 @@ class ModuleAnalysisStruct:
         and all the surface-level importable items from this module.
         """
         self._scope_resolver_instance.reset()
+        self._surface_resolver_instance.reset()
         self._scope_resolver_instance.module_name = self._module_name
 
         self._ast_tree = self._scope_resolver_instance.visit(self._ast_tree)
-        # for efficiency resolver now contains the functions it visited (less traversals)
         self._funcs = self._scope_resolver_instance.funcs
+        AnalysisLogger().info(f"Resolved function scopes for {self._module_name}.")
 
-        visitor = SurfaceLevelVisitor()
-        visitor.visit(self._ast_tree)
-        self._surface_items = visitor.surface_names
+        self._surface_resolver_instance.visit(self._ast_tree)
+        self._surface_items = self._surface_resolver_instance.surface_names
+        AnalysisLogger().info(f"Resolved surface level importables items for {self._module_name}.")
 
     def resolve_imports(self, surface_entities: Dict[str, List[str]]):
         """
@@ -79,6 +85,7 @@ class ModuleAnalysisStruct:
         transformer.key = self._module_name
         modified_ast = transformer.visit(self._ast_tree)
         self._ast_tree = modified_ast
+        AnalysisLogger().info(f"Resolved imports for {self._module_name}.")
 
         self._module_imports, self._local_imports = transformer.deps
 
@@ -89,7 +96,6 @@ class ModuleAnalysisStruct:
 
         :return: The module name as string
         """
-
         return self._module_name
 
     @property
@@ -99,7 +105,6 @@ class ModuleAnalysisStruct:
 
         :return: ast for the module
         """
-
         return self._ast_tree
 
     @property
@@ -118,7 +123,6 @@ class ModuleAnalysisStruct:
 
         :return: The mapping of local imports
         """
-
         return self._local_imports.copy()
 
     @property
@@ -137,5 +141,20 @@ class ModuleAnalysisStruct:
 
         :return: The surface items
         """
-
         return self._surface_items.copy()
+    
+    def __str__(self) -> str:
+        """
+        Retrieve a string representation of the module structure.
+
+        :return: String representation
+        """
+        return self.__repr__()
+    
+    def __repr__(self) -> str:
+        """
+        Retrieve a string representation of the module structure.
+
+        :return: String representation
+        """
+        return f'{self._module_name}@{self._path}'

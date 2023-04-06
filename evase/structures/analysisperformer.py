@@ -6,6 +6,7 @@ from networkx import DiGraph
 
 from evase.structures.projectstructure import ProjectAnalysisStruct
 from evase.sql_injection.injectionvisitor import InjectionNodeVisitor
+from evase.util.logger import AnalysisLogger
 
 from abc import ABC, abstractmethod
 import json
@@ -154,7 +155,7 @@ class SQLInjectionBehaviourAnalyzer(BehaviourAnalyzer):
         for m_name, m_struct in self.project_struct.structure.items():
             visitor = InjectionNodeVisitor(self.project_struct, m_name)
             visitor.visit(m_struct.tree)
-            results = visitor.get_vulnerable_funcs()
+            results = visitor.vulnerable_funcs
             if len(results) > 0:
                 self.analysis_results['found_any'] = True
                 self.analysis_results['graph'] = results
@@ -167,7 +168,8 @@ class AnalysisPerformer:
     def __init__(
             self,
             project_name: str = None,
-            project_root: Union[str, Path] = None
+            project_root: Union[str, Path] = None,
+            output_path: Union[str, Path] = None
     ):
         """
         Analyzes the code given for SQL injection vulnerabilities.
@@ -176,9 +178,15 @@ class AnalysisPerformer:
         :param project_name: The name of the project
         :param project_root: The root directory of the project
         """
-
+        print(output_path)
         self.project_name = project_name
         self.project_root = check_path(project_root, file_ok=False, file_req=False, absolute_req=False, ret_absolute=True)
+        if output_path is not None:
+            print("HERE")
+            output_path = check_path(output_path, file_ok=False, file_req=False, absolute_req=False, ret_absolute=True)
+            AnalysisLogger.log_path = Path(output_path, 'analysis-log.log')
+            print(output_path)
+
         self.analysis_results = {}
 
         self.sql_injection_detector = SQLInjectionBehaviourAnalyzer()
