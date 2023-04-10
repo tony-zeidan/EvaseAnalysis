@@ -157,8 +157,7 @@ class SQLInjectionBehaviourAnalyzer(BehaviourAnalyzer):
             visitor.visit(m_struct.tree)
             results = visitor.vulnerable_funcs
             if len(results) > 0:
-                self.analysis_results['found_any'] = True
-                self.analysis_results['graph'] = results
+                self.analysis_results = results
 
         return self.analysis_results
 
@@ -189,7 +188,25 @@ class AnalysisPerformer:
 
         self.analysis_results = {}
 
-        self.sql_injection_detector = SQLInjectionBehaviourAnalyzer()
+        self._strategy = None
+
+    @property
+    def strategy(self):
+        """
+        Retrieve the strategy that the analysis performer will use to conduct analysis.
+
+        :return: Analysis strategy
+        """
+        return self._strategy
+
+    @strategy.setter
+    def strategy(self, strategy: BehaviourAnalyzer):
+        """
+        Retrieve the strategy that the analysis performer will use to conduct analysis.
+
+        :param strategy: Analysis strategy
+        """
+        self._strategy = strategy
 
     def perform_analysis(self):
         """
@@ -200,11 +217,11 @@ class AnalysisPerformer:
         prj_struct = ProjectAnalysisStruct(self.project_name, self.project_root)
         graph, groups = get_mdl_depdigraph(prj_struct)
 
-        if self.sql_injection_detector is not None:
-            self.sql_injection_detector.set_project_struct(prj_struct)
-            sql_injection_results = self.sql_injection_detector.do_analysis()
+        if self.strategy is not None:
+            self.strategy.set_project_struct(prj_struct)
+            analysis_results = self.strategy.do_analysis()
 
-            graph, groups = extend_depgraph_attackvectors(graph, groups, sql_injection_results['graph'])
+            graph, groups = extend_depgraph_attackvectors(graph, groups, analysis_results['graph'])
 
             graph_data = nx.node_link_data(graph, source='from', target='to', link='edges')
 
