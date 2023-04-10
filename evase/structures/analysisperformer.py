@@ -75,64 +75,50 @@ class BehaviourAnalyzer(ABC):
 
     def __init__(
             self,
-            project_struct: ProjectAnalysisStruct = None,
-            executor=None
+            project_struct: ProjectAnalysisStruct = None
     ):
         """
         An abstract class of an analyzer that detects specific attack behaviours within a project.
 
         :param project_struct: The project structure to analyze
-        :param executor: The execution function to run for analysis
         """
 
-        self.project_struct = project_struct
-        self.analysis_results = dict(vulnerabilities=[], found_any=False)
-        self.executor = executor
+        self._project_struct = project_struct
+        self._analysis_results = dict()
 
-    def get_project_struct(self) -> ProjectAnalysisStruct:
-        """
-        Retrieve the project analysis structure.
-
-        :return: The analysis structure being analyzed
-        """
-        return self.project_struct
-
-    def get_analysis_results(self) -> Dict:
+    @property
+    def analysis_results(self) -> Dict:
         """
         Retrieve the analysis result of the analyzer.
 
         :return: The mapping of analysis results
         """
+        return self._analysis_results
 
-        return self.analysis_results
+    @property
+    def project_struct(self) -> ProjectAnalysisStruct:
+        """
+        Retrieve the project analysis structure.
 
-    def set_project_struct(self, project_struct: ProjectAnalysisStruct):
+        :return: The analysis structure being analyzed
+        """
+        return self._project_struct
+
+    @project_struct.setter
+    def project_struct(self, project_struct: ProjectAnalysisStruct):
         """
         Set the project structure to analyze.
 
         :param project_struct: The project structure to analyze
         """
 
-        self.project_struct = project_struct
-
-    def set_executor(self, executor):
-        """
-        Set the executor function of this analyzer.
-
-        :param executor: The executor function.
-        """
-        self.executor = executor
+        self._project_struct = project_struct
 
     @abstractmethod
     def do_analysis(self):
         """
         Abstract method to do the analysis and output a result.
         """
-
-        if self.project_struct is None:
-            raise ValueError("Project structure needs to be set before performing analysis.")
-        if self.executor is None:
-            raise ValueError("An executor function needs to be set before performing analysis.")
         pass
 
 
@@ -157,9 +143,9 @@ class SQLInjectionBehaviourAnalyzer(BehaviourAnalyzer):
             visitor.visit(m_struct.tree)
             results = visitor.vulnerable_funcs
             if len(results) > 0:
-                self.analysis_results = results
+                self._analysis_results = results
 
-        return self.analysis_results
+        return self._analysis_results
 
 
 class AnalysisPerformer:
@@ -188,10 +174,10 @@ class AnalysisPerformer:
 
         self.analysis_results = {}
 
-        self._strategy = None
+        self._strategy: BehaviourAnalyzer = None
 
     @property
-    def strategy(self):
+    def strategy(self) -> BehaviourAnalyzer:
         """
         Retrieve the strategy that the analysis performer will use to conduct analysis.
 
@@ -217,11 +203,11 @@ class AnalysisPerformer:
         prj_struct = ProjectAnalysisStruct(self.project_name, self.project_root)
         graph, groups = get_mdl_depdigraph(prj_struct)
 
-        if self.strategy is not None:
-            self.strategy.set_project_struct(prj_struct)
-            analysis_results = self.strategy.do_analysis()
+        if self._strategy is not None:
+            self._strategy.project_struct = prj_struct
+            analysis_results = self._strategy.do_analysis()
 
-            graph, groups = extend_depgraph_attackvectors(graph, groups, analysis_results['graph'])
+            graph, groups = extend_depgraph_attackvectors(graph, groups, analysis_results)
 
             graph_data = nx.node_link_data(graph, source='from', target='to', link='edges')
 

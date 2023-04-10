@@ -29,6 +29,7 @@ class TestProjectAnalysisPerformer(unittest.TestCase):
         Tests the ability of the analysis performer to construct the proper graph.
         """
 
+        self.test_struct1.strategy = ap.SQLInjectionBehaviourAnalyzer()
         self.test_struct1.perform_analysis()
         results = self.test_struct1.get_results()
 
@@ -45,6 +46,7 @@ class TestProjectAnalysisPerformer(unittest.TestCase):
             all([x in nodes_present for x in all_package_names])
         )
 
+        self.test_struct2.strategy = ap.SQLInjectionBehaviourAnalyzer()
         self.test_struct2.perform_analysis()
         results = self.test_struct2.get_results()
 
