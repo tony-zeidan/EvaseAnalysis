@@ -52,7 +52,7 @@ def get_all_vars(node: ast.AST) -> set:
     elif isinstance(node, ast.Call):
         if isinstance(node.func, ast.Attribute):
             if node.func.attr == "replace" and len(node.args) == 2 and node.args[0].value == ";" and not node.args[
-                                                                                         1].value == ";":
+                                                                                                             1].value == ";":
                 return args
 
         # resolveCall(node)
@@ -77,7 +77,6 @@ def get_all_vars(node: ast.AST) -> set:
             for subarg in get_all_vars(value):
                 args.add(subarg)
 
-
     elif isinstance(node, ast.FormattedValue):
         for subargs in get_all_vars(node.value):
             args.add(subargs)
@@ -95,7 +94,7 @@ def get_all_vars(node: ast.AST) -> set:
     return args
 
 
-def get_all_target_values(node: ast.Assign) -> list:
+def get_all_target_values(node: ast.Assign) -> tuple:
     """
     Gets the variables used in the assignment of each target.
 
@@ -114,7 +113,15 @@ def get_all_target_values(node: ast.Assign) -> list:
     return val_lst, 0
 
 
-def get_inner_scope_assignments(index, assignments):
+def get_inner_scope_assignments(index, assignments) -> tuple:
+    """
+    Helper function for the obtaining of the assignment nodes in an inner scope.
+
+    :param index: Indexer
+    :param assignments: Previous assignment nodes
+    :return: New indexer, and new assignments
+    """
+
     stack = ["end" + assignments[index]]
     index += 1
     inner_assignments = [[]]
