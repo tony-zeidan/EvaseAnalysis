@@ -55,7 +55,7 @@ class CodeTraversalNode:
         :param from_node: A key function node that the contents of the node invoke
         """
 
-        self.__module_name: str = module_name
+        self._module_name: str = module_name
 
         # assignments
         self._assignments: Collection[ast.Assign] = assignments
@@ -135,7 +135,7 @@ class CodeTraversalNode:
         :return: The module name
         """
 
-        return self.__module_name
+        return self._module_name
 
     def __str__(self) -> str:
         """
