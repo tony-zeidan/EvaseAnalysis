@@ -104,15 +104,16 @@ class ModuleImportResolver(ast.NodeTransformer):
         Retrieve the local level dependencies.
         It is a mapping of strings of function names to tuples of where they come from.
 
-        e.g. in module example.py INSIDE foo()
-        def foo():
-            from example2 import bar
-            from example3 import baz as sam
+        e.g. in module example.py INSIDE foo()::
 
-        looks like:
-        {
-            'foo': {('example2:bar', None), ('example3:baz', 'sam')}
-        }
+            def foo():
+                from example2 import bar
+                from example3 import baz as sam
+
+            looks like:
+            {
+                'foo': {('example2:bar', None), ('example3:baz', 'sam')}
+            }
 
         :return: Local level dependencies
         """
@@ -124,13 +125,14 @@ class ModuleImportResolver(ast.NodeTransformer):
         Retrieve the module level dependencies.
         It is a mapping of strings of module names to tuples of where they come from.
 
-        e.g. in module example.py:
-        from example2 import foo as bar
+        e.g. in module example.py::
 
-        looks like:
-        {
-            'example2': ('example2.foo', 'bar')
-        }
+            from example2 import foo as bar
+
+            looks like:
+            {
+                'example2': ('example2.foo', 'bar')
+            }
 
         :return: Module level dependencies
         """

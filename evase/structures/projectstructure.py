@@ -11,8 +11,6 @@ from evase.structures.modulestructure import ModuleAnalysisStruct
 
 from evase.util.logger import AnalysisLogger
 
-from pprint import pprint
-
 from evase.util.fileutil import get_project_module_names, check_path
 
 ProjectStructure = TypedDict('ProjectStructure', {
