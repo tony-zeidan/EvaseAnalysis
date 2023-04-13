@@ -1,0 +1,548 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>evase.structures.analysisperformer &#8212; EvaseAnalysis 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for evase.structures.analysisperformer</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">from</span> <span class="nn">networkx</span> <span class="kn">import</span> <span class="n">DiGraph</span>
+
+<span class="kn">from</span> <span class="nn">evase.structures.projectstructure</span> <span class="kn">import</span> <span class="n">ProjectAnalysisStruct</span>
+<span class="kn">from</span> <span class="nn">evase.sql_injection.injectionvisitor</span> <span class="kn">import</span> <span class="n">InjectionNodeVisitor</span>
+<span class="kn">from</span> <span class="nn">evase.util.logger</span> <span class="kn">import</span> <span class="n">AnalysisLogger</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">evase.util.fileutil</span> <span class="kn">import</span> <span class="n">check_path</span>
+
+<span class="n">attack_vector_edge_setting</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;vulnerable&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;arrows&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;to&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;enabled&#39;</span><span class="p">:</span> <span class="kc">True</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">2</span>
+<span class="p">}</span>
+
+<span class="n">attack_vector_node_setting</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;vulnerable&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;background&#39;</span><span class="p">:</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;border&#39;</span><span class="p">:</span> <span class="s2">&quot;#FFCCCB&quot;</span><span class="p">,</span>
+        <span class="s1">&#39;highlight&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;background&#39;</span><span class="p">:</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;border&#39;</span><span class="p">:</span> <span class="s2">&quot;#FFCCCB&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="n">uses_node_setting</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;vulnerable&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">uses_edge_setting</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;vulnerable&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s1">&#39;arrows&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;to&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;enabled&#39;</span><span class="p">:</span> <span class="kc">True</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">package_edge_setting</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;vulnerable&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s1">&#39;dashes&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;inherit&#39;</span><span class="p">:</span> <span class="kc">False</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;arrows&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;to&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;enabled&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;scaleFactor&#39;</span><span class="p">:</span> <span class="mf">0.5</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;from&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;enabled&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;scaleFactor&#39;</span><span class="p">:</span> <span class="mf">0.5</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="BehaviourAnalyzer"><a class="viewcode-back" href="../../../evase.structures.html#evase.structures.analysisperformer.BehaviourAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">BehaviourAnalyzer</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">project_struct</span><span class="p">:</span> <span class="n">ProjectAnalysisStruct</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        An abstract class of an analyzer that detects specific attack behaviours within a project.</span>
+
+<span class="sd">        :param project_struct: The project structure to analyze</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_project_struct</span> <span class="o">=</span> <span class="n">project_struct</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">analysis_results</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the analysis result of the analyzer.</span>
+
+<span class="sd">        :return: The mapping of analysis results</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">project_struct</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ProjectAnalysisStruct</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the project analysis structure.</span>
+
+<span class="sd">        :return: The analysis structure being analyzed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project_struct</span>
+
+    <span class="nd">@project_struct</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">project_struct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project_struct</span><span class="p">:</span> <span class="n">ProjectAnalysisStruct</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the project structure to analyze.</span>
+
+<span class="sd">        :param project_struct: The project structure to analyze</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_project_struct</span> <span class="o">=</span> <span class="n">project_struct</span>
+
+<div class="viewcode-block" id="BehaviourAnalyzer.do_analysis"><a class="viewcode-back" href="../../../evase.structures.html#evase.structures.analysisperformer.BehaviourAnalyzer.do_analysis">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">do_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Abstract method to do the analysis and output a result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div></div>
+
+
+<div class="viewcode-block" id="SQLInjectionBehaviourAnalyzer"><a class="viewcode-back" href="../../../evase.structures.html#evase.structures.analysisperformer.SQLInjectionBehaviourAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">SQLInjectionBehaviourAnalyzer</span><span class="p">(</span><span class="n">BehaviourAnalyzer</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project_struct</span><span class="p">:</span> <span class="n">ProjectAnalysisStruct</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        An SQL injection analyzer that identifies such vulnerabilities in the project structure.</span>
+
+<span class="sd">        :param project_struct: The project structure to analyze</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">project_struct</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SQLInjectionBehaviourAnalyzer.do_analysis"><a class="viewcode-back" href="../../../evase.structures.html#evase.structures.analysisperformer.SQLInjectionBehaviourAnalyzer.do_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">do_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform the SQL injection analysis and output the result.</span>
+
+<span class="sd">        :return: A dictionary of the analysis results</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">m_name</span><span class="p">,</span> <span class="n">m_struct</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_struct</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">visitor</span> <span class="o">=</span> <span class="n">InjectionNodeVisitor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project_struct</span><span class="p">,</span> <span class="n">m_name</span><span class="p">)</span>
+            <span class="n">visitor</span><span class="o">.</span><span class="n">visit</span><span class="p">(</span><span class="n">m_struct</span><span class="o">.</span><span class="n">tree</span><span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">visitor</span><span class="o">.</span><span class="n">vulnerable_funcs</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span> <span class="o">=</span> <span class="n">results</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span></div></div>
+
+
+<div class="viewcode-block" id="AnalysisPerformer"><a class="viewcode-back" href="../../../evase.structures.html#evase.structures.analysisperformer.AnalysisPerformer">[docs]</a><span class="k">class</span> <span class="nc">AnalysisPerformer</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">project_root</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">output_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Analyzes the code given for SQL injection vulnerabilities.</span>
+<span class="sd">        This class is a wrapper for evase tools provided in this package.</span>
+
+<span class="sd">        :param project_name: The name of the project</span>
+<span class="sd">        :param project_root: The root directory of the project</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project_name</span> <span class="o">=</span> <span class="n">project_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project_root</span> <span class="o">=</span> <span class="n">check_path</span><span class="p">(</span><span class="n">project_root</span><span class="p">,</span> <span class="n">file_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">file_req</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">absolute_req</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ret_absolute</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">output_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;HERE&quot;</span><span class="p">)</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">check_path</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">file_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">file_req</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">absolute_req</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ret_absolute</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">AnalysisLogger</span><span class="o">.</span><span class="n">log_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;analysis-log.log&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis_results</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_strategy</span><span class="p">:</span> <span class="n">BehaviourAnalyzer</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">strategy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BehaviourAnalyzer</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the strategy that the analysis performer will use to conduct analysis.</span>
+
+<span class="sd">        :return: Analysis strategy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strategy</span>
+
+    <span class="nd">@strategy</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">strategy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strategy</span><span class="p">:</span> <span class="n">BehaviourAnalyzer</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the strategy that the analysis performer will use to conduct analysis.</span>
+
+<span class="sd">        :param strategy: Analysis strategy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_strategy</span> <span class="o">=</span> <span class="n">strategy</span>
+
+<div class="viewcode-block" id="AnalysisPerformer.perform_analysis"><a class="viewcode-back" href="../../../evase.structures.html#evase.structures.analysisperformer.AnalysisPerformer.perform_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">perform_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs analysis on the code structure that is currently loaded.</span>
+<span class="sd">        Results are stored in the analysis_results field.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">prj_struct</span> <span class="o">=</span> <span class="n">ProjectAnalysisStruct</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_root</span><span class="p">)</span>
+        <span class="n">graph</span><span class="p">,</span> <span class="n">groups</span> <span class="o">=</span> <span class="n">get_mdl_depdigraph</span><span class="p">(</span><span class="n">prj_struct</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strategy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_strategy</span><span class="o">.</span><span class="n">project_struct</span> <span class="o">=</span> <span class="n">prj_struct</span>
+            <span class="n">analysis_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strategy</span><span class="o">.</span><span class="n">do_analysis</span><span class="p">()</span>
+
+            <span class="n">graph</span><span class="p">,</span> <span class="n">groups</span> <span class="o">=</span> <span class="n">extend_depgraph_attackvectors</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">analysis_results</span><span class="p">)</span>
+
+            <span class="n">graph_data</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">node_link_data</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s1">&#39;from&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;to&#39;</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">&#39;edges&#39;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">[</span><span class="s1">&#39;graph&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">[</span><span class="s1">&#39;graph&#39;</span><span class="p">][</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">graph_data</span></div>
+
+<div class="viewcode-block" id="AnalysisPerformer.get_results"><a class="viewcode-back" href="../../../evase.structures.html#evase.structures.analysisperformer.AnalysisPerformer.get_results">[docs]</a>    <span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieves the results of analysis.</span>
+
+<span class="sd">        :return: Results in the form of a dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis_results</span></div>
+
+<div class="viewcode-block" id="AnalysisPerformer.results_to_JSON"><a class="viewcode-back" href="../../../evase.structures.html#evase.structures.analysisperformer.AnalysisPerformer.results_to_JSON">[docs]</a>    <span class="k">def</span> <span class="nf">results_to_JSON</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Outputs the current results to a JSON path.</span>
+<span class="sd">        The output is a file in the directory specified in the form of &lt;project_name&gt;-analysis-results.json.</span>
+
+<span class="sd">        :param filepath: The path to the directory</span>
+<span class="sd">        :return: The JSON formatted string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">jform</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Path doesn&#39;t exist or it isn&#39;t a directory&quot;</span><span class="p">)</span>
+        <span class="n">fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">project_name</span><span class="si">}</span><span class="s1">-analysis-results.json&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fpath</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">jform</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">jform</span></div></div>
+
+
+<div class="viewcode-block" id="add_node"><a class="viewcode-back" href="../../../evase.structures.html#evase.structures.analysisperformer.add_node">[docs]</a><span class="k">def</span> <span class="nf">add_node</span><span class="p">(</span><span class="n">g</span><span class="p">:</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">groups</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="n">edge_settings</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">node_settings</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add a node to the dependency graph.</span>
+<span class="sd">    If the node already exists, update the properties of the node.</span>
+<span class="sd">    If the node doesn&#39;t exist, create a new node.</span>
+<span class="sd">    If the node belongs to a package group, add an edge between the package parent and the new node.</span>
+
+<span class="sd">    :param g: The dependency graph</span>
+<span class="sd">    :param n: The new node to add to the graph</span>
+<span class="sd">    :param groups: The groups of packages to modules in the package</span>
+<span class="sd">    :param edge_settings: If an edge is to be added, the settings for that edge</span>
+<span class="sd">    :param node_settings: If a node is to be added, the settings for that node</span>
+<span class="sd">    :return: None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">edge_settings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">edge_settings</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">node_settings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">node_settings</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">spl</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">))</span>
+    <span class="n">spl</span> <span class="o">=</span> <span class="n">spl</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">spl</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spl</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">spl</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">g</span><span class="o">.</span><span class="n">has_node</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                <span class="n">groups</span><span class="p">[</span><span class="n">parent</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="o">**</span><span class="n">node_settings</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">[</span><span class="n">parent</span><span class="p">]:</span>
+                    <span class="n">groups</span><span class="p">[</span><span class="n">parent</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+                <span class="n">nx</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="p">{</span><span class="n">n</span><span class="p">:</span> <span class="n">node_settings</span><span class="p">})</span>
+
+            <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">has_node</span><span class="p">(</span><span class="n">parent</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">g</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+                    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="o">**</span><span class="n">edge_settings</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">g</span><span class="o">.</span><span class="n">has_node</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                <span class="n">groups</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="o">**</span><span class="n">node_settings</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+            <span class="n">groups</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="o">**</span><span class="n">node_settings</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">groups</span></div>
+
+
+<div class="viewcode-block" id="trim_depdigraph"><a class="viewcode-back" href="../../../evase.structures.html#evase.structures.analysisperformer.trim_depdigraph">[docs]</a><span class="k">def</span> <span class="nf">trim_depdigraph</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">,</span> <span class="n">groups</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="n">edge_settings</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Trim NetworkX dependency graph representation by getting rid of groups that only</span>
+<span class="sd">    have one element present.</span>
+
+<span class="sd">    :param graph: The graph to trim groups from</span>
+<span class="sd">    :param groups: The grouping of modules within the graph (package name to nodes in that package)</span>
+<span class="sd">    :param edge_settings: The settings of edges when re-adding the edges back</span>
+<span class="sd">    :return: None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">edge_settings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">edge_settings</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Trim unnecessary groups</span>
+    <span class="n">remparent</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">toparent</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">members</span> <span class="ow">in</span> <span class="n">groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">members</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">graph</span><span class="o">.</span><span class="n">has_node</span><span class="p">(</span><span class="n">group</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">in_edges</span><span class="p">(</span><span class="n">group</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">out_edges</span><span class="p">(</span><span class="n">group</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">graph</span><span class="o">.</span><span class="n">remove_node</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+                <span class="n">remparent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">members</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">graph</span><span class="o">.</span><span class="n">has_node</span><span class="p">(</span><span class="n">group</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">in_edges</span><span class="p">(</span><span class="n">group</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">out_edges</span><span class="p">(</span><span class="n">group</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">mem</span> <span class="o">=</span> <span class="n">members</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                <span class="n">in_edges</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">in_edges</span><span class="p">(</span><span class="n">mem</span><span class="p">))</span>
+                <span class="n">out_edges</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">out_edges</span><span class="p">(</span><span class="n">mem</span><span class="p">))</span>
+
+                <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">in_edges</span><span class="p">:</span>
+                    <span class="n">graph</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="o">*</span><span class="n">edge</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">out_edges</span><span class="p">:</span>
+                    <span class="n">graph</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="o">*</span><span class="n">edge</span><span class="p">)</span>
+
+                <span class="c1"># remove the parent</span>
+                <span class="n">graph</span><span class="o">.</span><span class="n">remove_node</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">in_edges</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">group</span><span class="p">:</span>
+                        <span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="o">*</span><span class="n">edge</span><span class="p">,</span> <span class="o">**</span><span class="n">edge_settings</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">out_edges</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">group</span><span class="p">:</span>
+                        <span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="o">*</span><span class="n">edge</span><span class="p">,</span> <span class="o">**</span><span class="n">edge_settings</span><span class="p">)</span>
+
+                <span class="n">remparent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+                <span class="n">toparent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mem</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">remparent</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">groups</span><span class="p">[</span><span class="n">par</span><span class="p">]</span>
+
+    <span class="n">groups</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="nb">set</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">toparent</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">groups</span></div>
+
+
+<div class="viewcode-block" id="get_mdl_depdigraph"><a class="viewcode-back" href="../../../evase.structures.html#evase.structures.analysisperformer.get_mdl_depdigraph">[docs]</a><span class="k">def</span> <span class="nf">get_mdl_depdigraph</span><span class="p">(</span><span class="n">prj</span><span class="p">:</span> <span class="n">ProjectAnalysisStruct</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">DiGraph</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Turn the module dependency graph into a NetworkX graph.</span>
+
+<span class="sd">    :param prj: The project analysis structure containing the static dependency graph</span>
+<span class="sd">    :return: The NetworkX graph object and a mapping between modules under similar package names</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">graph_info</span> <span class="o">=</span> <span class="n">prj</span><span class="o">.</span><span class="n">dependency_mapping</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
+
+    <span class="n">groups</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">uses</span><span class="p">,</span> <span class="n">defs_dct</span> <span class="ow">in</span> <span class="n">graph_info</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="n">add_node</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">uses</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">node_settings</span><span class="o">=</span><span class="n">uses_node_setting</span><span class="p">,</span> <span class="n">edge_settings</span><span class="o">=</span><span class="n">package_edge_setting</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">defs_dct</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span> <span class="k">continue</span>
+
+        <span class="k">for</span> <span class="n">defs</span><span class="p">,</span> <span class="n">defs_props</span> <span class="ow">in</span> <span class="n">defs_dct</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">groups</span> <span class="o">=</span> <span class="n">add_node</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">defs</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">node_settings</span><span class="o">=</span><span class="n">uses_node_setting</span><span class="p">,</span> <span class="n">edge_settings</span><span class="o">=</span><span class="n">package_edge_setting</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">defs_props</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">graph</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="n">uses</span><span class="p">,</span> <span class="n">defs</span><span class="p">):</span>
+                    <span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">uses</span><span class="p">,</span> <span class="n">defs</span><span class="p">,</span> <span class="o">**</span><span class="n">uses_edge_setting</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">def_prop</span> <span class="ow">in</span> <span class="n">defs_props</span><span class="p">:</span>
+
+                    <span class="k">if</span> <span class="n">defs</span> <span class="ow">in</span> <span class="n">prj</span><span class="o">.</span><span class="n">structure</span><span class="p">:</span>
+                        <span class="n">namer</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">defs</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">def_prop</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">namer</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">defs</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">def_prop</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="k">if</span> <span class="n">def_prop</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+                        <span class="n">namer</span> <span class="o">=</span> <span class="n">def_prop</span>
+
+                    <span class="n">groups</span> <span class="o">=</span> <span class="n">add_node</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">namer</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">node_settings</span><span class="o">=</span><span class="n">uses_node_setting</span><span class="p">,</span>
+                                      <span class="n">edge_settings</span><span class="o">=</span><span class="n">package_edge_setting</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">graph</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="n">uses</span><span class="p">,</span> <span class="n">namer</span><span class="p">):</span>
+                        <span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">uses</span><span class="p">,</span> <span class="n">namer</span><span class="p">,</span> <span class="o">**</span><span class="n">uses_edge_setting</span><span class="p">)</span>
+
+    <span class="n">groups</span> <span class="o">=</span> <span class="n">trim_depdigraph</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">edge_settings</span><span class="o">=</span><span class="n">uses_edge_setting</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">graph</span><span class="p">,</span> <span class="n">groups</span></div>
+
+
+<div class="viewcode-block" id="extend_depgraph_attackvectors"><a class="viewcode-back" href="../../../evase.structures.html#evase.structures.analysisperformer.extend_depgraph_attackvectors">[docs]</a><span class="k">def</span> <span class="nf">extend_depgraph_attackvectors</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">,</span> <span class="n">groups</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="n">analysis</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">])</span> <span class="o">-&gt;</span> \
+        <span class="n">Tuple</span><span class="p">[</span><span class="n">DiGraph</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extend the main dependency NetworkX graph with the subgraphs for each individual</span>
+<span class="sd">    vulnerability.</span>
+
+<span class="sd">    Basic Idea:</span>
+<span class="sd">    - Go through each vulnerability graph found during the analysis and add</span>
+<span class="sd">    all nodes and edges from these subgraphs to the main graph</span>
+<span class="sd">    - Copy the vulnerability graphs to the main graph</span>
+
+<span class="sd">    :param graph: The main dependency graph</span>
+<span class="sd">    :param groups: Groups in the graph (similar modules together)</span>
+<span class="sd">    :param analysis: The analysis results of the program, keys are modules and values are the NetworkX graphs</span>
+<span class="sd">    :return: The extended graph and new groupings</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># loop over each vulnerability in each module</span>
+    <span class="k">for</span> <span class="n">vul_mdl</span><span class="p">,</span> <span class="n">attack_graph</span> <span class="ow">in</span> <span class="n">analysis</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+        <span class="c1"># loop over attack vector edges (each individual vulnerability graph)</span>
+        <span class="k">for</span> <span class="n">ed1</span><span class="p">,</span> <span class="n">ed2</span> <span class="ow">in</span> <span class="n">attack_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+
+            <span class="c1"># ed1 is the first node in the edge, and ed2 is the second (from-&gt;to)</span>
+
+            <span class="n">prev_attack_data</span><span class="p">,</span> <span class="n">prev_attack_data_2</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{}</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">prev_data</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">get_node_attributes</span><span class="p">(</span><span class="n">attack_graph</span><span class="p">,</span> <span class="s2">&quot;__node_data&quot;</span><span class="p">)</span>
+                <span class="n">prev_attack_data</span><span class="p">,</span> <span class="n">prev_attack_data_2</span> <span class="o">=</span> <span class="n">prev_data</span><span class="p">[</span><span class="n">ed1</span><span class="p">],</span> <span class="n">prev_data</span><span class="p">[</span><span class="n">ed2</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="n">new_attack_vector_node_setting1</span> <span class="o">=</span> <span class="n">attack_vector_node_setting</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">new_attack_vector_node_setting1</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;__node_data&quot;</span><span class="p">:</span> <span class="n">prev_attack_data</span><span class="p">})</span>
+            <span class="n">new_attack_vector_node_setting2</span> <span class="o">=</span> <span class="n">attack_vector_node_setting</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">new_attack_vector_node_setting2</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;__node_data&quot;</span><span class="p">:</span> <span class="n">prev_attack_data_2</span><span class="p">})</span>
+
+            <span class="n">groups</span> <span class="o">=</span> <span class="n">add_node</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">ed1</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">edge_settings</span><span class="o">=</span><span class="n">package_edge_setting</span><span class="p">,</span>
+                              <span class="n">node_settings</span><span class="o">=</span><span class="n">new_attack_vector_node_setting1</span><span class="p">)</span>
+            <span class="n">groups</span> <span class="o">=</span> <span class="n">add_node</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">ed2</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">edge_settings</span><span class="o">=</span><span class="n">package_edge_setting</span><span class="p">,</span>
+                              <span class="n">node_settings</span><span class="o">=</span><span class="n">new_attack_vector_node_setting2</span><span class="p">)</span>
+
+            <span class="c1"># safety, only add the edge if it isn&#39;t there</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">graph</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="n">ed2</span><span class="p">,</span> <span class="n">ed1</span><span class="p">):</span>
+                <span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">ed2</span><span class="p">,</span> <span class="n">ed1</span><span class="p">,</span> <span class="o">**</span><span class="n">attack_vector_edge_setting</span><span class="p">)</span>
+
+    <span class="c1"># for safety, trim the graph after; don&#39;t worry about this</span>
+    <span class="n">groups</span> <span class="o">=</span> <span class="n">trim_depdigraph</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">edge_settings</span><span class="o">=</span><span class="n">uses_edge_setting</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">graph</span><span class="p">,</span> <span class="n">groups</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">EvaseAnalysis</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../evase.depanalyze.html">evase.depanalyze package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../evase.sql_injection.html">evase.sql_injection package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../evase.structures.html">evase.structures package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../evase.exceptions.html">evase.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../evase.util.html">evase.util package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 6.1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

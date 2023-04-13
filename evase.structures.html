@@ -1,0 +1,492 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>evase.structures package &#8212; EvaseAnalysis 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="evase.exceptions package" href="evase.exceptions.html" />
+    <link rel="prev" title="evase.sql_injection package" href="evase.sql_injection.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="evase-structures-package">
+<h1>evase.structures package<a class="headerlink" href="#evase-structures-package" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-evase.structures.analysisperformer">
+<span id="evase-structures-analysisperformer-module"></span><h2>evase.structures.analysisperformer module<a class="headerlink" href="#module-evase.structures.analysisperformer" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="evase.structures.analysisperformer.AnalysisPerformer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">evase.structures.analysisperformer.</span></span><span class="sig-name descname"><span class="pre">AnalysisPerformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/structures/analysisperformer.html#AnalysisPerformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.structures.analysisperformer.AnalysisPerformer" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="evase.structures.analysisperformer.AnalysisPerformer.get_results">
+<span class="sig-name descname"><span class="pre">get_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/structures/analysisperformer.html#AnalysisPerformer.get_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.structures.analysisperformer.AnalysisPerformer.get_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the results of analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Results in the form of a dictionary</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.structures.analysisperformer.AnalysisPerformer.perform_analysis">
+<span class="sig-name descname"><span class="pre">perform_analysis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/structures/analysisperformer.html#AnalysisPerformer.perform_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.structures.analysisperformer.AnalysisPerformer.perform_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs analysis on the code structure that is currently loaded.
+Results are stored in the analysis_results field.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.structures.analysisperformer.AnalysisPerformer.results_to_JSON">
+<span class="sig-name descname"><span class="pre">results_to_JSON</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/evase/structures/analysisperformer.html#AnalysisPerformer.results_to_JSON"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.structures.analysisperformer.AnalysisPerformer.results_to_JSON" title="Permalink to this definition">¶</a></dt>
+<dd><p>Outputs the current results to a JSON path.
+The output is a file in the directory specified in the form of &lt;project_name&gt;-analysis-results.json.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath</strong> – The path to the directory</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The JSON formatted string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.structures.analysisperformer.AnalysisPerformer.strategy">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">strategy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#evase.structures.analysisperformer.BehaviourAnalyzer" title="evase.structures.analysisperformer.BehaviourAnalyzer"><span class="pre">BehaviourAnalyzer</span></a></em><a class="headerlink" href="#evase.structures.analysisperformer.AnalysisPerformer.strategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the strategy that the analysis performer will use to conduct analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Analysis strategy</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="evase.structures.analysisperformer.BehaviourAnalyzer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">evase.structures.analysisperformer.</span></span><span class="sig-name descname"><span class="pre">BehaviourAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#evase.structures.projectstructure.ProjectAnalysisStruct" title="evase.structures.projectstructure.ProjectAnalysisStruct"><span class="pre">ProjectAnalysisStruct</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/structures/analysisperformer.html#BehaviourAnalyzer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.structures.analysisperformer.BehaviourAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py property">
+<dt class="sig sig-object py" id="evase.structures.analysisperformer.BehaviourAnalyzer.analysis_results">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">analysis_results</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span></em><a class="headerlink" href="#evase.structures.analysisperformer.BehaviourAnalyzer.analysis_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the analysis result of the analyzer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The mapping of analysis results</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.structures.analysisperformer.BehaviourAnalyzer.do_analysis">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">do_analysis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/structures/analysisperformer.html#BehaviourAnalyzer.do_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.structures.analysisperformer.BehaviourAnalyzer.do_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract method to do the analysis and output a result.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.structures.analysisperformer.BehaviourAnalyzer.project_struct">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">project_struct</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#evase.structures.projectstructure.ProjectAnalysisStruct" title="evase.structures.projectstructure.ProjectAnalysisStruct"><span class="pre">ProjectAnalysisStruct</span></a></em><a class="headerlink" href="#evase.structures.analysisperformer.BehaviourAnalyzer.project_struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the project analysis structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The analysis structure being analyzed</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="evase.structures.analysisperformer.SQLInjectionBehaviourAnalyzer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">evase.structures.analysisperformer.</span></span><span class="sig-name descname"><span class="pre">SQLInjectionBehaviourAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#evase.structures.projectstructure.ProjectAnalysisStruct" title="evase.structures.projectstructure.ProjectAnalysisStruct"><span class="pre">ProjectAnalysisStruct</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/structures/analysisperformer.html#SQLInjectionBehaviourAnalyzer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.structures.analysisperformer.SQLInjectionBehaviourAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="evase.structures.analysisperformer.SQLInjectionBehaviourAnalyzer.do_analysis">
+<span class="sig-name descname"><span class="pre">do_analysis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/evase/structures/analysisperformer.html#SQLInjectionBehaviourAnalyzer.do_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.structures.analysisperformer.SQLInjectionBehaviourAnalyzer.do_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the SQL injection analysis and output the result.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary of the analysis results</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.structures.analysisperformer.add_node">
+<span class="sig-prename descclassname"><span class="pre">evase.structures.analysisperformer.</span></span><span class="sig-name descname"><span class="pre">add_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/structures/analysisperformer.html#add_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.structures.analysisperformer.add_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a node to the dependency graph.
+If the node already exists, update the properties of the node.
+If the node doesn’t exist, create a new node.
+If the node belongs to a package group, add an edge between the package parent and the new node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>g</strong> – The dependency graph</p></li>
+<li><p><strong>n</strong> – The new node to add to the graph</p></li>
+<li><p><strong>groups</strong> – The groups of packages to modules in the package</p></li>
+<li><p><strong>edge_settings</strong> – If an edge is to be added, the settings for that edge</p></li>
+<li><p><strong>node_settings</strong> – If a node is to be added, the settings for that node</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.structures.analysisperformer.extend_depgraph_attackvectors">
+<span class="sig-prename descclassname"><span class="pre">evase.structures.analysisperformer.</span></span><span class="sig-name descname"><span class="pre">extend_depgraph_attackvectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analysis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DiGraph</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DiGraph</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/evase/structures/analysisperformer.html#extend_depgraph_attackvectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.structures.analysisperformer.extend_depgraph_attackvectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extend the main dependency NetworkX graph with the subgraphs for each individual
+vulnerability.</p>
+<p>Basic Idea:
+- Go through each vulnerability graph found during the analysis and add
+all nodes and edges from these subgraphs to the main graph
+- Copy the vulnerability graphs to the main graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graph</strong> – The main dependency graph</p></li>
+<li><p><strong>groups</strong> – Groups in the graph (similar modules together)</p></li>
+<li><p><strong>analysis</strong> – The analysis results of the program, keys are modules and values are the NetworkX graphs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The extended graph and new groupings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.structures.analysisperformer.get_mdl_depdigraph">
+<span class="sig-prename descclassname"><span class="pre">evase.structures.analysisperformer.</span></span><span class="sig-name descname"><span class="pre">get_mdl_depdigraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#evase.structures.projectstructure.ProjectAnalysisStruct" title="evase.structures.projectstructure.ProjectAnalysisStruct"><span class="pre">ProjectAnalysisStruct</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DiGraph</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/evase/structures/analysisperformer.html#get_mdl_depdigraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.structures.analysisperformer.get_mdl_depdigraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn the module dependency graph into a NetworkX graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prj</strong> – The project analysis structure containing the static dependency graph</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The NetworkX graph object and a mapping between modules under similar package names</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.structures.analysisperformer.trim_depdigraph">
+<span class="sig-prename descclassname"><span class="pre">evase.structures.analysisperformer.</span></span><span class="sig-name descname"><span class="pre">trim_depdigraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/structures/analysisperformer.html#trim_depdigraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.structures.analysisperformer.trim_depdigraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trim NetworkX dependency graph representation by getting rid of groups that only
+have one element present.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graph</strong> – The graph to trim groups from</p></li>
+<li><p><strong>groups</strong> – The grouping of modules within the graph (package name to nodes in that package)</p></li>
+<li><p><strong>edge_settings</strong> – The settings of edges when re-adding the edges back</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-evase.structures.modulestructure">
+<span id="evase-structures-modulestructure-module"></span><h2>evase.structures.modulestructure module<a class="headerlink" href="#module-evase.structures.modulestructure" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="evase.structures.modulestructure.ModuleAnalysisStruct">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">evase.structures.modulestructure.</span></span><span class="sig-name descname"><span class="pre">ModuleAnalysisStruct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ast_tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AST</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">within_root_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">import_resolver_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="evase.depanalyze.html#evase.depanalyze.importresolver.ModuleImportResolver" title="evase.depanalyze.importresolver.ModuleImportResolver"><span class="pre">ModuleImportResolver</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scope_resolver_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="evase.depanalyze.html#evase.depanalyze.scoperesolver.ScopeResolver" title="evase.depanalyze.scoperesolver.ScopeResolver"><span class="pre">ScopeResolver</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface_resolver_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="evase.depanalyze.html#evase.depanalyze.surfacedetector.SurfaceLevelVisitor" title="evase.depanalyze.surfacedetector.SurfaceLevelVisitor"><span class="pre">SurfaceLevelVisitor</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/structures/modulestructure.html#ModuleAnalysisStruct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.structures.modulestructure.ModuleAnalysisStruct" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py property">
+<dt class="sig sig-object py" id="evase.structures.modulestructure.ModuleAnalysisStruct.funcs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">funcs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">FunctionType</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#evase.structures.modulestructure.ModuleAnalysisStruct.funcs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the resolved function nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The list of function nodes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.structures.modulestructure.ModuleAnalysisStruct.local_imports">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">local_imports</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DependencyMapping</span></em><a class="headerlink" href="#evase.structures.modulestructure.ModuleAnalysisStruct.local_imports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the resolved local imports.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The mapping of local imports</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.structures.modulestructure.ModuleAnalysisStruct.module_imports">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">module_imports</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DependencyMapping</span></em><a class="headerlink" href="#evase.structures.modulestructure.ModuleAnalysisStruct.module_imports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the resolved module imports</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The mapping of module imports</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.structures.modulestructure.ModuleAnalysisStruct.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#evase.structures.modulestructure.ModuleAnalysisStruct.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the name of the module being analyzed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The module name as string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.structures.modulestructure.ModuleAnalysisStruct.resolve_imports">
+<span class="sig-name descname"><span class="pre">resolve_imports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surface_entities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/structures/modulestructure.html#ModuleAnalysisStruct.resolve_imports"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.structures.modulestructure.ModuleAnalysisStruct.resolve_imports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolve the modules imports at both module and local levels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>surface_entities</strong> – The mapping of all surface entities for each module</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.structures.modulestructure.ModuleAnalysisStruct.surface_items">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">surface_items</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#evase.structures.modulestructure.ModuleAnalysisStruct.surface_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of the surface importable items for this module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The surface items</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.structures.modulestructure.ModuleAnalysisStruct.tree">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tree</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">AST</span></em><a class="headerlink" href="#evase.structures.modulestructure.ModuleAnalysisStruct.tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the internal ast tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ast for the module</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-evase.structures.projectstructure">
+<span id="evase-structures-projectstructure-module"></span><h2>evase.structures.projectstructure module<a class="headerlink" href="#module-evase.structures.projectstructure" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="evase.structures.projectstructure.ProjectAnalysisStruct">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">evase.structures.projectstructure.</span></span><span class="sig-name descname"><span class="pre">ProjectAnalysisStruct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prj_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prj_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/structures/projectstructure.html#ProjectAnalysisStruct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.structures.projectstructure.ProjectAnalysisStruct" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py property">
+<dt class="sig sig-object py" id="evase.structures.projectstructure.ProjectAnalysisStruct.dependency_mapping">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dependency_mapping</span></span><a class="headerlink" href="#evase.structures.projectstructure.ProjectAnalysisStruct.dependency_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve a dependency graph of the project.
+It is a mapping between the names of a module/module function and
+a collection of the modules that it imports, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The static dependency graph of the project</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.structures.projectstructure.ProjectAnalysisStruct.root">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">root</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><a class="headerlink" href="#evase.structures.projectstructure.ProjectAnalysisStruct.root" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the root given for the project.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The root of the project</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.structures.projectstructure.ProjectAnalysisStruct.structure">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">structure</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ProjectStructure</span></em><a class="headerlink" href="#evase.structures.projectstructure.ProjectAnalysisStruct.structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the structure of the project.
+It is a mapping between module names and their structures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The structure mapping</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.structures.projectstructure.dir_to_module_structure">
+<span class="sig-prename descclassname"><span class="pre">evase.structures.projectstructure.</span></span><span class="sig-name descname"><span class="pre">dir_to_module_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ProjectStructure</span></span></span><a class="reference internal" href="_modules/evase/structures/projectstructure.html#dir_to_module_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.structures.projectstructure.dir_to_module_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a directory into a mapping of package style names to module analysis structures</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dirpath</strong> – The path to the directory of the code</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A mapping of module names to analysis structures</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-evase.structures">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-evase.structures" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">EvaseAnalysis</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="evase.depanalyze.html">evase.depanalyze package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evase.sql_injection.html">evase.sql_injection package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">evase.structures package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-evase.structures.analysisperformer">evase.structures.analysisperformer module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#evase.structures.analysisperformer.AnalysisPerformer"><code class="docutils literal notranslate"><span class="pre">AnalysisPerformer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evase.structures.analysisperformer.AnalysisPerformer.get_results"><code class="docutils literal notranslate"><span class="pre">AnalysisPerformer.get_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.structures.analysisperformer.AnalysisPerformer.perform_analysis"><code class="docutils literal notranslate"><span class="pre">AnalysisPerformer.perform_analysis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.structures.analysisperformer.AnalysisPerformer.results_to_JSON"><code class="docutils literal notranslate"><span class="pre">AnalysisPerformer.results_to_JSON()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.structures.analysisperformer.AnalysisPerformer.strategy"><code class="docutils literal notranslate"><span class="pre">AnalysisPerformer.strategy</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.structures.analysisperformer.BehaviourAnalyzer"><code class="docutils literal notranslate"><span class="pre">BehaviourAnalyzer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evase.structures.analysisperformer.BehaviourAnalyzer.analysis_results"><code class="docutils literal notranslate"><span class="pre">BehaviourAnalyzer.analysis_results</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.structures.analysisperformer.BehaviourAnalyzer.do_analysis"><code class="docutils literal notranslate"><span class="pre">BehaviourAnalyzer.do_analysis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.structures.analysisperformer.BehaviourAnalyzer.project_struct"><code class="docutils literal notranslate"><span class="pre">BehaviourAnalyzer.project_struct</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.structures.analysisperformer.SQLInjectionBehaviourAnalyzer"><code class="docutils literal notranslate"><span class="pre">SQLInjectionBehaviourAnalyzer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evase.structures.analysisperformer.SQLInjectionBehaviourAnalyzer.do_analysis"><code class="docutils literal notranslate"><span class="pre">SQLInjectionBehaviourAnalyzer.do_analysis()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.structures.analysisperformer.add_node"><code class="docutils literal notranslate"><span class="pre">add_node()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.structures.analysisperformer.extend_depgraph_attackvectors"><code class="docutils literal notranslate"><span class="pre">extend_depgraph_attackvectors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.structures.analysisperformer.get_mdl_depdigraph"><code class="docutils literal notranslate"><span class="pre">get_mdl_depdigraph()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.structures.analysisperformer.trim_depdigraph"><code class="docutils literal notranslate"><span class="pre">trim_depdigraph()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-evase.structures.modulestructure">evase.structures.modulestructure module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#evase.structures.modulestructure.ModuleAnalysisStruct"><code class="docutils literal notranslate"><span class="pre">ModuleAnalysisStruct</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evase.structures.modulestructure.ModuleAnalysisStruct.funcs"><code class="docutils literal notranslate"><span class="pre">ModuleAnalysisStruct.funcs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.structures.modulestructure.ModuleAnalysisStruct.local_imports"><code class="docutils literal notranslate"><span class="pre">ModuleAnalysisStruct.local_imports</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.structures.modulestructure.ModuleAnalysisStruct.module_imports"><code class="docutils literal notranslate"><span class="pre">ModuleAnalysisStruct.module_imports</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.structures.modulestructure.ModuleAnalysisStruct.name"><code class="docutils literal notranslate"><span class="pre">ModuleAnalysisStruct.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.structures.modulestructure.ModuleAnalysisStruct.resolve_imports"><code class="docutils literal notranslate"><span class="pre">ModuleAnalysisStruct.resolve_imports()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.structures.modulestructure.ModuleAnalysisStruct.surface_items"><code class="docutils literal notranslate"><span class="pre">ModuleAnalysisStruct.surface_items</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.structures.modulestructure.ModuleAnalysisStruct.tree"><code class="docutils literal notranslate"><span class="pre">ModuleAnalysisStruct.tree</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-evase.structures.projectstructure">evase.structures.projectstructure module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#evase.structures.projectstructure.ProjectAnalysisStruct"><code class="docutils literal notranslate"><span class="pre">ProjectAnalysisStruct</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evase.structures.projectstructure.ProjectAnalysisStruct.dependency_mapping"><code class="docutils literal notranslate"><span class="pre">ProjectAnalysisStruct.dependency_mapping</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.structures.projectstructure.ProjectAnalysisStruct.root"><code class="docutils literal notranslate"><span class="pre">ProjectAnalysisStruct.root</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.structures.projectstructure.ProjectAnalysisStruct.structure"><code class="docutils literal notranslate"><span class="pre">ProjectAnalysisStruct.structure</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.structures.projectstructure.dir_to_module_structure"><code class="docutils literal notranslate"><span class="pre">dir_to_module_structure()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-evase.structures">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="evase.exceptions.html">evase.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evase.util.html">evase.util package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="evase.sql_injection.html" title="previous chapter">evase.sql_injection package</a></li>
+      <li>Next: <a href="evase.exceptions.html" title="next chapter">evase.exceptions package</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 6.1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/evase.structures.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

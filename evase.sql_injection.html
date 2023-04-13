@@ -1,0 +1,512 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>evase.sql_injection package &#8212; EvaseAnalysis 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="evase.structures package" href="evase.structures.html" />
+    <link rel="prev" title="evase.depanalyze package" href="evase.depanalyze.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="evase-sql-injection-package">
+<h1>evase.sql_injection package<a class="headerlink" href="#evase-sql-injection-package" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-evase.sql_injection.injectionutil">
+<span id="evase-sql-injection-injectionutil-module"></span><h2>evase.sql_injection.injectionutil module<a class="headerlink" href="#module-evase.sql_injection.injectionutil" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionutil.get_all_target_values">
+<span class="sig-prename descclassname"><span class="pre">evase.sql_injection.injectionutil.</span></span><span class="sig-name descname"><span class="pre">get_all_target_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Assign</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/evase/sql_injection/injectionutil.html#get_all_target_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionutil.get_all_target_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the variables used in the assignment of each target.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The assignment node</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The list of values for each target, empty set signifies no variables</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionutil.get_all_targets">
+<span class="sig-prename descclassname"><span class="pre">evase.sql_injection.injectionutil.</span></span><span class="sig-name descname"><span class="pre">get_all_targets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Assign</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/evase/sql_injection/injectionutil.html#get_all_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionutil.get_all_targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets all the targets for an assignment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The assignment node</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The list of assignment ids</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionutil.get_all_vars">
+<span class="sig-prename descclassname"><span class="pre">evase.sql_injection.injectionutil.</span></span><span class="sig-name descname"><span class="pre">get_all_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AST</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span></span></span><a class="reference internal" href="_modules/evase/sql_injection/injectionutil.html#get_all_vars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionutil.get_all_vars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively looks at a node and collects the variables used in that node (EXCLUDING THE BODY).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The node to look through</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The set of variable ids used inside a node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionutil.get_function_params">
+<span class="sig-prename descclassname"><span class="pre">evase.sql_injection.injectionutil.</span></span><span class="sig-name descname"><span class="pre">get_function_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/evase/sql_injection/injectionutil.html#get_function_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionutil.get_function_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the set of function parameters from an ast node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – An ast node representing a function definition</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The set of the function parameters</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionutil.get_inner_scope_assignments">
+<span class="sig-prename descclassname"><span class="pre">evase.sql_injection.injectionutil.</span></span><span class="sig-name descname"><span class="pre">get_inner_scope_assignments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assignments</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/evase/sql_injection/injectionutil.html#get_inner_scope_assignments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionutil.get_inner_scope_assignments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function for the obtaining of the assignment nodes in an inner scope.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> – Indexer</p></li>
+<li><p><strong>assignments</strong> – Previous assignment nodes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New indexer, and new assignments</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-evase.sql_injection.injectionvisitor">
+<span id="evase-sql-injection-injectionvisitor-module"></span><h2>evase.sql_injection.injectionvisitor module<a class="headerlink" href="#module-evase.sql_injection.injectionvisitor" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionvisitor.InjectionNodeVisitor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">evase.sql_injection.injectionvisitor.</span></span><span class="sig-name descname"><span class="pre">InjectionNodeVisitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/injectionvisitor.html#InjectionNodeVisitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py property">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionvisitor.InjectionNodeVisitor.current_scope">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">current_scope</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.current_scope" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the current scope of the visitor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Current functional scope</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_AnnAssign">
+<span class="sig-name descname"><span class="pre">visit_AnnAssign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AnnAssign</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/injectionvisitor.html#InjectionNodeVisitor.visit_AnnAssign"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_AnnAssign" title="Permalink to this definition">¶</a></dt>
+<dd><p>When visiting an assignment, collect the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The assignment node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Assign">
+<span class="sig-name descname"><span class="pre">visit_Assign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Assign</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/injectionvisitor.html#InjectionNodeVisitor.visit_Assign"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Assign" title="Permalink to this definition">¶</a></dt>
+<dd><p>When visiting an assignment, collect the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The assignment node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Assignment">
+<span class="sig-name descname"><span class="pre">visit_Assignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/injectionvisitor.html#InjectionNodeVisitor.visit_Assignment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Assignment" title="Permalink to this definition">¶</a></dt>
+<dd><p>When visiting an assignment, collect the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The assignment node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_AsyncFunctionDef">
+<span class="sig-name descname"><span class="pre">visit_AsyncFunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AsyncFunctionDef</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/injectionvisitor.html#InjectionNodeVisitor.visit_AsyncFunctionDef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_AsyncFunctionDef" title="Permalink to this definition">¶</a></dt>
+<dd><p>When a function definition is met, restart assignment collection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The function node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_AugAssign">
+<span class="sig-name descname"><span class="pre">visit_AugAssign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AugAssign</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/injectionvisitor.html#InjectionNodeVisitor.visit_AugAssign"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_AugAssign" title="Permalink to this definition">¶</a></dt>
+<dd><p>When visiting an assignment, collect the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The assignment node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Call">
+<span class="sig-name descname"><span class="pre">visit_Call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Call</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/injectionvisitor.html#InjectionNodeVisitor.visit_Call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Call" title="Permalink to this definition">¶</a></dt>
+<dd><p>A call node could be a call to an execute statement.
+Further analysis done here.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The call node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Else">
+<span class="sig-name descname"><span class="pre">visit_Else</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/injectionvisitor.html#InjectionNodeVisitor.visit_Else"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Else" title="Permalink to this definition">¶</a></dt>
+<dd><p>Capture control flow nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>nodes</strong> – Not an actual node, but the else part of an if node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Execute">
+<span class="sig-name descname"><span class="pre">visit_Execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Call</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/injectionvisitor.html#InjectionNodeVisitor.visit_Execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>When a call node is invoking a SQL execute statement, perform BFS.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The call node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Expr">
+<span class="sig-name descname"><span class="pre">visit_Expr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/injectionvisitor.html#InjectionNodeVisitor.visit_Expr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Expr" title="Permalink to this definition">¶</a></dt>
+<dd><p>When visiting an expression node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The expression node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_For">
+<span class="sig-name descname"><span class="pre">visit_For</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">For</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/injectionvisitor.html#InjectionNodeVisitor.visit_For"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_For" title="Permalink to this definition">¶</a></dt>
+<dd><p>Capture control flow nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The for node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_FunctionDef">
+<span class="sig-name descname"><span class="pre">visit_FunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionDef</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/injectionvisitor.html#InjectionNodeVisitor.visit_FunctionDef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_FunctionDef" title="Permalink to this definition">¶</a></dt>
+<dd><p>When a function definition is met, restart assignment collection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The function node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_If">
+<span class="sig-name descname"><span class="pre">visit_If</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">If</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/injectionvisitor.html#InjectionNodeVisitor.visit_If"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_If" title="Permalink to this definition">¶</a></dt>
+<dd><p>Capture control flow nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The if node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Return">
+<span class="sig-name descname"><span class="pre">visit_Return</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Return</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/injectionvisitor.html#InjectionNodeVisitor.visit_Return"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Return" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return nodes count as assignments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The retrurn node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_While">
+<span class="sig-name descname"><span class="pre">visit_While</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">While</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/injectionvisitor.html#InjectionNodeVisitor.visit_While"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_While" title="Permalink to this definition">¶</a></dt>
+<dd><p>Capture control flow nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The while node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.sql_injection.injectionvisitor.InjectionNodeVisitor.vulnerable_funcs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vulnerable_funcs</span></span><a class="headerlink" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.vulnerable_funcs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the current vulnerable functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Vulnerable functions collected</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-evase.sql_injection.vulnerabletraversal">
+<span id="evase-sql-injection-vulnerabletraversal-module"></span><h2>evase.sql_injection.vulnerabletraversal module<a class="headerlink" href="#module-evase.sql_injection.vulnerabletraversal" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.sql_injection.vulnerabletraversal.collect_vulnerable_vars">
+<span class="sig-prename descclassname"><span class="pre">evase.sql_injection.vulnerabletraversal.</span></span><span class="sig-name descname"><span class="pre">collect_vulnerable_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assignments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">possible_marked_var_to_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_type_lst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">injection_vars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/vulnerabletraversal.html#collect_vulnerable_vars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.vulnerabletraversal.collect_vulnerable_vars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect the possibly vulnerable variables in a piece of code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func_node</strong> – The function node containing vulnerable statement(s)</p></li>
+<li><p><strong>assignments</strong> – The list of assignments in the code</p></li>
+<li><p><strong>possible_marked_var_to_params</strong> – Possible marked variables (recursive function)</p></li>
+<li><p><strong>var_type_lst</strong> – Possible marked variable types (recursive functions)</p></li>
+<li><p><strong>injection_vars</strong> – Injectable variables in the vulnerable statement(s)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Vulnerable variables collection</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.sql_injection.vulnerabletraversal.copy_list_map_set">
+<span class="sig-prename descclassname"><span class="pre">evase.sql_injection.vulnerabletraversal.</span></span><span class="sig-name descname"><span class="pre">copy_list_map_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_map_set</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/vulnerabletraversal.html#copy_list_map_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.vulnerabletraversal.copy_list_map_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy a map to list map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>list_map_set</strong> – The set</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List map</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.sql_injection.vulnerabletraversal.determine_vul_params_location">
+<span class="sig-prename descclassname"><span class="pre">evase.sql_injection.vulnerabletraversal.</span></span><span class="sig-name descname"><span class="pre">determine_vul_params_location</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vul_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/vulnerabletraversal.html#determine_vul_params_location"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.vulnerabletraversal.determine_vul_params_location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the vulnerable parameters of a function definition given a set of vulnerable variables.
+Checks the parameters of the function definition node and compares them with those of the vulnerable set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vul_set</strong> – The vulnerable set of variables</p></li>
+<li><p><strong>func_node</strong> – The function definition node</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Function parameters, and a list of indices of parameters in the function that are vulnerable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.sql_injection.vulnerabletraversal.make_vul_path_graph">
+<span class="sig-prename descclassname"><span class="pre">evase.sql_injection.vulnerabletraversal.</span></span><span class="sig-name descname"><span class="pre">make_vul_path_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vul_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DiGraph</span></span></span><a class="reference internal" href="_modules/evase/sql_injection/vulnerabletraversal.html#make_vul_path_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.vulnerabletraversal.make_vul_path_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn a mapping of vulnerable paths to a graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vul_paths</strong> – The mapping of ending nodes to vulnerable paths</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A NetworkX path graph</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.sql_injection.vulnerabletraversal.traversal_from_exec">
+<span class="sig-prename descclassname"><span class="pre">evase.sql_injection.vulnerabletraversal.</span></span><span class="sig-name descname"><span class="pre">traversal_from_exec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uses_finder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="evase.depanalyze.html#evase.depanalyze.searching.FunctionCallFinder" title="evase.depanalyze.searching.FunctionCallFinder"><span class="pre">FunctionCallFinder</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">assignments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Assign</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">injection_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Collection</span><span class="p"><span class="pre">[</span></span><span class="pre">Name</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_from</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Call</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/sql_injection/vulnerabletraversal.html#traversal_from_exec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.sql_injection.vulnerabletraversal.traversal_from_exec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the breadth-first search algorithm.
+The algorithm starts from the current</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uses_finder</strong> – A uses finder instance (configured with current project)</p></li>
+<li><p><strong>assignments</strong> – The list of initial assignments to look out for</p></li>
+<li><p><strong>func_node</strong> – The function node that the vulnerable statement is in</p></li>
+<li><p><strong>injection_vars</strong> – The collection of variables in the vulnerable statement</p></li>
+<li><p><strong>module_name</strong> – The name of the current module</p></li>
+<li><p><strong>start_from</strong> – The node containing the vulnerable statement</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A mapping of ending nodes to their vulnerable paths</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-evase.sql_injection">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-evase.sql_injection" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">EvaseAnalysis</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="evase.depanalyze.html">evase.depanalyze package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">evase.sql_injection package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-evase.sql_injection.injectionutil">evase.sql_injection.injectionutil module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#evase.sql_injection.injectionutil.get_all_target_values"><code class="docutils literal notranslate"><span class="pre">get_all_target_values()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.sql_injection.injectionutil.get_all_targets"><code class="docutils literal notranslate"><span class="pre">get_all_targets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.sql_injection.injectionutil.get_all_vars"><code class="docutils literal notranslate"><span class="pre">get_all_vars()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.sql_injection.injectionutil.get_function_params"><code class="docutils literal notranslate"><span class="pre">get_function_params()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.sql_injection.injectionutil.get_inner_scope_assignments"><code class="docutils literal notranslate"><span class="pre">get_inner_scope_assignments()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-evase.sql_injection.injectionvisitor">evase.sql_injection.injectionvisitor module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor"><code class="docutils literal notranslate"><span class="pre">InjectionNodeVisitor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.current_scope"><code class="docutils literal notranslate"><span class="pre">InjectionNodeVisitor.current_scope</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_AnnAssign"><code class="docutils literal notranslate"><span class="pre">InjectionNodeVisitor.visit_AnnAssign()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Assign"><code class="docutils literal notranslate"><span class="pre">InjectionNodeVisitor.visit_Assign()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Assignment"><code class="docutils literal notranslate"><span class="pre">InjectionNodeVisitor.visit_Assignment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_AsyncFunctionDef"><code class="docutils literal notranslate"><span class="pre">InjectionNodeVisitor.visit_AsyncFunctionDef()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_AugAssign"><code class="docutils literal notranslate"><span class="pre">InjectionNodeVisitor.visit_AugAssign()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Call"><code class="docutils literal notranslate"><span class="pre">InjectionNodeVisitor.visit_Call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Else"><code class="docutils literal notranslate"><span class="pre">InjectionNodeVisitor.visit_Else()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Execute"><code class="docutils literal notranslate"><span class="pre">InjectionNodeVisitor.visit_Execute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Expr"><code class="docutils literal notranslate"><span class="pre">InjectionNodeVisitor.visit_Expr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_For"><code class="docutils literal notranslate"><span class="pre">InjectionNodeVisitor.visit_For()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_FunctionDef"><code class="docutils literal notranslate"><span class="pre">InjectionNodeVisitor.visit_FunctionDef()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_If"><code class="docutils literal notranslate"><span class="pre">InjectionNodeVisitor.visit_If()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_Return"><code class="docutils literal notranslate"><span class="pre">InjectionNodeVisitor.visit_Return()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.visit_While"><code class="docutils literal notranslate"><span class="pre">InjectionNodeVisitor.visit_While()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.sql_injection.injectionvisitor.InjectionNodeVisitor.vulnerable_funcs"><code class="docutils literal notranslate"><span class="pre">InjectionNodeVisitor.vulnerable_funcs</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-evase.sql_injection.vulnerabletraversal">evase.sql_injection.vulnerabletraversal module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#evase.sql_injection.vulnerabletraversal.collect_vulnerable_vars"><code class="docutils literal notranslate"><span class="pre">collect_vulnerable_vars()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.sql_injection.vulnerabletraversal.copy_list_map_set"><code class="docutils literal notranslate"><span class="pre">copy_list_map_set()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.sql_injection.vulnerabletraversal.determine_vul_params_location"><code class="docutils literal notranslate"><span class="pre">determine_vul_params_location()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.sql_injection.vulnerabletraversal.make_vul_path_graph"><code class="docutils literal notranslate"><span class="pre">make_vul_path_graph()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.sql_injection.vulnerabletraversal.traversal_from_exec"><code class="docutils literal notranslate"><span class="pre">traversal_from_exec()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-evase.sql_injection">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="evase.structures.html">evase.structures package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evase.exceptions.html">evase.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evase.util.html">evase.util package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="evase.depanalyze.html" title="previous chapter">evase.depanalyze package</a></li>
+      <li>Next: <a href="evase.structures.html" title="next chapter">evase.structures package</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 6.1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/evase.sql_injection.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

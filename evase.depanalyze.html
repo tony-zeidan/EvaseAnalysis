@@ -1,0 +1,976 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>evase.depanalyze package &#8212; EvaseAnalysis 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="evase.sql_injection package" href="evase.sql_injection.html" />
+    <link rel="prev" title="Welcome to EvaseAnalysis’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="evase-depanalyze-package">
+<h1>evase.depanalyze package<a class="headerlink" href="#evase-depanalyze-package" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-evase.depanalyze.codetraversalnode">
+<span id="evase-depanalyze-codetraversalnode-module"></span><h2>evase.depanalyze.codetraversalnode module<a class="headerlink" href="#module-evase.depanalyze.codetraversalnode" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="evase.depanalyze.codetraversalnode.CodeTraversalNode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">evase.depanalyze.codetraversalnode.</span></span><span class="sig-name descname"><span class="pre">CodeTraversalNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assignments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Collection</span><span class="p"><span class="pre">[</span></span><span class="pre">Assign</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Collection</span><span class="p"><span class="pre">[</span></span><span class="pre">Name</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionType</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Call</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/codetraversalnode.html#CodeTraversalNode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.codetraversalnode.CodeTraversalNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.codetraversalnode.CodeTraversalNode.add_to_graph">
+<span class="sig-name descname"><span class="pre">add_to_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/codetraversalnode.html#CodeTraversalNode.add_to_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.codetraversalnode.CodeTraversalNode.add_to_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds this node representation to a NetworkX graph.
+In the case that the node isn’t present in the graph, a node is added with a __node_data property.
+In the case that the node is present in the graph, the __node_data property has the properties of the
+current node appended to it. This only occurs when the node properties aren’t an exact copy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>graph</strong> – The graph to add to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.codetraversalnode.CodeTraversalNode.assignments">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">assignments</span></span><a class="headerlink" href="#evase.depanalyze.codetraversalnode.CodeTraversalNode.assignments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the set of assignment-nodes for this node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The assignment nodes for the node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.codetraversalnode.CodeTraversalNode.from_node">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_node</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Call</span></em><a class="headerlink" href="#evase.depanalyze.codetraversalnode.CodeTraversalNode.from_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the ast function vulnerable node of this node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The vulnerable node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.codetraversalnode.CodeTraversalNode.func_node">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">func_node</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">FunctionType</span></em><a class="headerlink" href="#evase.depanalyze.codetraversalnode.CodeTraversalNode.func_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the ast function node of this node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The function node containing vulnerable node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.codetraversalnode.CodeTraversalNode.module_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">module_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#evase.depanalyze.codetraversalnode.CodeTraversalNode.module_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the module name for this node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The module name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.codetraversalnode.CodeTraversalNode.node_props">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">node_props</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span></em><a class="headerlink" href="#evase.depanalyze.codetraversalnode.CodeTraversalNode.node_props" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the properties of this node in a dictionary for adding to the graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The properties of the node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.codetraversalnode.CodeTraversalNode.variables">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">variables</span></span><a class="headerlink" href="#evase.depanalyze.codetraversalnode.CodeTraversalNode.variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the set of variables to look present in this node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The variables of the node</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.depanalyze.codetraversalnode.is_django_api_function">
+<span class="sig-prename descclassname"><span class="pre">evase.depanalyze.codetraversalnode.</span></span><span class="sig-name descname"><span class="pre">is_django_api_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionDef</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/codetraversalnode.html#is_django_api_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.codetraversalnode.is_django_api_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if a function definition approximates one that is used for APIs in Django.
+Checks the decorators of the function definition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func_node</strong> – The function definition node</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Whether the definition node represents a definition for Django API</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.depanalyze.codetraversalnode.is_flask_api_function">
+<span class="sig-prename descclassname"><span class="pre">evase.depanalyze.codetraversalnode.</span></span><span class="sig-name descname"><span class="pre">is_flask_api_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionDef</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/codetraversalnode.html#is_flask_api_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.codetraversalnode.is_flask_api_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if a function definition approximates one that is used for APIs in Flask.
+Checks the decorators of the function definition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func_node</strong> – The function definition node</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Whether the definition node represents a definition for Flask API</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-evase.depanalyze.importresolver">
+<span id="evase-depanalyze-importresolver-module"></span><h2>evase.depanalyze.importresolver module<a class="headerlink" href="#module-evase.depanalyze.importresolver" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="evase.depanalyze.importresolver.ModuleImportResolver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">evase.depanalyze.importresolver.</span></span><span class="sig-name descname"><span class="pre">ModuleImportResolver</span></span><a class="reference internal" href="_modules/evase/depanalyze/importresolver.html#ModuleImportResolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.importresolver.ModuleImportResolver" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.importresolver.ModuleImportResolver.deps">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deps</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DependencyMapping</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DependencyMapping</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#evase.depanalyze.importresolver.ModuleImportResolver.deps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the imports found.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The module and local level imports</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.importresolver.ModuleImportResolver.directory">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">directory</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><a class="headerlink" href="#evase.depanalyze.importresolver.ModuleImportResolver.directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the current directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The directory path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.importresolver.ModuleImportResolver.generic_visit">
+<span class="sig-name descname"><span class="pre">generic_visit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AST</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">AST</span></span></span><a class="reference internal" href="_modules/evase/depanalyze/importresolver.html#ModuleImportResolver.generic_visit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.importresolver.ModuleImportResolver.generic_visit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwritten generic visit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – Any other node visit not overwritten</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The original node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.importresolver.ModuleImportResolver.key">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">key</span></span><a class="headerlink" href="#evase.depanalyze.importresolver.ModuleImportResolver.key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the current key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The current module key</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.importresolver.ModuleImportResolver.local_dependencies">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">local_dependencies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LocalDependencyMapping</span></em><a class="headerlink" href="#evase.depanalyze.importresolver.ModuleImportResolver.local_dependencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the local level dependencies.
+It is a mapping of strings of function names to tuples of where they come from.</p>
+<p>e.g. in module example.py INSIDE foo():</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>
+    <span class="kn">from</span> <span class="nn">example2</span> <span class="kn">import</span> <span class="n">bar</span>
+    <span class="kn">from</span> <span class="nn">example3</span> <span class="kn">import</span> <span class="n">baz</span> <span class="k">as</span> <span class="n">sam</span>
+
+<span class="n">looks</span> <span class="n">like</span><span class="p">:</span>
+<span class="p">{</span>
+    <span class="s1">&#39;foo&#39;</span><span class="p">:</span> <span class="p">{(</span><span class="s1">&#39;example2:bar&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;example3:baz&#39;</span><span class="p">,</span> <span class="s1">&#39;sam&#39;</span><span class="p">)}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Local level dependencies</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.importresolver.ModuleImportResolver.module_dependencies">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">module_dependencies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DependencyMapping</span></em><a class="headerlink" href="#evase.depanalyze.importresolver.ModuleImportResolver.module_dependencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the module level dependencies.
+It is a mapping of strings of module names to tuples of where they come from.</p>
+<p>e.g. in module example.py:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">example2</span> <span class="kn">import</span> <span class="n">foo</span> <span class="k">as</span> <span class="n">bar</span>
+
+<span class="n">looks</span> <span class="n">like</span><span class="p">:</span>
+<span class="p">{</span>
+    <span class="s1">&#39;example2&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;example2.foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Module level dependencies</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.importresolver.ModuleImportResolver.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/importresolver.html#ModuleImportResolver.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.importresolver.ModuleImportResolver.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the import resolver entirely.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.importresolver.ModuleImportResolver.reset_same_project">
+<span class="sig-name descname"><span class="pre">reset_same_project</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/importresolver.html#ModuleImportResolver.reset_same_project"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.importresolver.ModuleImportResolver.reset_same_project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the import resolver to a state where it can be reused for the modules in the same project.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.importresolver.ModuleImportResolver.surface_values">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">surface_values</span></span><a class="headerlink" href="#evase.depanalyze.importresolver.ModuleImportResolver.surface_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the surface import values.
+Ensure that these surface values have been had their scopes resolved.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The surface importable items</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.importresolver.ModuleImportResolver.visit">
+<span class="sig-name descname"><span class="pre">visit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AST</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/importresolver.html#ModuleImportResolver.visit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.importresolver.ModuleImportResolver.visit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this visit function to begin traversal.
+Throws exceptions if the current key or directory aren’t set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The node to find</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.importresolver.ModuleImportResolver.visit_AsyncFunctionDef">
+<span class="sig-name descname"><span class="pre">visit_AsyncFunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AsyncFunctionDef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">AST</span></span></span><a class="reference internal" href="_modules/evase/depanalyze/importresolver.html#ModuleImportResolver.visit_AsyncFunctionDef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.importresolver.ModuleImportResolver.visit_AsyncFunctionDef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the function scope to the current async function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The async function node</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The async function node (visited)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.importresolver.ModuleImportResolver.visit_FunctionDef">
+<span class="sig-name descname"><span class="pre">visit_FunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionDef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">AST</span></span></span><a class="reference internal" href="_modules/evase/depanalyze/importresolver.html#ModuleImportResolver.visit_FunctionDef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.importresolver.ModuleImportResolver.visit_FunctionDef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the function scope to the current function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The function node</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The function node (visited)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.importresolver.ModuleImportResolver.visit_Import">
+<span class="sig-name descname"><span class="pre">visit_Import</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Import</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/importresolver.html#ModuleImportResolver.visit_Import"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.importresolver.ModuleImportResolver.visit_Import" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logic when an import node is visited.
+If the import is relative, the resolver attempts to resolve the package names
+and make the import absolute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The import node</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The possibly altered import node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.importresolver.ModuleImportResolver.visit_ImportFrom">
+<span class="sig-name descname"><span class="pre">visit_ImportFrom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ImportFrom</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/importresolver.html#ModuleImportResolver.visit_ImportFrom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.importresolver.ModuleImportResolver.visit_ImportFrom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logic when an import from node is visited.
+If the import is relative, the resolver attempts to resolve the package names
+and make the import absolute.
+There is some more logic to consider because relative imports using from can be
+actual modules themselves.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The import from node</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The possibly altered import from node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.importresolver.ModuleImportResolver.visit_Module">
+<span class="sig-name descname"><span class="pre">visit_Module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/importresolver.html#ModuleImportResolver.visit_Module"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.importresolver.ModuleImportResolver.visit_Module" title="Permalink to this definition">¶</a></dt>
+<dd><p>When a module is visited set the scope to surface level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The module node</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The module node</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-evase.depanalyze.scoperesolver">
+<span id="evase-depanalyze-scoperesolver-module"></span><h2>evase.depanalyze.scoperesolver module<a class="headerlink" href="#module-evase.depanalyze.scoperesolver" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="evase.depanalyze.scoperesolver.ScopeResolver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">evase.depanalyze.scoperesolver.</span></span><span class="sig-name descname"><span class="pre">ScopeResolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/scoperesolver.html#ScopeResolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.scoperesolver.ScopeResolver" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.scoperesolver.ScopeResolver.funcs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">funcs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">FunctionType</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#evase.depanalyze.scoperesolver.ScopeResolver.funcs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve a list of functions visited</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Function nodes visited</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.scoperesolver.ScopeResolver.module_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">module_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#evase.depanalyze.scoperesolver.ScopeResolver.module_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the module name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The module name of the module that this resolver is linked to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.scoperesolver.ScopeResolver.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/scoperesolver.html#ScopeResolver.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.scoperesolver.ScopeResolver.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the scope resolver back to original state for reuse.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.scoperesolver.ScopeResolver.visit_AsyncFunctionDef">
+<span class="sig-name descname"><span class="pre">visit_AsyncFunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AsyncFunctionDef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">AsyncFunctionDef</span></span></span><a class="reference internal" href="_modules/evase/depanalyze/scoperesolver.html#ScopeResolver.visit_AsyncFunctionDef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.scoperesolver.ScopeResolver.visit_AsyncFunctionDef" title="Permalink to this definition">¶</a></dt>
+<dd><p>When visiting a function, take the current stack of classes visited and
+change the name of the function to incorporate what class it’s located in.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The function definition node</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The function definition with altered name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.scoperesolver.ScopeResolver.visit_ClassDef">
+<span class="sig-name descname"><span class="pre">visit_ClassDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ClassDef</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/scoperesolver.html#ScopeResolver.visit_ClassDef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.scoperesolver.ScopeResolver.visit_ClassDef" title="Permalink to this definition">¶</a></dt>
+<dd><p>When visiting a class definition, add the name to the class stack.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The class definition node</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The class definition node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.scoperesolver.ScopeResolver.visit_Function">
+<span class="sig-name descname"><span class="pre">visit_Function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionType</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/scoperesolver.html#ScopeResolver.visit_Function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.scoperesolver.ScopeResolver.visit_Function" title="Permalink to this definition">¶</a></dt>
+<dd><p>When visiting a function, take the current stack of classes visited and
+change the name of the function to incorporate what class it’s located in.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The function definition node</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The function definition with altered name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.scoperesolver.ScopeResolver.visit_FunctionDef">
+<span class="sig-name descname"><span class="pre">visit_FunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionDef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">FunctionDef</span></span></span><a class="reference internal" href="_modules/evase/depanalyze/scoperesolver.html#ScopeResolver.visit_FunctionDef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.scoperesolver.ScopeResolver.visit_FunctionDef" title="Permalink to this definition">¶</a></dt>
+<dd><p>When visiting a function, take the current stack of classes visited and
+change the name of the function to incorporate what class it’s located in.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The function definition node</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The function definition with altered name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.scoperesolver.ScopeResolver.visit_Module">
+<span class="sig-name descname"><span class="pre">visit_Module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/scoperesolver.html#ScopeResolver.visit_Module"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.scoperesolver.ScopeResolver.visit_Module" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the name of the module ast node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The module definition node</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The module definition node</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-evase.depanalyze.searching">
+<span id="evase-depanalyze-searching-module"></span><h2>evase.depanalyze.searching module<a class="headerlink" href="#module-evase.depanalyze.searching" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">evase.depanalyze.searching.</span></span><span class="sig-name descname"><span class="pre">FunctionCallFinder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prj_struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="evase.structures.html#evase.structures.projectstructure.ProjectAnalysisStruct" title="evase.structures.projectstructure.ProjectAnalysisStruct"><span class="pre">ProjectAnalysisStruct</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#FunctionCallFinder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.func_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">func_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.func_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the function name the traverser is trying to find.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The name of the function to find</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.function_uses">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">function_uses</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#evase.depanalyze.codetraversalnode.CodeTraversalNode" title="evase.depanalyze.codetraversalnode.CodeTraversalNode"><span class="pre">CodeTraversalNode</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.function_uses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the function uses (after processing).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Function uses as code traversal nodes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.module_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">module_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.module_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the name of the module containing the function to find uses for.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The name of the module that contains the function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#FunctionCallFinder.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the function call finder on the current loaded project.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.project_struct">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">project_struct</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="evase.structures.html#evase.structures.projectstructure.ProjectAnalysisStruct" title="evase.structures.projectstructure.ProjectAnalysisStruct"><span class="pre">ProjectAnalysisStruct</span></a></em><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.project_struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the project structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The project structure being used to obtain module data from</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#FunctionCallFinder.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the current instance entirely.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.reset_same_project">
+<span class="sig-name descname"><span class="pre">reset_same_project</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#FunctionCallFinder.reset_same_project"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.reset_same_project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the current instance so that it is still usable within the project.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.visit_AnnAssign">
+<span class="sig-name descname"><span class="pre">visit_AnnAssign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AnnAssign</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#FunctionCallFinder.visit_AnnAssign"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.visit_AnnAssign" title="Permalink to this definition">¶</a></dt>
+<dd><p>When visiting an assignment, it could perhaps be inside a function and so for the BFS we collect these.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The assignment node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.visit_Assign">
+<span class="sig-name descname"><span class="pre">visit_Assign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Assign</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#FunctionCallFinder.visit_Assign"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.visit_Assign" title="Permalink to this definition">¶</a></dt>
+<dd><p>When visiting an assignment, it could perhaps be inside a function and so for the BFS we collect these.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The assignment node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.visit_Assignment">
+<span class="sig-name descname"><span class="pre">visit_Assignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#FunctionCallFinder.visit_Assignment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.visit_Assignment" title="Permalink to this definition">¶</a></dt>
+<dd><p>When visiting an assignment, it could perhaps be inside a function and so for the BFS we collect these.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The assignment node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.visit_AsyncFunctionDef">
+<span class="sig-name descname"><span class="pre">visit_AsyncFunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AsyncFunctionDef</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#FunctionCallFinder.visit_AsyncFunctionDef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.visit_AsyncFunctionDef" title="Permalink to this definition">¶</a></dt>
+<dd><p>When visiting a function definition, set our current scope.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The function node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.visit_AugAssign">
+<span class="sig-name descname"><span class="pre">visit_AugAssign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AugAssign</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#FunctionCallFinder.visit_AugAssign"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.visit_AugAssign" title="Permalink to this definition">¶</a></dt>
+<dd><p>When visiting an assignment, it could perhaps be inside a function and so for the BFS we collect these.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The assignment node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.visit_Call">
+<span class="sig-name descname"><span class="pre">visit_Call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Call</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#FunctionCallFinder.visit_Call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.visit_Call" title="Permalink to this definition">¶</a></dt>
+<dd><p>When visiting a function call node, this could perhaps be a use of the function we are trying to find.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The function node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.visit_Else">
+<span class="sig-name descname"><span class="pre">visit_Else</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#FunctionCallFinder.visit_Else"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.visit_Else" title="Permalink to this definition">¶</a></dt>
+<dd><p>If we visit a conditional, track the current path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>nodes</strong> – The node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.visit_For">
+<span class="sig-name descname"><span class="pre">visit_For</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">For</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#FunctionCallFinder.visit_For"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.visit_For" title="Permalink to this definition">¶</a></dt>
+<dd><p>If we visit a conditional, track the current path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.visit_Function">
+<span class="sig-name descname"><span class="pre">visit_Function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionType</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#FunctionCallFinder.visit_Function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.visit_Function" title="Permalink to this definition">¶</a></dt>
+<dd><p>When visiting a function definition, set our current scope.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The function node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.visit_FunctionDef">
+<span class="sig-name descname"><span class="pre">visit_FunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionDef</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#FunctionCallFinder.visit_FunctionDef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.visit_FunctionDef" title="Permalink to this definition">¶</a></dt>
+<dd><p>When visiting a function definition, set our current scope.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The function node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.visit_If">
+<span class="sig-name descname"><span class="pre">visit_If</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">If</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#FunctionCallFinder.visit_If"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.visit_If" title="Permalink to this definition">¶</a></dt>
+<dd><p>If we visit a conditional, track the current path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.visit_Return">
+<span class="sig-name descname"><span class="pre">visit_Return</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Return</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#FunctionCallFinder.visit_Return"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.visit_Return" title="Permalink to this definition">¶</a></dt>
+<dd><p>If we visit a conditional, track the current path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.FunctionCallFinder.visit_While">
+<span class="sig-name descname"><span class="pre">visit_While</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">While</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#FunctionCallFinder.visit_While"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.FunctionCallFinder.visit_While" title="Permalink to this definition">¶</a></dt>
+<dd><p>If we visit a conditional, track the current path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The node</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.ImportUsesCase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">evase.depanalyze.searching.</span></span><span class="sig-name descname"><span class="pre">ImportUsesCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#ImportUsesCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.ImportUsesCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.ImportUsesCase.ENTIRE_MODULE">
+<span class="sig-name descname"><span class="pre">ENTIRE_MODULE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#evase.depanalyze.searching.ImportUsesCase.ENTIRE_MODULE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.ImportUsesCase.ENTIRE_MODULE_AS">
+<span class="sig-name descname"><span class="pre">ENTIRE_MODULE_AS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#evase.depanalyze.searching.ImportUsesCase.ENTIRE_MODULE_AS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.ImportUsesCase.NO_IMPORTS">
+<span class="sig-name descname"><span class="pre">NO_IMPORTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#evase.depanalyze.searching.ImportUsesCase.NO_IMPORTS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.ImportUsesCase.ONLY_FUNCTION">
+<span class="sig-name descname"><span class="pre">ONLY_FUNCTION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#evase.depanalyze.searching.ImportUsesCase.ONLY_FUNCTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.ImportUsesCase.ONLY_FUNCTION_AS">
+<span class="sig-name descname"><span class="pre">ONLY_FUNCTION_AS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#evase.depanalyze.searching.ImportUsesCase.ONLY_FUNCTION_AS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.differentiate_imports">
+<span class="sig-prename descclassname"><span class="pre">evase.depanalyze.searching.</span></span><span class="sig-name descname"><span class="pre">differentiate_imports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mdl_struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="evase.structures.html#evase.structures.modulestructure.ModuleAnalysisStruct" title="evase.structures.modulestructure.ModuleAnalysisStruct"><span class="pre">ModuleAnalysisStruct</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">import_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">import_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#differentiate_imports"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.differentiate_imports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Differentiates the style of import that the function or module is being imported with.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mdl_struct</strong> – The module structure that we are looking at</p></li>
+<li><p><strong>import_func</strong> – The vulnerable function name as a String, we want to know in what way this function is imported, or not at all.</p></li>
+<li><p><strong>import_module</strong> – The vulnerable module name as a String, we want to know in what way this module is imported, or not at all</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The case that the import style falls under and the imported entity</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="evase.depanalyze.searching.get_function_call_origin">
+<span class="sig-prename descclassname"><span class="pre">evase.depanalyze.searching.</span></span><span class="sig-name descname"><span class="pre">get_function_call_origin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Call</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mdl_struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="evase.structures.html#evase.structures.modulestructure.ModuleAnalysisStruct" title="evase.structures.modulestructure.ModuleAnalysisStruct"><span class="pre">ModuleAnalysisStruct</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">prj_struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="evase.structures.html#evase.structures.projectstructure.ProjectAnalysisStruct" title="evase.structures.projectstructure.ProjectAnalysisStruct"><span class="pre">ProjectAnalysisStruct</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">caller_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/searching.html#get_function_call_origin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.searching.get_function_call_origin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the function node for of a function that was invoked in code.
+Find where the function being called originated from.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func_node</strong> – The function call node in the current module</p></li>
+<li><p><strong>mdl_struct</strong> – The module structure that this function call was made in</p></li>
+<li><p><strong>prj_struct</strong> – The project structure containing the dependency graph (other modules mapping)</p></li>
+<li><p><strong>caller_type</strong> – The invokee of the function call (an object)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The function definition(s) for the function that was called</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-evase.depanalyze.surfacedetector">
+<span id="evase-depanalyze-surfacedetector-module"></span><h2>evase.depanalyze.surfacedetector module<a class="headerlink" href="#module-evase.depanalyze.surfacedetector" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="evase.depanalyze.surfacedetector.SurfaceLevelVisitor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">evase.depanalyze.surfacedetector.</span></span><span class="sig-name descname"><span class="pre">SurfaceLevelVisitor</span></span><a class="reference internal" href="_modules/evase/depanalyze/surfacedetector.html#SurfaceLevelVisitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.surfacedetector.SurfaceLevelVisitor" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.surfacedetector.SurfaceLevelVisitor.generic_visit">
+<span class="sig-name descname"><span class="pre">generic_visit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/surfacedetector.html#SurfaceLevelVisitor.generic_visit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.surfacedetector.SurfaceLevelVisitor.generic_visit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Traverse over any node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> – The node to visit</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="evase.depanalyze.surfacedetector.SurfaceLevelVisitor.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/evase/depanalyze/surfacedetector.html#SurfaceLevelVisitor.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#evase.depanalyze.surfacedetector.SurfaceLevelVisitor.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the state of the visitor.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="evase.depanalyze.surfacedetector.SurfaceLevelVisitor.surface_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">surface_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#evase.depanalyze.surfacedetector.SurfaceLevelVisitor.surface_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the surface names found during traversal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Surface importable names</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-evase.depanalyze">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-evase.depanalyze" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">EvaseAnalysis</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">evase.depanalyze package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-evase.depanalyze.codetraversalnode">evase.depanalyze.codetraversalnode module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#evase.depanalyze.codetraversalnode.CodeTraversalNode"><code class="docutils literal notranslate"><span class="pre">CodeTraversalNode</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.codetraversalnode.CodeTraversalNode.add_to_graph"><code class="docutils literal notranslate"><span class="pre">CodeTraversalNode.add_to_graph()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.codetraversalnode.CodeTraversalNode.assignments"><code class="docutils literal notranslate"><span class="pre">CodeTraversalNode.assignments</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.codetraversalnode.CodeTraversalNode.from_node"><code class="docutils literal notranslate"><span class="pre">CodeTraversalNode.from_node</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.codetraversalnode.CodeTraversalNode.func_node"><code class="docutils literal notranslate"><span class="pre">CodeTraversalNode.func_node</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.codetraversalnode.CodeTraversalNode.module_name"><code class="docutils literal notranslate"><span class="pre">CodeTraversalNode.module_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.codetraversalnode.CodeTraversalNode.node_props"><code class="docutils literal notranslate"><span class="pre">CodeTraversalNode.node_props</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.codetraversalnode.CodeTraversalNode.variables"><code class="docutils literal notranslate"><span class="pre">CodeTraversalNode.variables</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.depanalyze.codetraversalnode.is_django_api_function"><code class="docutils literal notranslate"><span class="pre">is_django_api_function()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.depanalyze.codetraversalnode.is_flask_api_function"><code class="docutils literal notranslate"><span class="pre">is_flask_api_function()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-evase.depanalyze.importresolver">evase.depanalyze.importresolver module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#evase.depanalyze.importresolver.ModuleImportResolver"><code class="docutils literal notranslate"><span class="pre">ModuleImportResolver</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.importresolver.ModuleImportResolver.deps"><code class="docutils literal notranslate"><span class="pre">ModuleImportResolver.deps</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.importresolver.ModuleImportResolver.directory"><code class="docutils literal notranslate"><span class="pre">ModuleImportResolver.directory</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.importresolver.ModuleImportResolver.generic_visit"><code class="docutils literal notranslate"><span class="pre">ModuleImportResolver.generic_visit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.importresolver.ModuleImportResolver.key"><code class="docutils literal notranslate"><span class="pre">ModuleImportResolver.key</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.importresolver.ModuleImportResolver.local_dependencies"><code class="docutils literal notranslate"><span class="pre">ModuleImportResolver.local_dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.importresolver.ModuleImportResolver.module_dependencies"><code class="docutils literal notranslate"><span class="pre">ModuleImportResolver.module_dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.importresolver.ModuleImportResolver.reset"><code class="docutils literal notranslate"><span class="pre">ModuleImportResolver.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.importresolver.ModuleImportResolver.reset_same_project"><code class="docutils literal notranslate"><span class="pre">ModuleImportResolver.reset_same_project()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.importresolver.ModuleImportResolver.surface_values"><code class="docutils literal notranslate"><span class="pre">ModuleImportResolver.surface_values</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.importresolver.ModuleImportResolver.visit"><code class="docutils literal notranslate"><span class="pre">ModuleImportResolver.visit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.importresolver.ModuleImportResolver.visit_AsyncFunctionDef"><code class="docutils literal notranslate"><span class="pre">ModuleImportResolver.visit_AsyncFunctionDef()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.importresolver.ModuleImportResolver.visit_FunctionDef"><code class="docutils literal notranslate"><span class="pre">ModuleImportResolver.visit_FunctionDef()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.importresolver.ModuleImportResolver.visit_Import"><code class="docutils literal notranslate"><span class="pre">ModuleImportResolver.visit_Import()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.importresolver.ModuleImportResolver.visit_ImportFrom"><code class="docutils literal notranslate"><span class="pre">ModuleImportResolver.visit_ImportFrom()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.importresolver.ModuleImportResolver.visit_Module"><code class="docutils literal notranslate"><span class="pre">ModuleImportResolver.visit_Module()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-evase.depanalyze.scoperesolver">evase.depanalyze.scoperesolver module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#evase.depanalyze.scoperesolver.ScopeResolver"><code class="docutils literal notranslate"><span class="pre">ScopeResolver</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.scoperesolver.ScopeResolver.funcs"><code class="docutils literal notranslate"><span class="pre">ScopeResolver.funcs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.scoperesolver.ScopeResolver.module_name"><code class="docutils literal notranslate"><span class="pre">ScopeResolver.module_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.scoperesolver.ScopeResolver.reset"><code class="docutils literal notranslate"><span class="pre">ScopeResolver.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.scoperesolver.ScopeResolver.visit_AsyncFunctionDef"><code class="docutils literal notranslate"><span class="pre">ScopeResolver.visit_AsyncFunctionDef()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.scoperesolver.ScopeResolver.visit_ClassDef"><code class="docutils literal notranslate"><span class="pre">ScopeResolver.visit_ClassDef()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.scoperesolver.ScopeResolver.visit_Function"><code class="docutils literal notranslate"><span class="pre">ScopeResolver.visit_Function()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.scoperesolver.ScopeResolver.visit_FunctionDef"><code class="docutils literal notranslate"><span class="pre">ScopeResolver.visit_FunctionDef()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.scoperesolver.ScopeResolver.visit_Module"><code class="docutils literal notranslate"><span class="pre">ScopeResolver.visit_Module()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-evase.depanalyze.searching">evase.depanalyze.searching module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.func_name"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.func_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.function_uses"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.function_uses</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.module_name"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.module_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.process"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.project_struct"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.project_struct</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.reset"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.reset_same_project"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.reset_same_project()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.visit_AnnAssign"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.visit_AnnAssign()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.visit_Assign"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.visit_Assign()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.visit_Assignment"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.visit_Assignment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.visit_AsyncFunctionDef"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.visit_AsyncFunctionDef()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.visit_AugAssign"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.visit_AugAssign()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.visit_Call"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.visit_Call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.visit_Else"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.visit_Else()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.visit_For"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.visit_For()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.visit_Function"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.visit_Function()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.visit_FunctionDef"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.visit_FunctionDef()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.visit_If"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.visit_If()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.visit_Return"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.visit_Return()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.FunctionCallFinder.visit_While"><code class="docutils literal notranslate"><span class="pre">FunctionCallFinder.visit_While()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.depanalyze.searching.ImportUsesCase"><code class="docutils literal notranslate"><span class="pre">ImportUsesCase</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.ImportUsesCase.ENTIRE_MODULE"><code class="docutils literal notranslate"><span class="pre">ImportUsesCase.ENTIRE_MODULE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.ImportUsesCase.ENTIRE_MODULE_AS"><code class="docutils literal notranslate"><span class="pre">ImportUsesCase.ENTIRE_MODULE_AS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.ImportUsesCase.NO_IMPORTS"><code class="docutils literal notranslate"><span class="pre">ImportUsesCase.NO_IMPORTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.ImportUsesCase.ONLY_FUNCTION"><code class="docutils literal notranslate"><span class="pre">ImportUsesCase.ONLY_FUNCTION</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.searching.ImportUsesCase.ONLY_FUNCTION_AS"><code class="docutils literal notranslate"><span class="pre">ImportUsesCase.ONLY_FUNCTION_AS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.depanalyze.searching.differentiate_imports"><code class="docutils literal notranslate"><span class="pre">differentiate_imports()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evase.depanalyze.searching.get_function_call_origin"><code class="docutils literal notranslate"><span class="pre">get_function_call_origin()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-evase.depanalyze.surfacedetector">evase.depanalyze.surfacedetector module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#evase.depanalyze.surfacedetector.SurfaceLevelVisitor"><code class="docutils literal notranslate"><span class="pre">SurfaceLevelVisitor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.surfacedetector.SurfaceLevelVisitor.generic_visit"><code class="docutils literal notranslate"><span class="pre">SurfaceLevelVisitor.generic_visit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.surfacedetector.SurfaceLevelVisitor.reset"><code class="docutils literal notranslate"><span class="pre">SurfaceLevelVisitor.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evase.depanalyze.surfacedetector.SurfaceLevelVisitor.surface_names"><code class="docutils literal notranslate"><span class="pre">SurfaceLevelVisitor.surface_names</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-evase.depanalyze">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="evase.sql_injection.html">evase.sql_injection package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evase.structures.html">evase.structures package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evase.exceptions.html">evase.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evase.util.html">evase.util package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to EvaseAnalysis’s documentation!</a></li>
+      <li>Next: <a href="evase.sql_injection.html" title="next chapter">evase.sql_injection package</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 6.1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/evase.depanalyze.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
